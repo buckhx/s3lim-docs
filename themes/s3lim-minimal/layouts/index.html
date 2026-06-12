@@ -1,12 +1,17 @@
 {{ define "main" }}
 <div class="container text-center space-y-24 py-16">
-    <section class="hero space-y-8 max-w-3xl mx-auto">
-        <h1 class="text-5xl md:text-6xl tracking-tight leading-tight">{{ .Params.banner.title }}</h1>
-        <p class="text-xl text-slate-500 leading-relaxed">{{ .Params.features.description }}</p>
+    <section class="hero space-y-8 max-w-4xl mx-auto">
+        <h1 class="text-5xl md:text-7xl tracking-tight leading-tight">{{ .Params.banner.title }}</h1>
+        <p class="text-xl text-slate-500 leading-relaxed max-w-2xl mx-auto">{{ .Params.features.description }}</p>
         <div class="pt-4">
             <a href="{{ .Params.banner.button_link | relURL }}" class="btn-primary">{{ .Params.banner.button }}</a>
         </div>
     </section>
+
+    <!-- Visual Diagram -->
+    <div class="max-w-4xl mx-auto py-12">
+        <img src="{{ "workflow-diagram.svg" | relURL }}" class="w-full h-auto drop-shadow-xl" alt="s3lim Workflow Diagram">
+    </div>
 
     <div class="terminal max-w-4xl mx-auto text-left">
         <code>$ s3lim analyze s3://my-bucket/inventory/manifest.json --topk 20
@@ -21,7 +26,7 @@ Top Prefixes by Size:
 ...</code>
     </div>
 
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-16 text-left">
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-16 text-left border-t border-slate-100 pt-24">
         {{ range .Params.features.features_blocks }}
         <div class="space-y-4">
             <div class="text-4xl">{{ .icon }}</div>
@@ -31,7 +36,7 @@ Top Prefixes by Size:
         {{ end }}
     </section>
 
-    <section class="space-y-16 py-12 border-t border-slate-100">
+    <section class="space-y-16 py-12">
         <h2 class="text-4xl tracking-tight">{{ .Params.how_it_works.title }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
             {{ range .Params.how_it_works.block }}
