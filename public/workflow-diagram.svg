@@ -1,56 +1,58 @@
-<svg width="600" height="300" viewBox="0 0 600 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Definitions for Gradients and Shadows -->
+<svg width="600" height="320" viewBox="0 0 600 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Soft Background Glow -->
+  <circle cx="300" cy="160" r="150" fill="url(#glow)" opacity="0.4"/>
+  
   <defs>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
-      <feOffset dx="0" dy="4" result="offsetblur"/>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.1"/>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(300 160) rotate(90) scale(150)">
+      <stop stop-color="#DBEAFE"/>
+      <stop offset="1" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Filter for "Hand-drawn" organic feel -->
+    <filter id="rough" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
     </filter>
   </defs>
 
-  <!-- Source: Chubby S3 Bucket -->
-  <g filter="url(#shadow)">
-    <path d="M80 120C80 108.954 102.386 100 130 100C157.614 100 180 108.954 180 120V200C180 211.046 157.614 220 130 220C102.386 220 80 211.046 80 200V120Z" fill="#E2E8F0" stroke="#94A3B8" stroke-width="2"/>
-    <ellipse cx="130" cy="120" rx="50" ry="20" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2"/>
-    <text x="130" y="170" text-anchor="middle" fill="#64748B" font-family="sans-serif" font-weight="bold" font-size="12">SOURCE</text>
-  </g>
-
-  <!-- Arrow to Lambda -->
-  <path d="M190 160H260" stroke="#CBD5E1" stroke-width="3" stroke-dasharray="8 4" marker-end="url(#arrowhead)"/>
+  <!-- Connection Line: Source to Lambda -->
+  <path d="M180 160 Q 230 160 280 160" stroke="#94A3B8" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round" filter="url(#rough)"/>
   
-  <!-- Processor: Lambda -->
-  <g filter="url(#shadow)">
-    <path d="M280 140L340 160L280 180V140Z" fill="#F59E0B" stroke="#D97706" stroke-width="2"/>
-    <text x="310" y="210" text-anchor="middle" fill="#B45309" font-family="sans-serif" font-weight="bold" font-size="12">s3lim (Lambda)</text>
+  <!-- Connection Line: Lambda to Output -->
+  <path d="M340 160 Q 390 160 440 160" stroke="#3B82F6" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round" filter="url(#rough)"/>
+
+  <!-- SOURCE: Chubby S3 Bucket -->
+  <g transform="translate(60, 100)" filter="url(#rough)">
+    <!-- Bucket Body -->
+    <path d="M20 40 C 20 10, 100 10, 100 40 L 110 110 C 110 135, 10 135, 10 110 Z" fill="#F1F5F9" stroke="#64748B" stroke-width="3"/>
+    <!-- Bucket Top -->
+    <ellipse cx="60" cy="40" rx="40" ry="15" fill="#F8FAFC" stroke="#64748B" stroke-width="3"/>
+    <!-- "Storage" inside -->
+    <path d="M35 80 H 85 M40 95 H 80 M45 110 H 75" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
+    <text x="60" y="155" text-anchor="middle" fill="#64748B" font-family="ui-sans-serif, system-ui" font-weight="800" font-size="14">S3 SOURCE</text>
   </g>
 
-  <!-- Arrow to Output -->
-  <path d="M360 160H430" stroke="#CBD5E1" stroke-width="3" stroke-dasharray="8 4"/>
+  <!-- PROCESSOR: Lambda Spark -->
+  <g transform="translate(285, 130)" filter="url(#rough)">
+    <!-- Lambda Icon Stylized -->
+    <path d="M15 0 L45 30 L15 60 L0 50 L20 30 L0 10 Z" fill="#F59E0B" stroke="#B45309" stroke-width="2.5"/>
+    <text x="25" y="85" text-anchor="middle" fill="#B45309" font-family="ui-sans-serif, system-ui" font-weight="800" font-size="14">ANALYSIS</text>
+  </g>
 
-  <!-- Output: Sliced Bucket -->
-  <g filter="url(#shadow)">
-    <!-- Bottom Slice -->
-    <path d="M450 180C450 174 472 170 500 170C528 170 550 174 550 180V210C550 216 528 220 500 220C472 220 450 216 450 210V180Z" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2"/>
-    <!-- Middle Slice -->
-    <path d="M450 140C450 134 472 130 500 130C528 130 550 134 550 140V160C550 166 528 170 500 170C472 170 450 166 450 160V140Z" fill="#BFDBFE" stroke="#3B82F6" stroke-width="2"/>
-    <!-- Top Slice -->
-    <path d="M450 100C450 94 472 90 500 90C528 90 550 94 550 100V120C550 126 528 130 500 130C472 130 450 126 450 120V100Z" fill="#93C5FD" stroke="#2563EB" stroke-width="2"/>
+  <!-- OUTPUT: Sliced Analysis -->
+  <g transform="translate(450, 80)" filter="url(#rough)">
+    <!-- Top Slice (logs) -->
+    <path d="M5 20 C 5 5, 95 5, 95 20 L 95 35 C 95 50, 5 50, 5 35 Z" fill="#93C5FD" stroke="#2563EB" stroke-width="2.5"/>
+    <!-- Middle Slice (data) -->
+    <path d="M5 55 C 5 40, 95 40, 95 55 L 95 70 C 95 85, 5 85, 5 70 Z" fill="#BFDBFE" stroke="#3B82F6" stroke-width="2.5"/>
+    <!-- Bottom Slice (temp) -->
+    <path d="M5 90 C 5 75, 95 75, 95 90 L 95 105 C 95 120, 5 120, 5 105 Z" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2.5"/>
     
-    <text x="500" y="240" text-anchor="middle" fill="#1D4ED8" font-family="sans-serif" font-weight="bold" font-size="12">PREFIX ANALYSIS</text>
-    <text x="560" y="115" fill="#3B82F6" font-family="sans-serif" font-size="10">/logs</text>
-    <text x="560" y="155" fill="#3B82F6" font-family="sans-serif" font-size="10">/data</text>
-    <text x="560" y="195" fill="#3B82F6" font-family="sans-serif" font-size="10">/temp</text>
+    <!-- Floating Labels -->
+    <text x="105" y="32" fill="#2563EB" font-family="monospace" font-weight="600" font-size="12">/logs</text>
+    <text x="105" y="67" fill="#2563EB" font-family="monospace" font-weight="600" font-size="12">/data</text>
+    <text x="105" y="102" fill="#2563EB" font-family="monospace" font-weight="600" font-size="12">/temp</text>
+    
+    <text x="50" y="155" text-anchor="middle" fill="#1D4ED8" font-family="ui-sans-serif, system-ui" font-weight="800" font-size="14">COST INSIGHTS</text>
   </g>
-
-  <defs>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#CBD5E1" />
-    </marker>
-  </defs>
 </svg>
