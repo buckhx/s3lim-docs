@@ -1,43 +1,43 @@
 ---
 # banner
 banner:
-  title: "High-Performance S3 Inventory Analysis"
-  button: "Get Started"
+  title: "Securely Analyze S3 Costs Without Data Egress"
+  button: "Start Saving Now"
   button_link: "/getting-started/autopilot/"
 
 # features
 features:
   enable: true
-  subtitle: "Core Capabilities"
-  title: "Performance at Scale"
-  description: "s3lim is designed to handle billions of S3 objects with constant memory overhead, providing actionable cost-optimization insights in minutes."
+  subtitle: "Actionable Storage Insights"
+  title: "Stop S3 Bill Bloat"
+  description: "Analyze billions of objects directly in your AWS account. s3lim surfaces hidden costs and optimization opportunities without your data ever leaving your VPC."
   features_blocks:
-    - icon: "⚡"
-      title: "Blazing Fast"
-      content: "Process massive inventory files (CSV, Parquet, ORC) using a high-concurrency Go engine optimized for S3 throughput."
-    - icon: "🧠"
-      title: "Bounded Memory"
-      content: "Utilizes probabilistic sketches (Heavy Keepers, HLL) to ensure analysis doesn't scale with your data size."
+    - icon: "🛡️"
+      title: "Zero Egress Security"
+      content: "Analyze your storage in-place. No data ever leaves your account, ensuring 100% compliance and zero data transfer costs."
+    - icon: "👯"
+      title: "Duplicate Detection"
+      content: "Identify identical files across prefixes and buckets. Surface redundant data that is silently inflating your monthly bill."
+    - icon: "🔥"
+      title: "Prefix Hotspots"
+      content: "Instantly find which folders are growing fastest. Pinpoint 'hot' storage areas that need Lifecycle or Intelligent Tiering policies."
+    - icon: "👻"
+      title: "Ghost Versions"
+      content: "Find and remove non-current object versions and delete markers that add up to significant hidden storage overhead."
+    - icon: "📦"
+      title: "Unfinished Uploads"
+      content: "Surface incomplete multipart uploads that occupy space and cost money, but are invisible to standard S3 management tools."
     - icon: "☁️"
-      title: "Cloud Native"
-      content: "Deploy as a containerized Lambda function with automated SAM templates for effortless serverless scaling."
-    - icon: "💰"
-      title: "Cost Insights"
-      content: "Identify delete marker bloat, ghost versions, and multipart upload traps that inflate your S3 bill."
-    - icon: "🖥️"
-      title: "Powerful CLI"
-      content: "A rich command-line interface for ad-hoc analysis, local testing, and flexible output formatting."
-    - icon: "🧩"
-      title: "Extensible"
-      content: "Modular architecture allows for custom aggregators and reporters to fit any storage auditing workflow."
+      title: "Native AWS Integration"
+      content: "Deploys directly as a Lambda function. Manage everything via the AWS Console with zero infrastructure to maintain."
 
 # how_it_works
 how_it_works:   
   enable: true
   title: "How it Works"
   block:
-  - title: "Deep Prefix Visibility"
-    description: "Recursive prefix aggregation reveals exactly where your data is growing. Identify 'hot' prefixes and candidates for Intelligent Tiering or Lifecycle policies with surgical precision."
-  - title: "Actionable Cost Reduction"
-    description: "Surface hidden storage costs. s3lim detects incomplete multipart uploads and non-current versions that traditional tools miss, enabling immediate savings."
+  - title: "Massive Scale, Tiny Footprint"
+    description: "Built in high-performance Go, s3lim analyzes billions of objects in minutes using constant memory. It's engineered to scale to the world's largest S3 buckets without breaking a sweat."
+  - title: "Serverless Efficiency"
+    description: "Running entirely on AWS Lambda, s3lim provides a cost-effective, on-demand analysis engine that only runs when you need it. No servers to manage, no idle costs."
 ---
