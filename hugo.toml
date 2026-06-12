@@ -11,3 +11,10 @@ theme = 'book'
   serviceName = 's3lim'
   # (Optional) Description
   description = 'High-performance S3 inventory analysis tool'
+  
+  # Book theme settings
+  BookSection = '*'
+  BookLogo = 'logo.png'
+  BookSearch = true
+  BookComments = false
+  BookPortableLinks = true
