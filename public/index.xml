@@ -1,275 +1,71 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>s3lim</title><link>http://localhost:1313/</link><description>Recent content on s3lim</description><generator>Hugo</generator><language>en-us</language><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml"/><item><title>Quickstart (Autopilot)</title><link>http://localhost:1313/getting-started/autopilot/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>http://localhost:1313/getting-started/autopilot/</guid><description>&lt;h1 id="quickstart-autopilot"&gt;Quickstart (Autopilot)&lt;/h1&gt;
-&lt;p&gt;This guide is for users who want to get up and running with &lt;code&gt;s3lim&lt;/code&gt; as quickly as possible using the &lt;strong&gt;Autopilot&lt;/strong&gt; deployment mode.&lt;/p&gt;
-&lt;h2 id="prerequisites"&gt;Prerequisites&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;An AWS account with permissions to deploy Lambda and CloudFormation.&lt;/li&gt;
-&lt;li&gt;One or more S3 buckets you wish to analyze.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="deployment-steps"&gt;Deployment Steps&lt;/h2&gt;
-&lt;ol&gt;
-&lt;li&gt;Navigate to the &lt;a href="https://serverlessrepo.aws.amazon.com/applications"&gt;s3lim-autopilot&lt;/a&gt; on the AWS Serverless Application Repository.&lt;/li&gt;
-&lt;li&gt;Enter your &lt;code&gt;SourceBucketName&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;Click &lt;strong&gt;Deploy&lt;/strong&gt;.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id="what-happens-next"&gt;What Happens Next?&lt;/h2&gt;
-&lt;p&gt;&lt;code&gt;s3lim&lt;/code&gt; will automatically:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Configure an S3 Inventory report on your source bucket.&lt;/li&gt;
-&lt;li&gt;Create a destination bucket for inventory delivery.&lt;/li&gt;
-&lt;li&gt;Set up an S3 Event Notification to trigger analysis when new reports arrive.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; It can take up to 48 hours for AWS to deliver the first S3 Inventory report. Your dashboard will remain empty until then.&lt;/p&gt;</description></item><item><title>Enterprise Deployment (BYO-IAM)</title><link>http://localhost:1313/getting-started/enterprise/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>http://localhost:1313/getting-started/enterprise/</guid><description>&lt;h1 id="enterprise-deployment-byo-iam"&gt;Enterprise Deployment (BYO-IAM)&lt;/h1&gt;
-&lt;p&gt;This guide is for Cloud Architects and InfoSec teams who require granular control over IAM roles, KMS encryption, and VPC networking.&lt;/p&gt;
-&lt;h2 id="architecture-overview"&gt;Architecture Overview&lt;/h2&gt;
-&lt;p&gt;The Enterprise deployment uses the &lt;code&gt;readonly&lt;/code&gt; template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.&lt;/p&gt;
-&lt;h2 id="iam-requirements"&gt;IAM Requirements&lt;/h2&gt;
-&lt;p&gt;Your Lambda execution role must have the following permissions:&lt;/p&gt;
-&lt;h3 id="s3-permissions"&gt;S3 Permissions&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;{
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;&amp;#34;Version&amp;#34;&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;2012-10-17&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;&amp;#34;Statement&amp;#34;&lt;/span&gt;: [
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; {
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;&amp;#34;Effect&amp;#34;&lt;/span&gt;: &lt;span style="color:#e6db74"&gt;&amp;#34;Allow&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;&amp;#34;Action&amp;#34;&lt;/span&gt;: [&lt;span style="color:#e6db74"&gt;&amp;#34;s3:GetObject&amp;#34;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#34;s3:ListBucket&amp;#34;&lt;/span&gt;],
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;&amp;#34;Resource&amp;#34;&lt;/span&gt;: [
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;arn:aws:s3:::your-inventory-bucket&amp;#34;&lt;/span&gt;,
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;arn:aws:s3:::your-inventory-bucket/*&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; ]
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; ]
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="cloudwatch-permissions"&gt;CloudWatch Permissions&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;cloudwatch:PutMetricData&lt;/code&gt; (Namespace: &lt;code&gt;s3lim&lt;/code&gt;)&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;logs:CreateLogStream&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;logs:PutLogEvents&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="deployment-steps"&gt;Deployment Steps&lt;/h2&gt;
-&lt;ol&gt;
-&lt;li&gt;Create the IAM role with the permissions above.&lt;/li&gt;
-&lt;li&gt;Deploy the &lt;code&gt;s3lim-readonly&lt;/code&gt; stack via SAM or CloudFormation.&lt;/li&gt;
-&lt;li&gt;Provide the &lt;code&gt;LambdaRoleArn&lt;/code&gt; as a parameter.&lt;/li&gt;
-&lt;li&gt;Manually configure your S3 Inventory to deliver to your chosen bucket.&lt;/li&gt;
-&lt;li&gt;Add an S3 Event Notification to trigger the &lt;code&gt;s3lim&lt;/code&gt; Lambda ARN.&lt;/li&gt;
-&lt;/ol&gt;</description></item><item><title>Autopilot Deployment</title><link>http://localhost:1313/deployment/autopilot/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>http://localhost:1313/deployment/autopilot/</guid><description>&lt;h1 id="autopilot-deployment-reference"&gt;Autopilot Deployment Reference&lt;/h1&gt;
-&lt;p&gt;s3lim (Autopilot) - Automatically configure and analyze S3 inventory.&lt;/p&gt;
-&lt;h2 id="parameters"&gt;Parameters&lt;/h2&gt;
-&lt;table&gt;
-	&lt;thead&gt;
-			&lt;tr&gt;
-					&lt;th&gt;Name&lt;/th&gt;
-					&lt;th&gt;Type&lt;/th&gt;
-					&lt;th&gt;Default&lt;/th&gt;
-					&lt;th&gt;Description&lt;/th&gt;
-			&lt;/tr&gt;
-	&lt;/thead&gt;
-	&lt;tbody&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;InventoryDestination&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;String&lt;/td&gt;
-					&lt;td&gt;&lt;/td&gt;
-					&lt;td&gt;Optional: The S3 URI where inventories will be delivered (e.g. s3://my-bucket/inventory/). If not provided, a bucket will be generated.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;InventoryFormat&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;String&lt;/td&gt;
-					&lt;td&gt;Parquet&lt;/td&gt;
-					&lt;td&gt;The format of the inventory files.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;MaxPrefixDepth&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;Number&lt;/td&gt;
-					&lt;td&gt;10&lt;/td&gt;
-					&lt;td&gt;Maximum depth for recursive prefix aggregation.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;SourceBucketName&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;String&lt;/td&gt;
-					&lt;td&gt;-&lt;/td&gt;
-					&lt;td&gt;The name of the existing S3 bucket to create an inventory for.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;SourcePrefixFilter&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;String&lt;/td&gt;
-					&lt;td&gt;&lt;/td&gt;
-					&lt;td&gt;Optional: The prefix of the objects in the source bucket to include in the inventory. Leave empty for the entire bucket.&lt;/td&gt;
-			&lt;/tr&gt;
-	&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;h2 id="outputs"&gt;Outputs&lt;/h2&gt;
-&lt;table&gt;
-	&lt;thead&gt;
-			&lt;tr&gt;
-					&lt;th&gt;Name&lt;/th&gt;
-					&lt;th&gt;Description&lt;/th&gt;
-			&lt;/tr&gt;
-	&lt;/thead&gt;
-	&lt;tbody&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;AnalyzeFunctionArn&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;Lambda function ARN&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;InventoryDestinationURI&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;S3 URI where inventories are delivered&lt;/td&gt;
-			&lt;/tr&gt;
-	&lt;/tbody&gt;
-&lt;/table&gt;</description></item><item><title>Readonly Deployment</title><link>http://localhost:1313/deployment/readonly/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>http://localhost:1313/deployment/readonly/</guid><description>&lt;h1 id="readonly-deployment-reference"&gt;Readonly Deployment Reference&lt;/h1&gt;
-&lt;p&gt;s3lim (Read-Only) - Process existing S3 Inventory reports.&lt;/p&gt;
-&lt;h2 id="parameters"&gt;Parameters&lt;/h2&gt;
-&lt;table&gt;
-	&lt;thead&gt;
-			&lt;tr&gt;
-					&lt;th&gt;Name&lt;/th&gt;
-					&lt;th&gt;Type&lt;/th&gt;
-					&lt;th&gt;Default&lt;/th&gt;
-					&lt;th&gt;Description&lt;/th&gt;
-			&lt;/tr&gt;
-	&lt;/thead&gt;
-	&lt;tbody&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;InventoryDestination&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;String&lt;/td&gt;
-					&lt;td&gt;-&lt;/td&gt;
-					&lt;td&gt;The S3 URI where existing inventories are delivered (e.g. s3://my-bucket/inventory/).&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;LambdaRoleArn&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;String&lt;/td&gt;
-					&lt;td&gt;-&lt;/td&gt;
-					&lt;td&gt;ARN of an existing IAM Role for the Lambda function. The role must have: 1. &amp;lsquo;s3:GetObject&amp;rsquo; and &amp;lsquo;s3:ListBucket&amp;rsquo; on your inventory destination. 2. &amp;lsquo;cloudwatch:PutMetricData&amp;rsquo; (Namespace: s3lim). 3. &amp;rsquo;logs:CreateLogStream&amp;rsquo; and &amp;rsquo;logs:PutLogEvents&amp;rsquo;. 4. &amp;lsquo;sqs:SendMessage&amp;rsquo;, &amp;lsquo;sqs:ReceiveMessage&amp;rsquo;, &amp;lsquo;sqs:DeleteMessage&amp;rsquo;, and &amp;lsquo;sqs:GetQueueAttributes&amp;rsquo; on the DLQ.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;/td&gt;
-					&lt;td&gt;&lt;/td&gt;
-					&lt;td&gt;&lt;/td&gt;
-					&lt;td&gt;&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;MaxPrefixDepth&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;Number&lt;/td&gt;
-					&lt;td&gt;10&lt;/td&gt;
-					&lt;td&gt;Maximum depth for recursive prefix aggregation.&lt;/td&gt;
-			&lt;/tr&gt;
-	&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;h2 id="outputs"&gt;Outputs&lt;/h2&gt;
-&lt;table&gt;
-	&lt;thead&gt;
-			&lt;tr&gt;
-					&lt;th&gt;Name&lt;/th&gt;
-					&lt;th&gt;Description&lt;/th&gt;
-			&lt;/tr&gt;
-	&lt;/thead&gt;
-	&lt;tbody&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;AnalyzeFunctionArn&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;Lambda function ARN. To improve performance and remove the daily cron: 1. Add an &amp;lsquo;S3 Event Trigger&amp;rsquo; to your inventory bucket. 2. Filter for prefix: &amp;lsquo;inventory/&amp;rsquo; and suffix: &amp;lsquo;manifest.json&amp;rsquo;. 3. Grant &amp;rsquo;lambda:InvokeFunction&amp;rsquo; permission to S3.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;/td&gt;
-					&lt;td&gt;&lt;/td&gt;
-			&lt;/tr&gt;
-	&lt;/tbody&gt;
-&lt;/table&gt;</description></item><item><title>Available Metrics</title><link>http://localhost:1313/metrics/overview/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>http://localhost:1313/metrics/overview/</guid><description>&lt;h1 id="available-cloudwatch-metrics"&gt;Available CloudWatch Metrics&lt;/h1&gt;
-&lt;p&gt;&lt;code&gt;s3lim&lt;/code&gt; automatically publishes custom CloudWatch metrics based on the aggregators enabled. Below are the metrics produced by the core analysis engine.&lt;/p&gt;
-&lt;h2 id="rollupprefixaggregator"&gt;RollupPrefixAggregator&lt;/h2&gt;
-&lt;p&gt;Tracks the top K prefixes by total object size, rolling up all objects under each prefix level.&lt;/p&gt;
-&lt;h3 id="published-metrics"&gt;Published Metrics&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;TotalSize&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;ObjectCount&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;SumAgeSeconds&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="smallfileaggregator"&gt;SmallFileAggregator&lt;/h2&gt;
-&lt;p&gt;Tracks prefixes with the highest density of small files (configurable threshold).&lt;/p&gt;
-&lt;h3 id="published-metrics-1"&gt;Published Metrics&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;SmallFileCount&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="auditaggregator"&gt;AuditAggregator&lt;/h2&gt;
-&lt;p&gt;Tracks high-level audit metrics for the entire inventory scan, including row counts and error rates.&lt;/p&gt;</description></item><item><title>Lambda Configuration</title><link>http://localhost:1313/deployment/lambda-config/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>http://localhost:1313/deployment/lambda-config/</guid><description>&lt;h1 id="lambda-configuration"&gt;Lambda Configuration&lt;/h1&gt;
-&lt;p&gt;The &lt;code&gt;s3lim&lt;/code&gt; Lambda function is designed for high-performance processing of massive S3 inventory files. This guide details the configuration options and requirements for running &lt;code&gt;s3lim&lt;/code&gt; in a serverless environment.&lt;/p&gt;
-&lt;h2 id="resource-requirements"&gt;Resource Requirements&lt;/h2&gt;
-&lt;p&gt;For processing large inventory files (billions of objects), the following settings are recommended:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Memory&lt;/strong&gt;: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go&amp;rsquo;s GC and the Parquet/ORC parsers benefit from a larger heap.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Timeout&lt;/strong&gt;: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Architecture&lt;/strong&gt;: &lt;code&gt;arm64&lt;/code&gt; (Graviton). Optimized for price/performance.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="environment-variables"&gt;Environment Variables&lt;/h2&gt;
-&lt;table&gt;
-	&lt;thead&gt;
-			&lt;tr&gt;
-					&lt;th&gt;Variable&lt;/th&gt;
-					&lt;th&gt;Default&lt;/th&gt;
-					&lt;th&gt;Description&lt;/th&gt;
-			&lt;/tr&gt;
-	&lt;/thead&gt;
-	&lt;tbody&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;MAX_PREFIX_DEPTH&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;&lt;code&gt;10&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;Maximum depth for recursive prefix aggregation.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;INVENTORY_DESTINATION&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;-&lt;/td&gt;
-					&lt;td&gt;The S3 URI where inventories are delivered (e.g., &lt;code&gt;s3://bucket/prefix/&lt;/code&gt;). Used for diagnostics.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;S3LIM_ENABLE_XRAY&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;&lt;code&gt;false&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;Enable AWS X-Ray tracing for S3 clients and aggregators.&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;tr&gt;
-					&lt;td&gt;&lt;code&gt;DIAGNOSTICS_DEST&lt;/code&gt;&lt;/td&gt;
-					&lt;td&gt;-&lt;/td&gt;
-					&lt;td&gt;Optional S3 URI to upload CPU/Mem profiles (e.g., &lt;code&gt;s3://bucket/diag/&lt;/code&gt;).&lt;/td&gt;
-			&lt;/tr&gt;
-	&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;h2 id="iam-permissions"&gt;IAM Permissions&lt;/h2&gt;
-&lt;p&gt;The Lambda function requires the following minimum permissions:&lt;/p&gt;</description></item><item><title/><link>http://localhost:1313/cli/s3lim/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>http://localhost:1313/cli/s3lim/</guid><description>&lt;h2 id="s3lim"&gt;s3lim&lt;/h2&gt;
-&lt;p&gt;s3lim is a high-performance S3 inventory analysis tool&lt;/p&gt;
-&lt;h3 id="synopsis"&gt;Synopsis&lt;/h3&gt;
-&lt;p&gt;s3lim is a high-performance S3 inventory analysis tool designed to
-analyze massive S3 inventory files (CSV, Parquet) efficiently. It supports both
-local and remote inventory files.&lt;/p&gt;
-&lt;pre tabindex="0"&gt;&lt;code&gt;s3lim [flags]
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id="options"&gt;Options&lt;/h3&gt;
-&lt;pre tabindex="0"&gt;&lt;code&gt; -h, --help help for s3lim
- --log-level string Log level (debug, info, warn, error) (default &amp;#34;info&amp;#34;)
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id="see-also"&gt;SEE ALSO&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="s3lim_analyze.md"&gt;s3lim analyze&lt;/a&gt;	 - Analyze an S3 inventory file or manifest.json&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h6 id="auto-generated-by-spf13cobra-on-12-jun-2026"&gt;Auto generated by spf13/cobra on 12-Jun-2026&lt;/h6&gt;</description></item><item><title/><link>http://localhost:1313/cli/s3lim_analyze/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>http://localhost:1313/cli/s3lim_analyze/</guid><description>&lt;h2 id="s3lim-analyze"&gt;s3lim analyze&lt;/h2&gt;
-&lt;p&gt;Analyze an S3 inventory file or manifest.json&lt;/p&gt;
-&lt;pre tabindex="0"&gt;&lt;code&gt;s3lim analyze [path] [flags]
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id="options"&gt;Options&lt;/h3&gt;
-&lt;pre tabindex="0"&gt;&lt;code&gt; --batch-size int Batch size for columnar decoding (default 1024)
- -c, --concurrency int Bounded parallelism for processing manifest files (default 4)
- --cpuprofile file write cpu profile to file
- --cw-enabled Enable CloudWatch Metrics reporter
- --cw-namespace string CloudWatch Metrics namespace (default &amp;#34;s3lim&amp;#34;)
- --cw-stats strings List of statistics to emit to CloudWatch (default [object-count,bytes,duplicates,audit])
- --cw-top-k int Number of items per statistic to report to CloudWatch (default 5)
- --delimiter string Path separator for prefix aggregation (default &amp;#34;/&amp;#34;)
- --format string Output format (table, json, or cloudwatch) (default &amp;#34;table&amp;#34;)
- -h, --help help for analyze
- -f, --input-format string Inventory file format (csv, parquet, or orc) (default &amp;#34;csv&amp;#34;)
- --k-buffer int Percent of buffer for internal topk tracking (0-100) (default 20)
- --max-prefix-depth int Maximum depth for recursive prefix aggregation (default 10)
- --memprofile file write memory profile to file
- --min-prefix-depth int Minimum depth for recursive prefix aggregation (default 1)
- --small-file-threshold int Size threshold in KB to define a small file (default 128)
- --topk int Number of top prefixes to report (default 100)
- --trace file write runtime trace to file
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id="options-inherited-from-parent-commands"&gt;Options inherited from parent commands&lt;/h3&gt;
-&lt;pre tabindex="0"&gt;&lt;code&gt; --log-level string Log level (debug, info, warn, error) (default &amp;#34;info&amp;#34;)
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id="see-also"&gt;SEE ALSO&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="s3lim.md"&gt;s3lim&lt;/a&gt;	 - s3lim is a high-performance S3 inventory analysis tool&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h6 id="auto-generated-by-spf13cobra-on-12-jun-2026"&gt;Auto generated by spf13/cobra on 12-Jun-2026&lt;/h6&gt;</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>s3lim</title>
+		<link>http://localhost:1313/</link>
+		<description>Recent content on s3lim</description>
+		<generator>Hugo</generator>
+		<language>en-us</language>
+		
+		
+		
+		
+			<atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>Quickstart (Autopilot)</title>
+				<link>http://localhost:1313/getting-started/autopilot/</link>
+				<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+				<guid>http://localhost:1313/getting-started/autopilot/</guid>
+				<description>&lt;h1 id=&#34;quickstart-autopilot&#34;&gt;Quickstart (Autopilot)&lt;/h1&gt;&#xA;&lt;p&gt;This guide is for users who want to get up and running with &lt;code&gt;s3lim&lt;/code&gt; as quickly as possible using the &lt;strong&gt;Autopilot&lt;/strong&gt; deployment mode.&lt;/p&gt;&#xA;&lt;h2 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;An AWS account with permissions to deploy Lambda and CloudFormation.&lt;/li&gt;&#xA;&lt;li&gt;One or more S3 buckets you wish to analyze.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;deployment-steps&#34;&gt;Deployment Steps&lt;/h2&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Navigate to the &lt;a href=&#34;https://serverlessrepo.aws.amazon.com/applications&#34;&gt;s3lim-autopilot&lt;/a&gt; on the AWS Serverless Application Repository.&lt;/li&gt;&#xA;&lt;li&gt;Enter your &lt;code&gt;SourceBucketName&lt;/code&gt;.&lt;/li&gt;&#xA;&lt;li&gt;Click &lt;strong&gt;Deploy&lt;/strong&gt;.&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;h2 id=&#34;what-happens-next&#34;&gt;What Happens Next?&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;s3lim&lt;/code&gt; will automatically:&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Configure an S3 Inventory report on your source bucket.&lt;/li&gt;&#xA;&lt;li&gt;Create a destination bucket for inventory delivery.&lt;/li&gt;&#xA;&lt;li&gt;Set up an S3 Event Notification to trigger analysis when new reports arrive.&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; It can take up to 48 hours for AWS to deliver the first S3 Inventory report. Your dashboard will remain empty until then.&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>Enterprise Deployment (BYO-IAM)</title>
+				<link>http://localhost:1313/getting-started/enterprise/</link>
+				<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+				<guid>http://localhost:1313/getting-started/enterprise/</guid>
+				<description>&lt;h1 id=&#34;enterprise-deployment-byo-iam&#34;&gt;Enterprise Deployment (BYO-IAM)&lt;/h1&gt;&#xA;&lt;p&gt;This guide is for Cloud Architects and InfoSec teams who require granular control over IAM roles, KMS encryption, and VPC networking.&lt;/p&gt;&#xA;&lt;h2 id=&#34;architecture-overview&#34;&gt;Architecture Overview&lt;/h2&gt;&#xA;&lt;p&gt;The Enterprise deployment uses the &lt;code&gt;readonly&lt;/code&gt; template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.&lt;/p&gt;&#xA;&lt;h2 id=&#34;iam-requirements&#34;&gt;IAM Requirements&lt;/h2&gt;&#xA;&lt;p&gt;Your Lambda execution role must have the following permissions:&lt;/p&gt;&#xA;&lt;h3 id=&#34;s3-permissions&#34;&gt;S3 Permissions&lt;/h3&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;Version&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2012-10-17&amp;#34;&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;Statement&amp;#34;&lt;/span&gt;: [&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        {&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;Effect&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Allow&amp;#34;&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;Action&amp;#34;&lt;/span&gt;: [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;s3:GetObject&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;s3:ListBucket&amp;#34;&lt;/span&gt;],&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;Resource&amp;#34;&lt;/span&gt;: [&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;arn:aws:s3:::your-inventory-bucket&amp;#34;&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;arn:aws:s3:::your-inventory-bucket/*&amp;#34;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            ]&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        }&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ]&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;cloudwatch-permissions&#34;&gt;CloudWatch Permissions&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;cloudwatch:PutMetricData&lt;/code&gt; (Namespace: &lt;code&gt;s3lim&lt;/code&gt;)&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;logs:CreateLogStream&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;logs:PutLogEvents&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;deployment-steps&#34;&gt;Deployment Steps&lt;/h2&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Create the IAM role with the permissions above.&lt;/li&gt;&#xA;&lt;li&gt;Deploy the &lt;code&gt;s3lim-readonly&lt;/code&gt; stack via SAM or CloudFormation.&lt;/li&gt;&#xA;&lt;li&gt;Provide the &lt;code&gt;LambdaRoleArn&lt;/code&gt; as a parameter.&lt;/li&gt;&#xA;&lt;li&gt;Manually configure your S3 Inventory to deliver to your chosen bucket.&lt;/li&gt;&#xA;&lt;li&gt;Add an S3 Event Notification to trigger the &lt;code&gt;s3lim&lt;/code&gt; Lambda ARN.&lt;/li&gt;&#xA;&lt;/ol&gt;</description>
+			</item>
+			<item>
+				<title>Autopilot Deployment</title>
+				<link>http://localhost:1313/deployment/autopilot/</link>
+				<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+				<guid>http://localhost:1313/deployment/autopilot/</guid>
+				<description>&lt;h1 id=&#34;autopilot-deployment-reference&#34;&gt;Autopilot Deployment Reference&lt;/h1&gt;&#xA;&lt;p&gt;s3lim (Autopilot) - Automatically configure and analyze S3 inventory.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;table&gt;&#xA;&#x9;&lt;thead&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Name&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Type&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Default&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Description&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/thead&gt;&#xA;&#x9;&lt;tbody&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;InventoryDestination&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;String&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Optional: The S3 URI where inventories will be delivered (e.g. s3://my-bucket/inventory/). If not provided, a bucket will be generated.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;InventoryFormat&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;String&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Parquet&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;The format of the inventory files.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;MaxPrefixDepth&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Number&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;10&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Maximum depth for recursive prefix aggregation.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;SourceBucketName&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;String&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;-&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;The name of the existing S3 bucket to create an inventory for.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;SourcePrefixFilter&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;String&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Optional: The prefix of the objects in the source bucket to include in the inventory. Leave empty for the entire bucket.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;h2 id=&#34;outputs&#34;&gt;Outputs&lt;/h2&gt;&#xA;&lt;table&gt;&#xA;&#x9;&lt;thead&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Name&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Description&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/thead&gt;&#xA;&#x9;&lt;tbody&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;AnalyzeFunctionArn&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Lambda function ARN&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;InventoryDestinationURI&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;S3 URI where inventories are delivered&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/tbody&gt;&#xA;&lt;/table&gt;</description>
+			</item>
+			<item>
+				<title>Readonly Deployment</title>
+				<link>http://localhost:1313/deployment/readonly/</link>
+				<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+				<guid>http://localhost:1313/deployment/readonly/</guid>
+				<description>&lt;h1 id=&#34;readonly-deployment-reference&#34;&gt;Readonly Deployment Reference&lt;/h1&gt;&#xA;&lt;p&gt;s3lim (Read-Only) - Process existing S3 Inventory reports.&lt;/p&gt;&#xA;&lt;h2 id=&#34;parameters&#34;&gt;Parameters&lt;/h2&gt;&#xA;&lt;table&gt;&#xA;&#x9;&lt;thead&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Name&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Type&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Default&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Description&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/thead&gt;&#xA;&#x9;&lt;tbody&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;InventoryDestination&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;String&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;-&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;The S3 URI where existing inventories are delivered (e.g. s3://my-bucket/inventory/).&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;LambdaRoleArn&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;String&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;-&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;ARN of an existing IAM Role for the Lambda function. The role must have: 1. &amp;lsquo;s3:GetObject&amp;rsquo; and &amp;lsquo;s3:ListBucket&amp;rsquo; on your inventory destination. 2. &amp;lsquo;cloudwatch:PutMetricData&amp;rsquo; (Namespace: s3lim). 3. &amp;rsquo;logs:CreateLogStream&amp;rsquo; and &amp;rsquo;logs:PutLogEvents&amp;rsquo;. 4. &amp;lsquo;sqs:SendMessage&amp;rsquo;, &amp;lsquo;sqs:ReceiveMessage&amp;rsquo;, &amp;lsquo;sqs:DeleteMessage&amp;rsquo;, and &amp;lsquo;sqs:GetQueueAttributes&amp;rsquo; on the DLQ.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;MaxPrefixDepth&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Number&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;10&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Maximum depth for recursive prefix aggregation.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;h2 id=&#34;outputs&#34;&gt;Outputs&lt;/h2&gt;&#xA;&lt;table&gt;&#xA;&#x9;&lt;thead&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Name&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Description&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/thead&gt;&#xA;&#x9;&lt;tbody&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;AnalyzeFunctionArn&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Lambda function ARN.  To improve performance and remove the daily cron: 1. Add an &amp;lsquo;S3 Event Trigger&amp;rsquo; to your inventory bucket. 2. Filter for prefix: &amp;lsquo;inventory/&amp;rsquo; and suffix: &amp;lsquo;manifest.json&amp;rsquo;. 3. Grant &amp;rsquo;lambda:InvokeFunction&amp;rsquo; permission to S3.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/tbody&gt;&#xA;&lt;/table&gt;</description>
+			</item>
+			<item>
+				<title>Available Metrics</title>
+				<link>http://localhost:1313/metrics/overview/</link>
+				<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+				<guid>http://localhost:1313/metrics/overview/</guid>
+				<description>&lt;h1 id=&#34;available-cloudwatch-metrics&#34;&gt;Available CloudWatch Metrics&lt;/h1&gt;&#xA;&lt;p&gt;&lt;code&gt;s3lim&lt;/code&gt; automatically publishes custom CloudWatch metrics based on the aggregators enabled. Below are the metrics produced by the core analysis engine.&lt;/p&gt;&#xA;&lt;h2 id=&#34;rollupprefixaggregator&#34;&gt;RollupPrefixAggregator&lt;/h2&gt;&#xA;&lt;p&gt;Tracks the top K prefixes by total object size, rolling up all objects under each prefix level.&lt;/p&gt;&#xA;&lt;h3 id=&#34;published-metrics&#34;&gt;Published Metrics&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;TotalSize&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;ObjectCount&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;SumAgeSeconds&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;smallfileaggregator&#34;&gt;SmallFileAggregator&lt;/h2&gt;&#xA;&lt;p&gt;Tracks prefixes with the highest density of small files (configurable threshold).&lt;/p&gt;&#xA;&lt;h3 id=&#34;published-metrics-1&#34;&gt;Published Metrics&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;SmallFileCount&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;auditaggregator&#34;&gt;AuditAggregator&lt;/h2&gt;&#xA;&lt;p&gt;Tracks high-level audit metrics for the entire inventory scan, including row counts and error rates.&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>Lambda Configuration</title>
+				<link>http://localhost:1313/deployment/lambda-config/</link>
+				<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+				<guid>http://localhost:1313/deployment/lambda-config/</guid>
+				<description>&lt;h1 id=&#34;lambda-configuration&#34;&gt;Lambda Configuration&lt;/h1&gt;&#xA;&lt;p&gt;The &lt;code&gt;s3lim&lt;/code&gt; Lambda function is designed for high-performance processing of massive S3 inventory files. This guide details the configuration options and requirements for running &lt;code&gt;s3lim&lt;/code&gt; in a serverless environment.&lt;/p&gt;&#xA;&lt;h2 id=&#34;resource-requirements&#34;&gt;Resource Requirements&lt;/h2&gt;&#xA;&lt;p&gt;For processing large inventory files (billions of objects), the following settings are recommended:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Memory&lt;/strong&gt;: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go&amp;rsquo;s GC and the Parquet/ORC parsers benefit from a larger heap.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Timeout&lt;/strong&gt;: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Architecture&lt;/strong&gt;: &lt;code&gt;arm64&lt;/code&gt; (Graviton). Optimized for price/performance.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;environment-variables&#34;&gt;Environment Variables&lt;/h2&gt;&#xA;&lt;table&gt;&#xA;&#x9;&lt;thead&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Variable&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Default&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Description&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/thead&gt;&#xA;&#x9;&lt;tbody&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;MAX_PREFIX_DEPTH&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;10&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Maximum depth for recursive prefix aggregation.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;INVENTORY_DESTINATION&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;-&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;The S3 URI where inventories are delivered (e.g., &lt;code&gt;s3://bucket/prefix/&lt;/code&gt;). Used for diagnostics.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;S3LIM_ENABLE_XRAY&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;false&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Enable AWS X-Ray tracing for S3 clients and aggregators.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;DIAGNOSTICS_DEST&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;-&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Optional S3 URI to upload CPU/Mem profiles (e.g., &lt;code&gt;s3://bucket/diag/&lt;/code&gt;).&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;h2 id=&#34;iam-permissions&#34;&gt;IAM Permissions&lt;/h2&gt;&#xA;&lt;p&gt;The Lambda function requires the following minimum permissions:&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title></title>
+				<link>http://localhost:1313/cli/s3lim/</link>
+				<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+				<guid>http://localhost:1313/cli/s3lim/</guid>
+				<description>&lt;h2 id=&#34;s3lim&#34;&gt;s3lim&lt;/h2&gt;&#xA;&lt;p&gt;s3lim is a high-performance S3 inventory analysis tool&lt;/p&gt;&#xA;&lt;h3 id=&#34;synopsis&#34;&gt;Synopsis&lt;/h3&gt;&#xA;&lt;p&gt;s3lim is a high-performance S3 inventory analysis tool designed to&#xA;analyze massive S3 inventory files (CSV, Parquet) efficiently. It supports both&#xA;local and remote inventory files.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;s3lim [flags]&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;options&#34;&gt;Options&lt;/h3&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;  -h, --help               help for s3lim&#xA;      --log-level string   Log level (debug, info, warn, error) (default &amp;#34;info&amp;#34;)&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;see-also&#34;&gt;SEE ALSO&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;s3lim_analyze.md&#34;&gt;s3lim analyze&lt;/a&gt;&#x9; - Analyze an S3 inventory file or manifest.json&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h6 id=&#34;auto-generated-by-spf13cobra-on-12-jun-2026&#34;&gt;Auto generated by spf13/cobra on 12-Jun-2026&lt;/h6&gt;</description>
+			</item>
+			<item>
+				<title></title>
+				<link>http://localhost:1313/cli/s3lim_analyze/</link>
+				<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+				<guid>http://localhost:1313/cli/s3lim_analyze/</guid>
+				<description>&lt;h2 id=&#34;s3lim-analyze&#34;&gt;s3lim analyze&lt;/h2&gt;&#xA;&lt;p&gt;Analyze an S3 inventory file or manifest.json&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;s3lim analyze [path] [flags]&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;options&#34;&gt;Options&lt;/h3&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;      --batch-size int             Batch size for columnar decoding (default 1024)&#xA;  -c, --concurrency int            Bounded parallelism for processing manifest files (default 4)&#xA;      --cpuprofile file            write cpu profile to file&#xA;      --cw-enabled                 Enable CloudWatch Metrics reporter&#xA;      --cw-namespace string        CloudWatch Metrics namespace (default &amp;#34;s3lim&amp;#34;)&#xA;      --cw-stats strings           List of statistics to emit to CloudWatch (default [object-count,bytes,duplicates,audit])&#xA;      --cw-top-k int               Number of items per statistic to report to CloudWatch (default 5)&#xA;      --delimiter string           Path separator for prefix aggregation (default &amp;#34;/&amp;#34;)&#xA;      --format string              Output format (table, json, or cloudwatch) (default &amp;#34;table&amp;#34;)&#xA;  -h, --help                       help for analyze&#xA;  -f, --input-format string        Inventory file format (csv, parquet, or orc) (default &amp;#34;csv&amp;#34;)&#xA;      --k-buffer int               Percent of buffer for internal topk tracking (0-100) (default 20)&#xA;      --max-prefix-depth int       Maximum depth for recursive prefix aggregation (default 10)&#xA;      --memprofile file            write memory profile to file&#xA;      --min-prefix-depth int       Minimum depth for recursive prefix aggregation (default 1)&#xA;      --small-file-threshold int   Size threshold in KB to define a small file (default 128)&#xA;      --topk int                   Number of top prefixes to report (default 100)&#xA;      --trace file                 write runtime trace to file&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;options-inherited-from-parent-commands&#34;&gt;Options inherited from parent commands&lt;/h3&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;      --log-level string   Log level (debug, info, warn, error) (default &amp;#34;info&amp;#34;)&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;see-also&#34;&gt;SEE ALSO&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;s3lim.md&#34;&gt;s3lim&lt;/a&gt;&#x9; - s3lim is a high-performance S3 inventory analysis tool&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h6 id=&#34;auto-generated-by-spf13cobra-on-12-jun-2026&#34;&gt;Auto generated by spf13/cobra on 12-Jun-2026&lt;/h6&gt;</description>
+			</item>
+	</channel>
+</rss>

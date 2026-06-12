@@ -1,4 +1,13 @@
-<!doctype html><html lang=en-us><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Lambda Configuration | s3lim</title><meta name=description content="High-performance S3 inventory analysis"><link rel=icon type=image/svg+xml href=/favicon.svg><script src="https://cdn.tailwindcss.com?plugins=typography"></script><style type=text/tailwindcss>
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lambda Configuration | s3lim</title>
+    <meta name="description" content="High-performance S3 inventory analysis">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <style type="text/tailwindcss">
         @layer base {
             body { @apply text-slate-700 bg-white antialiased; }
             h1, h2, h3 { @apply text-slate-900 font-bold tracking-tight; }
@@ -24,7 +33,139 @@
             .prose th { @apply text-left border-b-2 border-slate-100 py-3 px-4 font-bold text-slate-900; }
             .prose td { @apply border-b border-slate-50 py-3 px-4; }
         }
-    </style></head><body class="min-h-screen flex flex-col"><header class="border-b border-slate-100 py-6 sticky top-0 bg-white/90 backdrop-blur-md z-50"><nav class="container flex justify-between items-center"><a href=http://localhost:1313/ class="flex items-center gap-3 no-underline group"><img src=/favicon.svg class="w-8 h-8 group-hover:rotate-12 transition-transform" alt=Logo>
-<span class="text-xl font-extrabold tracking-tight text-slate-900 uppercase">s3lim</span></a><ul class="hidden md:flex gap-10 list-none m-0 p-0"><li><a href=/getting-started/autopilot/ class="nav-link text-sm uppercase tracking-wider">Docs</a></li><li><a href=/cli/s3lim/ class="nav-link text-sm uppercase tracking-wider">CLI</a></li><li><a href=/metrics/overview/ class="nav-link text-sm uppercase tracking-wider">Metrics</a></li><li><a href=https://github.com/buckhx/s3lim target=_blank class="nav-link text-sm uppercase tracking-wider flex items-center gap-2"><svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.374.0.0 5.373.0 12c0 5.302 4.438 9.8 10.564 11.307.6.113.82-.258.82-.577.0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93.0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176.0.0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22.0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22.0 1.606-.015 2.896-.015 3.286.0.315.21.69.825.57C19.563 21.798 24 17.298 24 12c0-6.627-5.374-12-12-12z"/></svg>
-GitHub</a></li></ul></nav></header><main class=flex-grow><div class=container><div class="flex flex-col md:flex-row gap-16 py-8"><aside class="w-full md:w-64 flex-shrink-0"><nav class="sticky top-32 space-y-8"><div class=space-y-3><h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Getting Started</h4><ul class="list-none p-0 m-0 space-y-1"><li><a href=/getting-started/autopilot/ class=sidebar-link>Autopilot</a></li><li><a href=/getting-started/enterprise/ class=sidebar-link>Enterprise</a></li></ul></div><div class=space-y-3><h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4><ul class="list-none p-0 m-0 space-y-1"><li><a href=/cli/s3lim/ class=sidebar-link>CLI Command</a></li><li><a href=/deployment/autopilot/ class=sidebar-link>SAM Template</a></li><li><a href=/metrics/overview/ class=sidebar-link>Metrics</a></li></ul></div></nav></aside><article class="prose prose-slate max-w-none flex-grow"><h1 id=lambda-configuration>Lambda Configuration</h1><p>The <code>s3lim</code> Lambda function is designed for high-performance processing of massive S3 inventory files. This guide details the configuration options and requirements for running <code>s3lim</code> in a serverless environment.</p><h2 id=resource-requirements>Resource Requirements</h2><p>For processing large inventory files (billions of objects), the following settings are recommended:</p><ul><li><strong>Memory</strong>: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go&rsquo;s GC and the Parquet/ORC parsers benefit from a larger heap.</li><li><strong>Timeout</strong>: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.</li><li><strong>Architecture</strong>: <code>arm64</code> (Graviton). Optimized for price/performance.</li></ul><h2 id=environment-variables>Environment Variables</h2><table><thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td><code>MAX_PREFIX_DEPTH</code></td><td><code>10</code></td><td>Maximum depth for recursive prefix aggregation.</td></tr><tr><td><code>INVENTORY_DESTINATION</code></td><td>-</td><td>The S3 URI where inventories are delivered (e.g., <code>s3://bucket/prefix/</code>). Used for diagnostics.</td></tr><tr><td><code>S3LIM_ENABLE_XRAY</code></td><td><code>false</code></td><td>Enable AWS X-Ray tracing for S3 clients and aggregators.</td></tr><tr><td><code>DIAGNOSTICS_DEST</code></td><td>-</td><td>Optional S3 URI to upload CPU/Mem profiles (e.g., <code>s3://bucket/diag/</code>).</td></tr></tbody></table><h2 id=iam-permissions>IAM Permissions</h2><p>The Lambda function requires the following minimum permissions:</p><h3 id=1-s3-read-access>1. S3 Read Access</h3><p>Required to read the inventory manifest and the data files (CSV, Parquet, or ORC).</p><ul><li><code>s3:GetObject</code> on <code>arn:aws:s3:::&lt;InventoryBucket>/&lt;Prefix>/*</code></li><li><code>s3:ListBucket</code> on <code>arn:aws:s3:::&lt;InventoryBucket></code></li></ul><h3 id=2-cloudwatch-metrics>2. CloudWatch Metrics</h3><p>Required to publish the analyzed metrics.</p><ul><li><code>cloudwatch:PutMetricData</code></li></ul><h3 id=3-sqs-dlq-optional>3. SQS DLQ (Optional)</h3><p>Required if using a Dead Letter Queue for reprocessing.</p><ul><li><code>sqs:SendMessage</code> on the DLQ ARN.</li><li><code>sqs:ReceiveMessage</code> and <code>sqs:DeleteMessage</code> (if the Redrive trigger is enabled).</li></ul><h2 id=error-handling--dlq>Error Handling & DLQ</h2><p><code>s3lim</code> is configured with an SQS Dead Letter Queue (DLQ). If an inventory file fails to process (e.g., due to a timeout or transient S3 error), the S3 event message is moved to the DLQ.</p><h3 id=reprocessing-redrive>Reprocessing (Redrive)</h3><p>The <code>AnalyzeFunction</code> in the SAM template includes an SQS event source mapping for the DLQ that is <strong>disabled</strong> by default. To re-process failed inventories:</p><ol><li>Log in to the AWS Console.</li><li>Navigate to the <code>s3lim</code> Lambda function.</li><li>Go to the <strong>Configuration</strong> -> <strong>Triggers</strong> tab.</li><li>Find the SQS trigger for the DLQ and click <strong>Enable</strong>.</li><li>Once the queue is drained, <strong>Disable</strong> the trigger to prevent infinite loops if the error persists.</li></ol><h2 id=networking>Networking</h2><p><code>s3lim</code> does not require access to the public internet or a VPC unless your S3 buckets are configured with VPC Endpoints that restrict access to specific VPCs. By default, running outside a VPC is recommended for lower latency and cost.</p></article></div></div></main><footer class="border-t border-slate-100 py-16 text-slate-400 text-sm"><div class="container flex flex-col md:flex-row justify-between items-center gap-8"><div class="flex items-center gap-3"><img src=/favicon.svg class="w-6 h-6 grayscale opacity-50" alt=Logo>
-<span class="font-bold text-slate-300 uppercase tracking-widest">s3lim</span></div><p>&copy; 2026 buckhx. Licensed under BUSL 1.1.</p></div></footer></body></html>
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="border-b border-slate-100 py-6 sticky top-0 bg-white/90 backdrop-blur-md z-50">
+        <nav class="container flex justify-between items-center">
+            <a href="http://localhost:1313/" class="flex items-center gap-3 no-underline group">
+                <img src="/favicon.svg" class="w-8 h-8 group-hover:rotate-12 transition-transform" alt="Logo">
+                <span class="text-xl font-extrabold tracking-tight text-slate-900 uppercase">s3lim</span>
+            </a>
+            <ul class="hidden md:flex gap-10 list-none m-0 p-0">
+                <li><a href="/getting-started/autopilot/" class="nav-link text-sm uppercase tracking-wider">Docs</a></li>
+                <li><a href="/cli/s3lim/" class="nav-link text-sm uppercase tracking-wider">CLI</a></li>
+                <li><a href="/metrics/overview/" class="nav-link text-sm uppercase tracking-wider">Metrics</a></li>
+                <li><a href="https://github.com/buckhx/s3lim" target="_blank" class="nav-link text-sm uppercase tracking-wider flex items-center gap-2">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 4.438 9.8 10.564 11.307.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C19.563 21.798 24 17.298 24 12c0-6.627-5.374-12-12-12z"/></svg>
+                    GitHub
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="flex-grow">
+        
+<div class="container">
+    <div class="flex flex-col md:flex-row gap-16 py-8">
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <nav class="sticky top-32 space-y-8">
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Getting Started</h4>
+                    <ul class="list-none p-0 m-0 space-y-1">
+                        <li><a href="/getting-started/autopilot/" class="sidebar-link">Autopilot</a></li>
+                        <li><a href="/getting-started/enterprise/" class="sidebar-link">Enterprise</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
+                    <ul class="list-none p-0 m-0 space-y-1">
+                        <li><a href="/cli/s3lim/" class="sidebar-link">CLI Command</a></li>
+                        <li><a href="/deployment/autopilot/" class="sidebar-link">SAM Template</a></li>
+                        <li><a href="/metrics/overview/" class="sidebar-link">Metrics</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        <article class="prose prose-slate max-w-none flex-grow">
+            <h1 id="lambda-configuration">Lambda Configuration</h1>
+<p>The <code>s3lim</code> Lambda function is designed for high-performance processing of massive S3 inventory files. This guide details the configuration options and requirements for running <code>s3lim</code> in a serverless environment.</p>
+<h2 id="resource-requirements">Resource Requirements</h2>
+<p>For processing large inventory files (billions of objects), the following settings are recommended:</p>
+<ul>
+<li><strong>Memory</strong>: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go&rsquo;s GC and the Parquet/ORC parsers benefit from a larger heap.</li>
+<li><strong>Timeout</strong>: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.</li>
+<li><strong>Architecture</strong>: <code>arm64</code> (Graviton). Optimized for price/performance.</li>
+</ul>
+<h2 id="environment-variables">Environment Variables</h2>
+<table>
+	<thead>
+			<tr>
+					<th>Variable</th>
+					<th>Default</th>
+					<th>Description</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>MAX_PREFIX_DEPTH</code></td>
+					<td><code>10</code></td>
+					<td>Maximum depth for recursive prefix aggregation.</td>
+			</tr>
+			<tr>
+					<td><code>INVENTORY_DESTINATION</code></td>
+					<td>-</td>
+					<td>The S3 URI where inventories are delivered (e.g., <code>s3://bucket/prefix/</code>). Used for diagnostics.</td>
+			</tr>
+			<tr>
+					<td><code>S3LIM_ENABLE_XRAY</code></td>
+					<td><code>false</code></td>
+					<td>Enable AWS X-Ray tracing for S3 clients and aggregators.</td>
+			</tr>
+			<tr>
+					<td><code>DIAGNOSTICS_DEST</code></td>
+					<td>-</td>
+					<td>Optional S3 URI to upload CPU/Mem profiles (e.g., <code>s3://bucket/diag/</code>).</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="iam-permissions">IAM Permissions</h2>
+<p>The Lambda function requires the following minimum permissions:</p>
+<h3 id="1-s3-read-access">1. S3 Read Access</h3>
+<p>Required to read the inventory manifest and the data files (CSV, Parquet, or ORC).</p>
+<ul>
+<li><code>s3:GetObject</code> on <code>arn:aws:s3:::&lt;InventoryBucket&gt;/&lt;Prefix&gt;/*</code></li>
+<li><code>s3:ListBucket</code> on <code>arn:aws:s3:::&lt;InventoryBucket&gt;</code></li>
+</ul>
+<h3 id="2-cloudwatch-metrics">2. CloudWatch Metrics</h3>
+<p>Required to publish the analyzed metrics.</p>
+<ul>
+<li><code>cloudwatch:PutMetricData</code></li>
+</ul>
+<h3 id="3-sqs-dlq-optional">3. SQS DLQ (Optional)</h3>
+<p>Required if using a Dead Letter Queue for reprocessing.</p>
+<ul>
+<li><code>sqs:SendMessage</code> on the DLQ ARN.</li>
+<li><code>sqs:ReceiveMessage</code> and <code>sqs:DeleteMessage</code> (if the Redrive trigger is enabled).</li>
+</ul>
+<h2 id="error-handling--dlq">Error Handling &amp; DLQ</h2>
+<p><code>s3lim</code> is configured with an SQS Dead Letter Queue (DLQ). If an inventory file fails to process (e.g., due to a timeout or transient S3 error), the S3 event message is moved to the DLQ.</p>
+<h3 id="reprocessing-redrive">Reprocessing (Redrive)</h3>
+<p>The <code>AnalyzeFunction</code> in the SAM template includes an SQS event source mapping for the DLQ that is <strong>disabled</strong> by default. To re-process failed inventories:</p>
+<ol>
+<li>Log in to the AWS Console.</li>
+<li>Navigate to the <code>s3lim</code> Lambda function.</li>
+<li>Go to the <strong>Configuration</strong> -&gt; <strong>Triggers</strong> tab.</li>
+<li>Find the SQS trigger for the DLQ and click <strong>Enable</strong>.</li>
+<li>Once the queue is drained, <strong>Disable</strong> the trigger to prevent infinite loops if the error persists.</li>
+</ol>
+<h2 id="networking">Networking</h2>
+<p><code>s3lim</code> does not require access to the public internet or a VPC unless your S3 buckets are configured with VPC Endpoints that restrict access to specific VPCs. By default, running outside a VPC is recommended for lower latency and cost.</p>
+
+        </article>
+    </div>
+</div>
+
+    </main>
+
+    <footer class="border-t border-slate-100 py-16 text-slate-400 text-sm">
+        <div class="container flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-3">
+                <img src="/favicon.svg" class="w-6 h-6 grayscale opacity-50" alt="Logo">
+                <span class="font-bold text-slate-300 uppercase tracking-widest">s3lim</span>
+            </div>
+            <p>&copy; 2026 buckhx. Licensed under BUSL 1.1.</p>
+        </div>
+    </footer>
+</body>
+</html>

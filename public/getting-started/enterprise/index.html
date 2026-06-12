@@ -1,4 +1,13 @@
-<!doctype html><html lang=en-us><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Enterprise Deployment (BYO-IAM) | s3lim</title><meta name=description content="High-performance S3 inventory analysis"><link rel=icon type=image/svg+xml href=/favicon.svg><script src="https://cdn.tailwindcss.com?plugins=typography"></script><style type=text/tailwindcss>
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Deployment (BYO-IAM) | s3lim</title>
+    <meta name="description" content="High-performance S3 inventory analysis">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <style type="text/tailwindcss">
         @layer base {
             body { @apply text-slate-700 bg-white antialiased; }
             h1, h2, h3 { @apply text-slate-900 font-bold tracking-tight; }
@@ -24,20 +33,100 @@
             .prose th { @apply text-left border-b-2 border-slate-100 py-3 px-4 font-bold text-slate-900; }
             .prose td { @apply border-b border-slate-50 py-3 px-4; }
         }
-    </style></head><body class="min-h-screen flex flex-col"><header class="border-b border-slate-100 py-6 sticky top-0 bg-white/90 backdrop-blur-md z-50"><nav class="container flex justify-between items-center"><a href=http://localhost:1313/ class="flex items-center gap-3 no-underline group"><img src=/favicon.svg class="w-8 h-8 group-hover:rotate-12 transition-transform" alt=Logo>
-<span class="text-xl font-extrabold tracking-tight text-slate-900 uppercase">s3lim</span></a><ul class="hidden md:flex gap-10 list-none m-0 p-0"><li><a href=/getting-started/autopilot/ class="nav-link text-sm uppercase tracking-wider">Docs</a></li><li><a href=/cli/s3lim/ class="nav-link text-sm uppercase tracking-wider">CLI</a></li><li><a href=/metrics/overview/ class="nav-link text-sm uppercase tracking-wider">Metrics</a></li><li><a href=https://github.com/buckhx/s3lim target=_blank class="nav-link text-sm uppercase tracking-wider flex items-center gap-2"><svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.374.0.0 5.373.0 12c0 5.302 4.438 9.8 10.564 11.307.6.113.82-.258.82-.577.0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93.0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176.0.0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22.0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22.0 1.606-.015 2.896-.015 3.286.0.315.21.69.825.57C19.563 21.798 24 17.298 24 12c0-6.627-5.374-12-12-12z"/></svg>
-GitHub</a></li></ul></nav></header><main class=flex-grow><div class=container><div class="flex flex-col md:flex-row gap-16 py-8"><aside class="w-full md:w-64 flex-shrink-0"><nav class="sticky top-32 space-y-8"><div class=space-y-3><h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Getting Started</h4><ul class="list-none p-0 m-0 space-y-1"><li><a href=/getting-started/autopilot/ class=sidebar-link>Autopilot</a></li><li><a href=/getting-started/enterprise/ class=sidebar-link>Enterprise</a></li></ul></div><div class=space-y-3><h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4><ul class="list-none p-0 m-0 space-y-1"><li><a href=/cli/s3lim/ class=sidebar-link>CLI Command</a></li><li><a href=/deployment/autopilot/ class=sidebar-link>SAM Template</a></li><li><a href=/metrics/overview/ class=sidebar-link>Metrics</a></li></ul></div></nav></aside><article class="prose prose-slate max-w-none flex-grow"><h1 id=enterprise-deployment-byo-iam>Enterprise Deployment (BYO-IAM)</h1><p>This guide is for Cloud Architects and InfoSec teams who require granular control over IAM roles, KMS encryption, and VPC networking.</p><h2 id=architecture-overview>Architecture Overview</h2><p>The Enterprise deployment uses the <code>readonly</code> template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.</p><h2 id=iam-requirements>IAM Requirements</h2><p>Your Lambda execution role must have the following permissions:</p><h3 id=s3-permissions>S3 Permissions</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-json data-lang=json><span style=display:flex><span>{
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Version&#34;</span>: <span style=color:#e6db74>&#34;2012-10-17&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Statement&#34;</span>: [
-</span></span><span style=display:flex><span>        {
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&#34;Effect&#34;</span>: <span style=color:#e6db74>&#34;Allow&#34;</span>,
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&#34;Action&#34;</span>: [<span style=color:#e6db74>&#34;s3:GetObject&#34;</span>, <span style=color:#e6db74>&#34;s3:ListBucket&#34;</span>],
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&#34;Resource&#34;</span>: [
-</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#34;arn:aws:s3:::your-inventory-bucket&#34;</span>,
-</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#34;arn:aws:s3:::your-inventory-bucket/*&#34;</span>
-</span></span><span style=display:flex><span>            ]
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>    ]
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=cloudwatch-permissions>CloudWatch Permissions</h3><ul><li><code>cloudwatch:PutMetricData</code> (Namespace: <code>s3lim</code>)</li><li><code>logs:CreateLogStream</code></li><li><code>logs:PutLogEvents</code></li></ul><h2 id=deployment-steps>Deployment Steps</h2><ol><li>Create the IAM role with the permissions above.</li><li>Deploy the <code>s3lim-readonly</code> stack via SAM or CloudFormation.</li><li>Provide the <code>LambdaRoleArn</code> as a parameter.</li><li>Manually configure your S3 Inventory to deliver to your chosen bucket.</li><li>Add an S3 Event Notification to trigger the <code>s3lim</code> Lambda ARN.</li></ol></article></div></div></main><footer class="border-t border-slate-100 py-16 text-slate-400 text-sm"><div class="container flex flex-col md:flex-row justify-between items-center gap-8"><div class="flex items-center gap-3"><img src=/favicon.svg class="w-6 h-6 grayscale opacity-50" alt=Logo>
-<span class="font-bold text-slate-300 uppercase tracking-widest">s3lim</span></div><p>&copy; 2026 buckhx. Licensed under BUSL 1.1.</p></div></footer></body></html>
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="border-b border-slate-100 py-6 sticky top-0 bg-white/90 backdrop-blur-md z-50">
+        <nav class="container flex justify-between items-center">
+            <a href="http://localhost:1313/" class="flex items-center gap-3 no-underline group">
+                <img src="/favicon.svg" class="w-8 h-8 group-hover:rotate-12 transition-transform" alt="Logo">
+                <span class="text-xl font-extrabold tracking-tight text-slate-900 uppercase">s3lim</span>
+            </a>
+            <ul class="hidden md:flex gap-10 list-none m-0 p-0">
+                <li><a href="/getting-started/autopilot/" class="nav-link text-sm uppercase tracking-wider">Docs</a></li>
+                <li><a href="/cli/s3lim/" class="nav-link text-sm uppercase tracking-wider">CLI</a></li>
+                <li><a href="/metrics/overview/" class="nav-link text-sm uppercase tracking-wider">Metrics</a></li>
+                <li><a href="https://github.com/buckhx/s3lim" target="_blank" class="nav-link text-sm uppercase tracking-wider flex items-center gap-2">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 4.438 9.8 10.564 11.307.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C19.563 21.798 24 17.298 24 12c0-6.627-5.374-12-12-12z"/></svg>
+                    GitHub
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="flex-grow">
+        
+<div class="container">
+    <div class="flex flex-col md:flex-row gap-16 py-8">
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <nav class="sticky top-32 space-y-8">
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Getting Started</h4>
+                    <ul class="list-none p-0 m-0 space-y-1">
+                        <li><a href="/getting-started/autopilot/" class="sidebar-link">Autopilot</a></li>
+                        <li><a href="/getting-started/enterprise/" class="sidebar-link">Enterprise</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
+                    <ul class="list-none p-0 m-0 space-y-1">
+                        <li><a href="/cli/s3lim/" class="sidebar-link">CLI Command</a></li>
+                        <li><a href="/deployment/autopilot/" class="sidebar-link">SAM Template</a></li>
+                        <li><a href="/metrics/overview/" class="sidebar-link">Metrics</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        <article class="prose prose-slate max-w-none flex-grow">
+            <h1 id="enterprise-deployment-byo-iam">Enterprise Deployment (BYO-IAM)</h1>
+<p>This guide is for Cloud Architects and InfoSec teams who require granular control over IAM roles, KMS encryption, and VPC networking.</p>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<p>The Enterprise deployment uses the <code>readonly</code> template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.</p>
+<h2 id="iam-requirements">IAM Requirements</h2>
+<p>Your Lambda execution role must have the following permissions:</p>
+<h3 id="s3-permissions">S3 Permissions</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;Version&#34;</span>: <span style="color:#e6db74">&#34;2012-10-17&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;Statement&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Effect&#34;</span>: <span style="color:#e6db74">&#34;Allow&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Action&#34;</span>: [<span style="color:#e6db74">&#34;s3:GetObject&#34;</span>, <span style="color:#e6db74">&#34;s3:ListBucket&#34;</span>],
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Resource&#34;</span>: [
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;arn:aws:s3:::your-inventory-bucket&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;arn:aws:s3:::your-inventory-bucket/*&#34;</span>
+</span></span><span style="display:flex;"><span>            ]
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="cloudwatch-permissions">CloudWatch Permissions</h3>
+<ul>
+<li><code>cloudwatch:PutMetricData</code> (Namespace: <code>s3lim</code>)</li>
+<li><code>logs:CreateLogStream</code></li>
+<li><code>logs:PutLogEvents</code></li>
+</ul>
+<h2 id="deployment-steps">Deployment Steps</h2>
+<ol>
+<li>Create the IAM role with the permissions above.</li>
+<li>Deploy the <code>s3lim-readonly</code> stack via SAM or CloudFormation.</li>
+<li>Provide the <code>LambdaRoleArn</code> as a parameter.</li>
+<li>Manually configure your S3 Inventory to deliver to your chosen bucket.</li>
+<li>Add an S3 Event Notification to trigger the <code>s3lim</code> Lambda ARN.</li>
+</ol>
+
+        </article>
+    </div>
+</div>
+
+    </main>
+
+    <footer class="border-t border-slate-100 py-16 text-slate-400 text-sm">
+        <div class="container flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-3">
+                <img src="/favicon.svg" class="w-6 h-6 grayscale opacity-50" alt="Logo">
+                <span class="font-bold text-slate-300 uppercase tracking-widest">s3lim</span>
+            </div>
+            <p>&copy; 2026 buckhx. Licensed under BUSL 1.1.</p>
+        </div>
+    </footer>
+</body>
+</html>

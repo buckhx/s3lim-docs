@@ -1,4 +1,14 @@
-<!doctype html><html lang=en-us><head><meta name=generator content="Hugo 0.163.1"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>s3lim</title><meta name=description content="High-performance S3 inventory analysis"><link rel=icon type=image/svg+xml href=/favicon.svg><script src="https://cdn.tailwindcss.com?plugins=typography"></script><style type=text/tailwindcss>
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta name="generator" content="Hugo 0.163.1"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>s3lim</title>
+    <meta name="description" content="High-performance S3 inventory analysis">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <style type="text/tailwindcss">
         @layer base {
             body { @apply text-slate-700 bg-white antialiased; }
             h1, h2, h3 { @apply text-slate-900 font-bold tracking-tight; }
@@ -24,7 +34,112 @@
             .prose th { @apply text-left border-b-2 border-slate-100 py-3 px-4 font-bold text-slate-900; }
             .prose td { @apply border-b border-slate-50 py-3 px-4; }
         }
-    </style></head><body class="min-h-screen flex flex-col"><header class="border-b border-slate-100 py-6 sticky top-0 bg-white/90 backdrop-blur-md z-50"><nav class="container flex justify-between items-center"><a href=http://localhost:1313/ class="flex items-center gap-3 no-underline group"><img src=/favicon.svg class="w-8 h-8 group-hover:rotate-12 transition-transform" alt=Logo>
-<span class="text-xl font-extrabold tracking-tight text-slate-900 uppercase">s3lim</span></a><ul class="hidden md:flex gap-10 list-none m-0 p-0"><li><a href=/getting-started/autopilot/ class="nav-link text-sm uppercase tracking-wider">Docs</a></li><li><a href=/cli/s3lim/ class="nav-link text-sm uppercase tracking-wider">CLI</a></li><li><a href=/metrics/overview/ class="nav-link text-sm uppercase tracking-wider">Metrics</a></li><li><a href=https://github.com/buckhx/s3lim target=_blank class="nav-link text-sm uppercase tracking-wider flex items-center gap-2"><svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.374.0.0 5.373.0 12c0 5.302 4.438 9.8 10.564 11.307.6.113.82-.258.82-.577.0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93.0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176.0.0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22.0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22.0 1.606-.015 2.896-.015 3.286.0.315.21.69.825.57C19.563 21.798 24 17.298 24 12c0-6.627-5.374-12-12-12z"/></svg>
-GitHub</a></li></ul></nav></header><main class=flex-grow><div class="container text-center space-y-32 py-24"><section class="hero space-y-12 max-w-4xl mx-auto"><h1 class="text-5xl md:text-6xl tracking-tight leading-none font-black">Securely Analyze S3 Costs Without Data Egress</h1><p class="text-2xl text-slate-500 leading-relaxed max-w-2xl mx-auto">Analyze billions of objects directly in your AWS account. s3lim surfaces hidden costs and optimization opportunities without your data ever leaving your VPC.</p><div class=pt-8><a href=/getting-started/autopilot/ class="btn-primary text-xl px-12 py-5">Start Saving Now</a></div></section><div class="max-w-5xl mx-auto py-12 relative group"><div class="absolute inset-0 bg-blue-50 rounded-full blur-3xl opacity-20 scale-125 group-hover:opacity-30 transition-opacity"></div><img src=/hero-diagram.svg class="w-full h-auto relative z-10" alt="s3lim In-Account Analysis Diagram"></div><section class="grid grid-cols-1 md:grid-cols-3 gap-x-16 gap-y-24 text-left border-t border-slate-100 pt-32"><div class="space-y-6 group"><div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">🛡️</div><h3 class="text-2xl font-black tracking-tight">Zero Egress Security</h3><p class="text-slate-500 leading-relaxed text-lg">Analyze your storage in-place. No data ever leaves your account, ensuring 100% compliance and zero data transfer costs.</p></div><div class="space-y-6 group"><div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">👯</div><h3 class="text-2xl font-black tracking-tight">Duplicate Detection</h3><p class="text-slate-500 leading-relaxed text-lg">Identify identical files across prefixes and buckets. Surface redundant data that is silently inflating your monthly bill.</p></div><div class="space-y-6 group"><div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">🔥</div><h3 class="text-2xl font-black tracking-tight">Prefix Hotspots</h3><p class="text-slate-500 leading-relaxed text-lg">Instantly find which folders are growing fastest. Pinpoint 'hot' storage areas that need Lifecycle or Intelligent Tiering policies.</p></div><div class="space-y-6 group"><div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">👻</div><h3 class="text-2xl font-black tracking-tight">Ghost Versions</h3><p class="text-slate-500 leading-relaxed text-lg">Find and remove non-current object versions and delete markers that add up to significant hidden storage overhead.</p></div><div class="space-y-6 group"><div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">📦</div><h3 class="text-2xl font-black tracking-tight">Unfinished Uploads</h3><p class="text-slate-500 leading-relaxed text-lg">Surface incomplete multipart uploads that occupy space and cost money, but are invisible to standard S3 management tools.</p></div><div class="space-y-6 group"><div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">☁️</div><h3 class="text-2xl font-black tracking-tight">Native AWS Integration</h3><p class="text-slate-500 leading-relaxed text-lg">Deploys directly as a Lambda function. Manage everything via the AWS Console with zero infrastructure to maintain.</p></div></section><section class="space-y-24 py-24 border-t border-slate-100"><h2 class="text-5xl font-black tracking-tight">How it Works</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-16 text-left"><div class="bg-white p-12 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"><h3 class="text-3xl font-bold tracking-tight">Massive Scale, Tiny Footprint</h3><p class="text-slate-500 leading-relaxed text-xl">Built in high-performance Go, s3lim analyzes billions of objects in minutes using constant memory. It's engineered to scale to the world's largest S3 buckets without breaking a sweat.</p></div><div class="bg-white p-12 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"><h3 class="text-3xl font-bold tracking-tight">Serverless Efficiency</h3><p class="text-slate-500 leading-relaxed text-xl">Running entirely on AWS Lambda, s3lim provides a cost-effective, on-demand analysis engine that only runs when you need it. No servers to manage, no idle costs.</p></div></div></section></div></main><footer class="border-t border-slate-100 py-16 text-slate-400 text-sm"><div class="container flex flex-col md:flex-row justify-between items-center gap-8"><div class="flex items-center gap-3"><img src=/favicon.svg class="w-6 h-6 grayscale opacity-50" alt=Logo>
-<span class="font-bold text-slate-300 uppercase tracking-widest">s3lim</span></div><p>&copy; 2026 buckhx. Licensed under BUSL 1.1.</p></div></footer></body></html>
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="border-b border-slate-100 py-6 sticky top-0 bg-white/90 backdrop-blur-md z-50">
+        <nav class="container flex justify-between items-center">
+            <a href="http://localhost:1313/" class="flex items-center gap-3 no-underline group">
+                <img src="/favicon.svg" class="w-8 h-8 group-hover:rotate-12 transition-transform" alt="Logo">
+                <span class="text-xl font-extrabold tracking-tight text-slate-900 uppercase">s3lim</span>
+            </a>
+            <ul class="hidden md:flex gap-10 list-none m-0 p-0">
+                <li><a href="/getting-started/autopilot/" class="nav-link text-sm uppercase tracking-wider">Docs</a></li>
+                <li><a href="/cli/s3lim/" class="nav-link text-sm uppercase tracking-wider">CLI</a></li>
+                <li><a href="/metrics/overview/" class="nav-link text-sm uppercase tracking-wider">Metrics</a></li>
+                <li><a href="https://github.com/buckhx/s3lim" target="_blank" class="nav-link text-sm uppercase tracking-wider flex items-center gap-2">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 4.438 9.8 10.564 11.307.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C19.563 21.798 24 17.298 24 12c0-6.627-5.374-12-12-12z"/></svg>
+                    GitHub
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="flex-grow">
+        
+<div class="container text-center space-y-32 py-24">
+    <section class="hero space-y-12 max-w-4xl mx-auto">
+        <h1 class="text-5xl md:text-6xl tracking-tight leading-none font-black">Securely Analyze S3 Costs Without Data Egress</h1>
+        <p class="text-2xl text-slate-500 leading-relaxed max-w-2xl mx-auto">Analyze billions of objects directly in your AWS account. s3lim surfaces hidden costs and optimization opportunities without your data ever leaving your VPC.</p>
+        <div class="pt-8">
+            <a href="/getting-started/autopilot/" class="btn-primary text-xl px-12 py-5">Start Saving Now</a>
+        </div>
+    </section>
+
+    
+    <div class="max-w-5xl mx-auto py-12 relative group">
+        <div class="absolute inset-0 bg-blue-50 rounded-full blur-3xl opacity-20 scale-125 group-hover:opacity-30 transition-opacity"></div>
+        <img src="/hero-xray.svg" class="w-full h-auto relative z-10" alt="s3lim S3 Cost X-Ray Visual">
+    </div>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-x-16 gap-y-24 text-left border-t border-slate-100 pt-32">
+        
+        <div class="space-y-6 group">
+            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">🛡️</div>
+            <h3 class="text-2xl font-black tracking-tight">Zero Egress Security</h3>
+            <p class="text-slate-500 leading-relaxed text-lg">Analyze your storage in-place. No data ever leaves your account, ensuring 100% compliance and zero data transfer costs.</p>
+        </div>
+        
+        <div class="space-y-6 group">
+            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">👯</div>
+            <h3 class="text-2xl font-black tracking-tight">Duplicate Detection</h3>
+            <p class="text-slate-500 leading-relaxed text-lg">Identify identical files across prefixes and buckets. Surface redundant data that is silently inflating your monthly bill.</p>
+        </div>
+        
+        <div class="space-y-6 group">
+            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">🔥</div>
+            <h3 class="text-2xl font-black tracking-tight">Prefix Hotspots</h3>
+            <p class="text-slate-500 leading-relaxed text-lg">Instantly find which folders are growing fastest. Pinpoint &#39;hot&#39; storage areas that need Lifecycle or Intelligent Tiering policies.</p>
+        </div>
+        
+        <div class="space-y-6 group">
+            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">👻</div>
+            <h3 class="text-2xl font-black tracking-tight">Ghost Versions</h3>
+            <p class="text-slate-500 leading-relaxed text-lg">Find and remove non-current object versions and delete markers that add up to significant hidden storage overhead.</p>
+        </div>
+        
+        <div class="space-y-6 group">
+            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">📦</div>
+            <h3 class="text-2xl font-black tracking-tight">Unfinished Uploads</h3>
+            <p class="text-slate-500 leading-relaxed text-lg">Surface incomplete multipart uploads that occupy space and cost money, but are invisible to standard S3 management tools.</p>
+        </div>
+        
+        <div class="space-y-6 group">
+            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">☁️</div>
+            <h3 class="text-2xl font-black tracking-tight">Native AWS Integration</h3>
+            <p class="text-slate-500 leading-relaxed text-lg">Deploys directly as a Lambda function. Manage everything via the AWS Console with zero infrastructure to maintain.</p>
+        </div>
+        
+    </section>
+
+    <section class="space-y-24 py-24 border-t border-slate-100">
+        <h2 class="text-5xl font-black tracking-tight">How it Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 text-left">
+            
+            <div class="bg-white p-12 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <h3 class="text-3xl font-bold tracking-tight">Massive Scale, Tiny Footprint</h3>
+                <p class="text-slate-500 leading-relaxed text-xl">Built in high-performance Go, s3lim analyzes billions of objects in minutes using constant memory. It&#39;s engineered to scale to the world&#39;s largest S3 buckets without breaking a sweat.</p>
+            </div>
+            
+            <div class="bg-white p-12 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <h3 class="text-3xl font-bold tracking-tight">Serverless Efficiency</h3>
+                <p class="text-slate-500 leading-relaxed text-xl">Running entirely on AWS Lambda, s3lim provides a cost-effective, on-demand analysis engine that only runs when you need it. No servers to manage, no idle costs.</p>
+            </div>
+            
+        </div>
+    </section>
+</div>
+
+    </main>
+
+    <footer class="border-t border-slate-100 py-16 text-slate-400 text-sm">
+        <div class="container flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-3">
+                <img src="/favicon.svg" class="w-6 h-6 grayscale opacity-50" alt="Logo">
+                <span class="font-bold text-slate-300 uppercase tracking-widest">s3lim</span>
+            </div>
+            <p>&copy; 2026 buckhx. Licensed under BUSL 1.1.</p>
+        </div>
+    </footer>
+</body>
+</html>

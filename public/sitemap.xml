@@ -1,1 +1,35 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url><loc>http://localhost:1313/getting-started/autopilot/</loc></url><url><loc>http://localhost:1313/getting-started/enterprise/</loc></url><url><loc>http://localhost:1313/deployment/autopilot/</loc></url><url><loc>http://localhost:1313/deployment/readonly/</loc></url><url><loc>http://localhost:1313/metrics/overview/</loc></url><url><loc>http://localhost:1313/deployment/lambda-config/</loc></url><url><loc>http://localhost:1313/</loc></url><url><loc>http://localhost:1313/cli/s3lim/</loc></url><url><loc>http://localhost:1313/cli/s3lim_analyze/</loc></url><url><loc>http://localhost:1313/categories/</loc></url><url><loc>http://localhost:1313/cli/</loc></url><url><loc>http://localhost:1313/deployment/</loc></url><url><loc>http://localhost:1313/getting-started/</loc></url><url><loc>http://localhost:1313/metrics/</loc></url><url><loc>http://localhost:1313/tags/</loc></url></urlset>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://localhost:1313/getting-started/autopilot/</loc>
+  </url><url>
+    <loc>http://localhost:1313/getting-started/enterprise/</loc>
+  </url><url>
+    <loc>http://localhost:1313/deployment/autopilot/</loc>
+  </url><url>
+    <loc>http://localhost:1313/deployment/readonly/</loc>
+  </url><url>
+    <loc>http://localhost:1313/metrics/overview/</loc>
+  </url><url>
+    <loc>http://localhost:1313/deployment/lambda-config/</loc>
+  </url><url>
+    <loc>http://localhost:1313/</loc>
+  </url><url>
+    <loc>http://localhost:1313/cli/s3lim/</loc>
+  </url><url>
+    <loc>http://localhost:1313/cli/s3lim_analyze/</loc>
+  </url><url>
+    <loc>http://localhost:1313/categories/</loc>
+  </url><url>
+    <loc>http://localhost:1313/cli/</loc>
+  </url><url>
+    <loc>http://localhost:1313/deployment/</loc>
+  </url><url>
+    <loc>http://localhost:1313/getting-started/</loc>
+  </url><url>
+    <loc>http://localhost:1313/metrics/</loc>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+  </url>
+</urlset>
