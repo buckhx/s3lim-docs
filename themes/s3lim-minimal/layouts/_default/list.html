@@ -1,0 +1,34 @@
+{{ define "main" }}
+<div class="container">
+    <div class="docs-layout">
+        <aside class="docs-sidebar">
+            <nav>
+                <ul>
+                    <li><strong>Getting Started</strong>
+                        <ul>
+                            <li><a href="{{ "getting-started/autopilot/" | relURL }}">Autopilot</a></li>
+                            <li><a href="{{ "getting-started/enterprise/" | relURL }}">Enterprise</a></li>
+                        </ul>
+                    </li>
+                    <li><strong>Technical Reference</strong>
+                        <ul>
+                            <li><a href="{{ "cli/s3lim/" | relURL }}">CLI Command</a></li>
+                            <li><a href="{{ "deployment/autopilot/" | relURL }}">SAM Template</a></li>
+                            <li><a href="{{ "metrics/overview/" | relURL }}">Metrics</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <article class="docs-content">
+            <h1>{{ .Title }}</h1>
+            {{ .Content }}
+            <ul>
+                {{ range .Pages }}
+                <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+                {{ end }}
+            </ul>
+        </article>
+    </div>
+</div>
+{{ end }}

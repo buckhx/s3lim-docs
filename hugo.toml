@@ -1,20 +1,8 @@
 baseURL = 'https://s3lim.com/'
 languageCode = 'en-us'
-title = 's3lim Documentation'
-theme = 'book'
+title = 's3lim'
+theme = 's3lim-minimal'
 
 [params]
-  # (Optional) Optimize for search engines
-  # (Optional) Page title separator
-  titleSeparator = ' | '
-  # (Optional) Service name
-  serviceName = 's3lim'
-  # (Optional) Description
-  description = 'High-performance S3 inventory analysis tool'
-  
-  # Book theme settings
-  BookSection = '*'
-  BookLogo = 'logo.png'
-  BookSearch = true
-  BookComments = false
-  BookPortableLinks = true
+  description = 'High-performance S3 inventory analysis'
+  github_repo = 'https://github.com/buckhx/s3lim'

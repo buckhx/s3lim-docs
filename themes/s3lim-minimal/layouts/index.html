@@ -1,0 +1,41 @@
+{{ define "main" }}
+<section class="hero container">
+    <h1>{{ .Params.banner.title }}</h1>
+    <p class="description">{{ .Params.features.description }}</p>
+    <a href="{{ .Params.banner.button_link | relURL }}" class="cta-button">{{ .Params.banner.button }}</a>
+
+    <div class="terminal-visual">
+        <code>$ s3lim analyze s3://my-bucket/inventory/manifest.json --topk 20
+Processing manifest: s3://my-bucket/inventory/manifest.json
+Analyzed 1,240,582,109 objects in 4m 12s
+Memory Used: 128 MB
+
+Top Prefixes by Size:
+1. logs/2026/06/      - 4.2 TB (12.4M objects)
+2. data/raw/          - 2.8 TB (8.1M objects)
+3. temp/cache/        - 1.5 TB (45.2M objects)
+...</code>
+    </div>
+</section>
+
+<section class="container">
+    <div class="features-grid">
+        {{ range .Params.features.features_blocks }}
+        <div class="feature-item">
+            <h3>{{ .title }}</h3>
+            <p>{{ .content }}</p>
+        </div>
+        {{ end }}
+    </div>
+</section>
+
+<section class="container" style="margin-top: 80px; text-align: center;">
+    <h2>{{ .Params.how_it_works.title }}</h2>
+    {{ range .Params.how_it_works.block }}
+    <div style="margin-bottom: 60px;">
+        <h3>{{ .title }}</h3>
+        <p>{{ .description }}</p>
+    </div>
+    {{ end }}
+</section>
+{{ end }}
