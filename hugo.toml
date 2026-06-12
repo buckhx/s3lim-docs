@@ -1,0 +1,13 @@
+baseURL = 'https://s3lim.com/'
+languageCode = 'en-us'
+title = 's3lim Documentation'
+theme = 'book'
+
+[params]
+  # (Optional) Optimize for search engines
+  # (Optional) Page title separator
+  titleSeparator = ' | '
+  # (Optional) Service name
+  serviceName = 's3lim'
+  # (Optional) Description
+  description = 'High-performance S3 inventory analysis tool'
