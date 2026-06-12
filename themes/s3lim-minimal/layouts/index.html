@@ -1,10 +1,14 @@
 {{ define "main" }}
-<section class="hero container">
-    <h1>{{ .Params.banner.title }}</h1>
-    <p class="description">{{ .Params.features.description }}</p>
-    <a href="{{ .Params.banner.button_link | relURL }}" class="cta-button">{{ .Params.banner.button }}</a>
+<div class="container text-center space-y-24 py-16">
+    <section class="hero space-y-8 max-w-3xl mx-auto">
+        <h1 class="text-5xl md:text-6xl tracking-tight leading-tight">{{ .Params.banner.title }}</h1>
+        <p class="text-xl text-slate-500 leading-relaxed">{{ .Params.features.description }}</p>
+        <div class="pt-4">
+            <a href="{{ .Params.banner.button_link | relURL }}" class="btn-primary">{{ .Params.banner.button }}</a>
+        </div>
+    </section>
 
-    <div class="terminal-visual">
+    <div class="terminal max-w-4xl mx-auto text-left">
         <code>$ s3lim analyze s3://my-bucket/inventory/manifest.json --topk 20
 Processing manifest: s3://my-bucket/inventory/manifest.json
 Analyzed 1,240,582,109 objects in 4m 12s
@@ -16,26 +20,27 @@ Top Prefixes by Size:
 3. temp/cache/        - 1.5 TB (45.2M objects)
 ...</code>
     </div>
-</section>
 
-<section class="container">
-    <div class="features-grid">
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-16 text-left">
         {{ range .Params.features.features_blocks }}
-        <div class="feature-item">
-            <h3>{{ .title }}</h3>
-            <p>{{ .content }}</p>
+        <div class="space-y-4">
+            <div class="text-4xl">{{ .icon }}</div>
+            <h3 class="text-xl">{{ .title }}</h3>
+            <p class="text-slate-500 leading-relaxed">{{ .content }}</p>
         </div>
         {{ end }}
-    </div>
-</section>
+    </section>
 
-<section class="container" style="margin-top: 80px; text-align: center;">
-    <h2>{{ .Params.how_it_works.title }}</h2>
-    {{ range .Params.how_it_works.block }}
-    <div style="margin-bottom: 60px;">
-        <h3>{{ .title }}</h3>
-        <p>{{ .description }}</p>
-    </div>
-    {{ end }}
-</section>
+    <section class="space-y-16 py-12 border-t border-slate-100">
+        <h2 class="text-4xl tracking-tight">{{ .Params.how_it_works.title }}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
+            {{ range .Params.how_it_works.block }}
+            <div class="bg-slate-50 p-10 rounded-2xl border border-slate-100 space-y-4 hover:border-blue-200 transition-colors">
+                <h3 class="text-2xl">{{ .title }}</h3>
+                <p class="text-slate-500 leading-relaxed text-lg">{{ .description }}</p>
+            </div>
+            {{ end }}
+        </div>
+    </section>
+</div>
 {{ end }}

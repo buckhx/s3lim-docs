@@ -1,27 +1,26 @@
 {{ define "main" }}
 <div class="container">
-    <div class="docs-layout">
-        <aside class="docs-sidebar">
-            <nav>
-                <ul>
-                    <li><strong>Getting Started</strong>
-                        <ul>
-                            <li><a href="{{ "getting-started/autopilot/" | relURL }}">Autopilot</a></li>
-                            <li><a href="{{ "getting-started/enterprise/" | relURL }}">Enterprise</a></li>
-                        </ul>
-                    </li>
-                    <li><strong>Technical Reference</strong>
-                        <ul>
-                            <li><a href="{{ "cli/s3lim/" | relURL }}">CLI Command</a></li>
-                            <li><a href="{{ "deployment/autopilot/" | relURL }}">SAM Template</a></li>
-                            <li><a href="{{ "metrics/overview/" | relURL }}">Metrics</a></li>
-                        </ul>
-                    </li>
-                </ul>
+    <div class="flex flex-col md:flex-row gap-16 py-8">
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <nav class="sticky top-32 space-y-8">
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Getting Started</h4>
+                    <ul class="list-none p-0 m-0 space-y-1">
+                        <li><a href="{{ "getting-started/autopilot/" | relURL }}" class="sidebar-link">Autopilot</a></li>
+                        <li><a href="{{ "getting-started/enterprise/" | relURL }}" class="sidebar-link">Enterprise</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
+                    <ul class="list-none p-0 m-0 space-y-1">
+                        <li><a href="{{ "cli/s3lim/" | relURL }}" class="sidebar-link">CLI Command</a></li>
+                        <li><a href="{{ "deployment/autopilot/" | relURL }}" class="sidebar-link">SAM Template</a></li>
+                        <li><a href="{{ "metrics/overview/" | relURL }}" class="sidebar-link">Metrics</a></li>
+                    </ul>
+                </div>
             </nav>
         </aside>
-        <article class="docs-content">
-            <h1>{{ .Title }}</h1>
+        <article class="prose prose-slate max-w-none flex-grow">
             {{ .Content }}
         </article>
     </div>
