@@ -4,7 +4,7 @@
         <h1 class="text-5xl md:text-6xl tracking-tight leading-tight font-black">{{ .Params.banner.title }}</h1>
         <p class="text-xl md:text-2xl text-slate-500 leading-relaxed max-w-2xl mx-auto">{{ .Params.features.description }}</p>
         <div class="pt-6">
-            <a href="{{ .Params.banner.button_link | relURL }}" class="btn-primary text-xl px-10 py-4">Start Saving Now</a>
+            <a href="{{ .Params.banner.button_link | relURL }}" class="btn-primary text-xl px-10 py-4">{{ .Params.banner.button_text | default "Get Early Access" }}</a>
         </div>
     </section>
 

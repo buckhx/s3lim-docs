@@ -2,8 +2,8 @@
 # banner
 banner:
   title: "Deep S3 Observability"
-  button: "Start Saving Now"
-  button_link: "/getting-started/autopilot/"
+  button_text: "Get Early Access"
+  button_link: "https://tally.so/r/n0-link-yet"
 
 # features
 features:
