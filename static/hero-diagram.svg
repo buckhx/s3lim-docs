@@ -1,13 +1,12 @@
-<svg width="800" height="400" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Gradients -->
+<svg width="800" height="300" viewBox="0 0 800 300" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#3B82F6" />
       <stop offset="100%" stop-color="#2563EB" />
     </linearGradient>
     <filter id="dropshadow" height="130%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="10"/>
-      <feOffset dx="0" dy="10" result="offsetblur"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+      <feOffset dx="0" dy="5" result="offsetblur"/>
       <feComponentTransfer>
         <feFuncA type="linear" slope="0.1"/>
       </feComponentTransfer>
@@ -16,68 +15,92 @@
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-  </defs>
-
-  <!-- BACKGROUND: Minimalist Grid or Connectors -->
-  <path d="M150 200 H 650" stroke="#F1F5F9" stroke-width="2" stroke-dasharray="10 10" />
-
-  <!-- SOURCE: The 100TB Bucket -->
-  <g filter="url(#dropshadow)" transform="translate(100, 140)">
-    <path d="M10 30 C 10 10, 90 10, 90 30 L 95 100 C 95 120, 5 120, 5 100 Z" fill="white" stroke="#E2E8F0" stroke-width="2"/>
-    <ellipse cx="50" cy="30" rx="40" ry="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
-    <text x="50" y="75" text-anchor="middle" fill="#94A3B8" font-family="sans-serif" font-weight="800" font-size="10">SOURCE</text>
-    <text x="50" y="95" text-anchor="middle" fill="#1E293B" font-family="sans-serif" font-weight="900" font-size="16">100 TB</text>
-  </g>
-
-  <!-- THE ANALYZER: s3lim Lambda (Central Hub) -->
-  <g filter="url(#dropshadow)" transform="translate(340, 130)">
-    <!-- Hexagonal Hub -->
-    <path d="M60 0 L112 30 L112 90 L60 120 L8 90 L8 30 Z" fill="url(#blueGradient)" />
-    <path d="M60 10 L102 35 L102 85 L60 110 L18 85 L18 35 Z" fill="white" fill-opacity="0.1" />
-    <path d="M35 30 L85 60 L35 90 L55 60 Z" fill="white" /> <!-- Lambda Symbol -->
-    <text x="60" y="145" text-anchor="middle" fill="#2563EB" font-family="sans-serif" font-weight="800" font-size="12">s3lim ENGINE</text>
-    <text x="60" y="160" text-anchor="middle" fill="#94A3B8" font-family="sans-serif" font-size="10" font-weight="bold">In-Account Analysis</text>
-  </g>
-
-  <!-- OUTPUT: Component Breakdown -->
-  <g transform="translate(580, 80)">
-    <!-- Item 1: Duplicates -->
-    <g filter="url(#dropshadow)" transform="translate(0, 0)">
-      <rect width="140" height="60" rx="12" fill="white" stroke="#F1F5F9" stroke-width="2"/>
-      <rect x="10" y="15" width="30" height="30" rx="6" fill="#FEE2E2"/>
-      <text x="18" y="36" fill="#EF4444" font-size="14">👯</text>
-      <text x="50" y="30" fill="#1E293B" font-family="sans-serif" font-weight="bold" font-size="12">Duplicates</text>
-      <text x="50" y="45" fill="#94A3B8" font-family="sans-serif" font-size="10">24 TB Waste</text>
-    </g>
-
-    <!-- Item 2: Hotspots -->
-    <g filter="url(#dropshadow)" transform="translate(20, 90)">
-      <rect width="140" height="60" rx="12" fill="white" stroke="#F1F5F9" stroke-width="2"/>
-      <rect x="10" y="15" width="30" height="30" rx="6" fill="#FFEDD5"/>
-      <text x="18" y="36" fill="#F59E0B" font-size="14">🔥</text>
-      <text x="50" y="30" fill="#1E293B" font-family="sans-serif" font-weight="bold" font-size="12">Hotspots</text>
-      <text x="50" y="45" fill="#94A3B8" font-family="sans-serif" font-size="10">/data/logs</text>
-    </g>
-
-    <!-- Item 3: Ghost Versions -->
-    <g filter="url(#dropshadow)" transform="translate(0, 180)">
-      <rect width="140" height="60" rx="12" fill="white" stroke="#F1F5F9" stroke-width="2"/>
-      <rect x="10" y="15" width="30" height="30" rx="6" fill="#DBEAFE"/>
-      <text x="18" y="36" fill="#3B82F6" font-size="14">👻</text>
-      <text x="50" y="30" fill="#1E293B" font-family="sans-serif" font-weight="bold" font-size="12">Ghost Data</text>
-      <text x="50" y="45" fill="#94A3B8" font-family="sans-serif" font-size="10">Old Versions</text>
-    </g>
-  </g>
-
-  <!-- Connectors -->
-  <path d="M200 190 C 250 190, 290 190, 340 190" stroke="#CBD5E1" stroke-width="2" marker-end="url(#arrowhead)"/>
-  <path d="M460 170 C 500 170, 520 110, 580 110" stroke="#3B82F6" stroke-width="2" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
-  <path d="M460 190 C 500 190, 540 190, 580 190" stroke="#3B82F6" stroke-width="2" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
-  <path d="M460 210 C 500 210, 520 270, 580 270" stroke="#3B82F6" stroke-width="2" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
-
-  <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#CBD5E1" />
     </marker>
+    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#EF4444" fill-opacity="0.4" />
+    </marker>
   </defs>
+
+  <!-- BACKGROUND: Subtle Flow Path -->
+  <path d="M100 150 H 700" stroke="#F1F5F9" stroke-width="1" stroke-dasharray="10 10" />
+
+  <!-- STAGE 1: SOURCE BUCKET -->
+  <g filter="url(#dropshadow)" transform="translate(30, 80)">
+    <!-- Handle -->
+    <path d="M20 30 C 20 -5, 80 -5, 80 30" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+    <!-- Body -->
+    <path d="M10 30 L 18 100 C 18 115, 82 115, 82 100 L 90 30 Z" fill="white" stroke="#E2E8F0" stroke-width="2"/>
+    <!-- Fill (2/3) -->
+    <path d="M15 55 L 18 100 C 18 115, 82 115, 82 100 L 85 55 C 85 55, 50 62, 15 55 Z" fill="#DBEAFE" />
+    <!-- Rim -->
+    <ellipse cx="50" cy="30" rx="40" ry="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
+    <text x="50" y="80" text-anchor="middle" fill="#94A3B8" font-family="sans-serif" font-weight="800" font-size="8">SOURCE</text>
+    <text x="50" y="95" text-anchor="middle" fill="#1E293B" font-family="sans-serif" font-weight="900" font-size="12">100 TB</text>
+  </g>
+
+  <!-- STAGE 2: s3lim ENGINE -->
+  <g filter="url(#dropshadow)" transform="translate(180, 110)">
+    <path d="M40 0 L75 20 L75 60 L40 80 L5 60 L5 20 Z" fill="url(#blueGradient)" />
+    <path d="M22 25 L58 40 L22 55 L32 40 Z" fill="white" />
+    <text x="40" y="100" text-anchor="middle" fill="#2563EB" font-family="sans-serif" font-weight="800" font-size="10">s3lim</text>
+  </g>
+
+  <!-- STAGE 3: PREFIX BREAKDOWN -->
+  <g transform="translate(330, 45)">
+    <g filter="url(#dropshadow)" transform="translate(0, 0)">
+      <rect width="100" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
+      <text x="12" y="23" fill="#1E293B" font-family="monospace" font-weight="bold" font-size="10">/users</text>
+      <text x="70" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">40 TB</text>
+    </g>
+    <g filter="url(#dropshadow)" transform="translate(15, 85)">
+      <rect width="100" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
+      <text x="12" y="23" fill="#1E293B" font-family="monospace" font-weight="bold" font-size="10">/logs</text>
+      <text x="70" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">30 TB</text>
+    </g>
+    <g filter="url(#dropshadow)" transform="translate(0, 170)">
+      <rect width="100" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
+      <text x="12" y="23" fill="#1E293B" font-family="monospace" font-weight="bold" font-size="10">/tmp</text>
+      <text x="70" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">30 TB</text>
+    </g>
+  </g>
+
+  <!-- STAGE 4: INSIGHTS -->
+  <g transform="translate(480, 30)">
+    <text id="i1" x="0" y="25" fill="#EF4444" font-family="sans-serif" font-weight="bold" font-size="10">Duplicates (12TB)</text>
+    <text id="i2" x="10" y="85" fill="#F59E0B" font-family="sans-serif" font-weight="bold" font-size="10">Ghost Data (8TB)</text>
+    <text id="i3" x="25" y="115" fill="#6366F1" font-family="sans-serif" font-weight="bold" font-size="10">Wasteful Tier (14TB)</text>
+    <text id="i4" x="15" y="145" fill="#3B82F6" font-family="sans-serif" font-weight="bold" font-size="10">Small Files (5TB)</text>
+    <text id="i5" x="0" y="225" fill="#047857" font-family="sans-serif" font-weight="bold" font-size="10">Abandoned (5TB)</text>
+  </g>
+
+  <!-- STAGE 5: TOTAL WASTE (Outcome) -->
+  <g filter="url(#dropshadow)" transform="translate(660, 120)">
+    <rect width="110" height="90" rx="16" fill="#FEF2F2" stroke="#EF4444" stroke-width="2" stroke-dasharray="4 2"/>
+    <text x="55" y="25" text-anchor="middle" fill="#991B1B" font-family="sans-serif" font-weight="800" font-size="8">TOTAL WASTE</text>
+    <text x="55" y="55" text-anchor="middle" fill="#B91C1C" font-family="sans-serif" font-weight="900" font-size="20">44 TB</text>
+    <text x="55" y="78" text-anchor="middle" fill="#EF4444" font-family="sans-serif" font-weight="bold" font-size="11">$1,012/mo</text>
+  </g>
+
+  <!-- CONNECTORS (Source -> Hub -> Prefixes -> Insights -> Total) -->
+  <path d="M120 150 C 140 150, 160 150, 185 150" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
+
+  <path d="M255 150 C 290 150, 310 63, 330 63" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
+  <path d="M255 150 C 290 150, 310 150, 345 148" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
+  <path d="M255 150 C 290 150, 310 233, 330 233" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
+
+  <!-- Prefixes to Insights -->
+  <path d="M430 63 C 450 63, 460 51, 480 51" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
+  <path d="M445 148 C 465 148, 470 111, 490 111" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
+  <path d="M445 148 C 465 148, 485 141, 505 141" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
+  <path d="M445 148 C 465 148, 475 171, 495 171" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
+  <path d="M430 233 C 450 233, 460 251, 480 251" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
+
+  <!-- Insights to Total Outcome (Contributing) -->
+  <path d="M580 51 C 630 51, 630 150, 660 150" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
+  <path d="M595 111 C 630 111, 640 160, 660 160" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
+  <path d="M605 141 C 630 141, 645 165, 660 165" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
+  <path d="M600 171 C 630 171, 640 180, 660 180" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
+  <path d="M580 251 C 630 251, 640 200, 660 200" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
 </svg>

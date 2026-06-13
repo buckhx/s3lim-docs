@@ -57,73 +57,73 @@
 
     <main class="flex-grow">
         
-<div class="container text-center space-y-32 py-24">
-    <section class="hero space-y-12 max-w-4xl mx-auto">
-        <h1 class="text-5xl md:text-6xl tracking-tight leading-none font-black">Securely Analyze S3 Costs Without Data Egress</h1>
-        <p class="text-2xl text-slate-500 leading-relaxed max-w-2xl mx-auto">Analyze billions of objects directly in your AWS account. s3lim surfaces hidden costs and optimization opportunities without your data ever leaving your VPC.</p>
-        <div class="pt-8">
-            <a href="/getting-started/autopilot/" class="btn-primary text-xl px-12 py-5">Start Saving Now</a>
+<div class="container text-center py-12 md:py-20 space-y-16 md:space-y-24">
+    <section class="hero space-y-8 max-w-4xl mx-auto">
+        <h1 class="text-5xl md:text-6xl tracking-tight leading-tight font-black">Securely Analyze S3 Costs Without Data Egress</h1>
+        <p class="text-xl md:text-2xl text-slate-500 leading-relaxed max-w-2xl mx-auto">Analyze billions of objects directly in your AWS account. s3lim surfaces hidden costs and optimization opportunities without your data ever leaving your VPC.</p>
+        <div class="pt-4">
+            <a href="/getting-started/autopilot/" class="btn-primary text-xl px-10 py-4">Start Saving Now</a>
         </div>
     </section>
 
     
-    <div class="max-w-5xl mx-auto py-12 relative group">
+    <div class="max-w-5xl mx-auto relative group">
         <div class="absolute inset-0 bg-blue-50 rounded-full blur-3xl opacity-20 scale-125 group-hover:opacity-30 transition-opacity"></div>
-        <img src="/hero-xray.svg" class="w-full h-auto relative z-10" alt="s3lim S3 Cost X-Ray Visual">
+        <img src="/hero-diagram.svg" class="w-full h-auto relative z-10" alt="s3lim S3 Cost Deconstruction Diagram">
     </div>
 
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-x-16 gap-y-24 text-left border-t border-slate-100 pt-32">
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-16 text-left border-t border-slate-100 pt-16 md:pt-24">
         
-        <div class="space-y-6 group">
-            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">🛡️</div>
-            <h3 class="text-2xl font-black tracking-tight">Zero Egress Security</h3>
-            <p class="text-slate-500 leading-relaxed text-lg">Analyze your storage in-place. No data ever leaves your account, ensuring 100% compliance and zero data transfer costs.</p>
+        <div class="space-y-4 group">
+            <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">🛡️</div>
+            <h3 class="text-xl font-black tracking-tight">Zero Egress Security</h3>
+            <p class="text-slate-500 leading-relaxed">Analyze your storage in-place. No data ever leaves your account, ensuring 100% compliance and zero data transfer costs.</p>
         </div>
         
-        <div class="space-y-6 group">
-            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">👯</div>
-            <h3 class="text-2xl font-black tracking-tight">Duplicate Detection</h3>
-            <p class="text-slate-500 leading-relaxed text-lg">Identify identical files across prefixes and buckets. Surface redundant data that is silently inflating your monthly bill.</p>
+        <div class="space-y-4 group">
+            <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">👯</div>
+            <h3 class="text-xl font-black tracking-tight">Duplicate Detection</h3>
+            <p class="text-slate-500 leading-relaxed">Identify identical files across prefixes and buckets. Surface redundant data that is silently inflating your monthly bill.</p>
         </div>
         
-        <div class="space-y-6 group">
-            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">🔥</div>
-            <h3 class="text-2xl font-black tracking-tight">Prefix Hotspots</h3>
-            <p class="text-slate-500 leading-relaxed text-lg">Instantly find which folders are growing fastest. Pinpoint &#39;hot&#39; storage areas that need Lifecycle or Intelligent Tiering policies.</p>
+        <div class="space-y-4 group">
+            <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">🔥</div>
+            <h3 class="text-xl font-black tracking-tight">Prefix Hotspots</h3>
+            <p class="text-slate-500 leading-relaxed">Instantly find which folders are growing fastest. Pinpoint &#39;hot&#39; storage areas that need Lifecycle or Intelligent Tiering policies.</p>
         </div>
         
-        <div class="space-y-6 group">
-            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">👻</div>
-            <h3 class="text-2xl font-black tracking-tight">Ghost Versions</h3>
-            <p class="text-slate-500 leading-relaxed text-lg">Find and remove non-current object versions and delete markers that add up to significant hidden storage overhead.</p>
+        <div class="space-y-4 group">
+            <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">👻</div>
+            <h3 class="text-xl font-black tracking-tight">Ghost Versions</h3>
+            <p class="text-slate-500 leading-relaxed">Find and remove non-current object versions and delete markers that add up to significant hidden storage overhead.</p>
         </div>
         
-        <div class="space-y-6 group">
-            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">📦</div>
-            <h3 class="text-2xl font-black tracking-tight">Unfinished Uploads</h3>
-            <p class="text-slate-500 leading-relaxed text-lg">Surface incomplete multipart uploads that occupy space and cost money, but are invisible to standard S3 management tools.</p>
+        <div class="space-y-4 group">
+            <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">📦</div>
+            <h3 class="text-xl font-black tracking-tight">Unfinished Uploads</h3>
+            <p class="text-slate-500 leading-relaxed">Surface incomplete multipart uploads that occupy space and cost money, but are invisible to standard S3 management tools.</p>
         </div>
         
-        <div class="space-y-6 group">
-            <div class="text-5xl group-hover:scale-110 transition-transform origin-left duration-300">☁️</div>
-            <h3 class="text-2xl font-black tracking-tight">Native AWS Integration</h3>
-            <p class="text-slate-500 leading-relaxed text-lg">Deploys directly as a Lambda function. Manage everything via the AWS Console with zero infrastructure to maintain.</p>
+        <div class="space-y-4 group">
+            <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">☁️</div>
+            <h3 class="text-xl font-black tracking-tight">Native AWS Integration</h3>
+            <p class="text-slate-500 leading-relaxed">Deploys directly as a Lambda function. Manage everything via the AWS Console with zero infrastructure to maintain.</p>
         </div>
         
     </section>
 
-    <section class="space-y-24 py-24 border-t border-slate-100">
-        <h2 class="text-5xl font-black tracking-tight">How it Works</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 text-left">
+    <section class="space-y-16 py-12 border-t border-slate-100">
+        <h2 class="text-4xl font-black tracking-tight">How it Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 text-left">
             
-            <div class="bg-white p-12 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <h3 class="text-3xl font-bold tracking-tight">Massive Scale, Tiny Footprint</h3>
-                <p class="text-slate-500 leading-relaxed text-xl">Built in high-performance Go, s3lim analyzes billions of objects in minutes using constant memory. It&#39;s engineered to scale to the world&#39;s largest S3 buckets without breaking a sweat.</p>
+            <div class="bg-white p-8 md:p-12 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <h3 class="text-2xl md:text-3xl font-bold tracking-tight">Massive Scale, Tiny Footprint</h3>
+                <p class="text-slate-500 leading-relaxed text-lg">Built in high-performance Go, s3lim analyzes billions of objects in minutes using constant memory. It&#39;s engineered to scale to the world&#39;s largest S3 buckets without breaking a sweat.</p>
             </div>
             
-            <div class="bg-white p-12 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <h3 class="text-3xl font-bold tracking-tight">Serverless Efficiency</h3>
-                <p class="text-slate-500 leading-relaxed text-xl">Running entirely on AWS Lambda, s3lim provides a cost-effective, on-demand analysis engine that only runs when you need it. No servers to manage, no idle costs.</p>
+            <div class="bg-white p-8 md:p-12 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <h3 class="text-2xl md:text-3xl font-bold tracking-tight">Serverless Efficiency</h3>
+                <p class="text-slate-500 leading-relaxed text-lg">Running entirely on AWS Lambda, s3lim provides a cost-effective, on-demand analysis engine that only runs when you need it. No servers to manage, no idle costs.</p>
             </div>
             
         </div>
