@@ -1,6 +1,15 @@
 ---
 title: "The Small File Trap"
 description: "How small files can inflate your S3 costs and how to detect them with s3lim."
+howto_steps:
+  - name: "Run a s3lim Analysis"
+    text: "Deploy s3lim to your AWS account and run a scan on the target bucket to gather metrics."
+  - name: "Identify Small File Density"
+    text: "Review the 'Small File Density' metric in the CloudWatch dashboard to find prefixes where objects are consistently under 128KB."
+  - name: "Batch Data"
+    text: "Modify your upstream application to aggregate records into larger Parquet or Avro files (aiming for 128MB+)."
+  - name: "Consolidate Existing Objects"
+    text: "Run a one-time compaction job to merge existing small objects into larger archives to reduce request and storage costs."
 ---
 
 # The Small File Trap

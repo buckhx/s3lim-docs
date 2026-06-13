@@ -1,0 +1,65 @@
+{{ if .IsHome }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "s3lim",
+  "operatingSystem": "AWS Lambda, Linux, macOS, Windows",
+  "applicationCategory": "DevOpsApplication, StorageOptimization",
+  "description": "High-performance S3 inventory analysis for cost optimization and observability.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0.20",
+    "priceCurrency": "USD",
+    "description": "per million objects analyzed"
+  },
+  "requirements": "Amazon S3 Inventory"
+}
+</script>
+{{ end }}
+
+{{ if isset .Params "faq_items" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {{ range $index, $element := .Params.faq_items }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "Question",
+      "name": "{{ .question }}",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "{{ .answer }}"
+      }
+    }
+    {{ end }}
+  ]
+}
+</script>
+{{ end }}
+
+{{ if isset .Params "howto_steps" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "{{ .Title }}",
+  "description": "{{ .Description }}",
+  "step": [
+    {{ range $index, $element := .Params.howto_steps }}
+    {{ if $index }},{{ end }}
+    {
+      "@type": "HowToStep",
+      "name": "{{ .name }}",
+      "itemListElement": [{
+        "@type": "HowToDirection",
+        "text": "{{ .text }}"
+      }]
+    }
+    {{ end }}
+  ]
+}
+</script>
+{{ end }}
