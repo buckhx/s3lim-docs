@@ -31,6 +31,119 @@
         {{ end }}
     </section>
 
+    <section class="space-y-12 py-12 border-t border-slate-100 bg-slate-50/50 -mx-6 px-6 md:-mx-12 md:px-12">
+        <div class="text-center space-y-4 max-w-2xl mx-auto">
+            <h2 class="text-4xl font-black tracking-tight">Savings Calculator</h2>
+            <h4 class="text-blue-600 font-bold tracking-widest text-xs uppercase text-center">ROI Estimator (US-East-1)</h4>
+            <p class="text-slate-500 leading-relaxed text-center">Estimate the cost of a full analysis and your potential monthly savings.</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl border border-slate-100 shadow-xl space-y-10">
+            <div class="space-y-4">
+                <label for="object-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest text-center">Number of Objects</label>
+                <div class="relative max-w-md mx-auto">
+                    <input type="number" id="object-count" value="10000000" step="1000000" min="1000000" 
+                        class="w-full text-4xl font-black text-center py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:ring-0 transition-colors">
+                    <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none">
+                        <span class="text-slate-400 font-bold uppercase text-xs tracking-tighter">Objects</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Analysis Costs -->
+                <div class="space-y-6">
+                    <h3 class="text-xl font-bold border-b border-slate-100 pb-4">Analysis Infrastructure <span class="text-slate-400 font-normal text-sm">(Monthly)</span></h3>
+                    <ul class="space-y-3 list-none p-0 m-0">
+                        <li class="flex justify-between text-sm">
+                            <span class="text-slate-500">Inventory Generation</span>
+                            <span class="font-mono font-bold" id="cost-inventory">$0.00</span>
+                        </li>
+                        <li class="flex justify-between text-sm">
+                            <span class="text-slate-500">Inventory Storage (CSV)</span>
+                            <span class="font-mono font-bold" id="cost-storage-inv">$0.00</span>
+                        </li>
+                        <li class="flex justify-between text-sm">
+                            <span class="text-slate-500">s3lim Lambda (512MB)</span>
+                            <span class="font-mono font-bold" id="cost-lambda">$0.00</span>
+                        </li>
+                        <li class="flex justify-between text-sm">
+                            <span class="text-slate-500">CloudWatch Metrics & Logs</span>
+                            <span class="font-mono font-bold" id="cost-cw">$3.10</span>
+                        </li>
+                        <li class="flex justify-between pt-4 border-t border-slate-50">
+                            <span class="font-bold">Total Cost</span>
+                            <span class="font-mono font-black text-slate-900" id="cost-total">$0.00</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Savings -->
+                <div class="bg-blue-600 rounded-2xl p-8 text-white space-y-6 shadow-lg shadow-blue-200">
+                    <h3 class="text-xl font-bold border-b border-blue-500 pb-4">Estimated Savings</h3>
+                    <div class="space-y-2">
+                        <div class="text-5xl font-black" id="savings-monthly">$0.00</div>
+                        <div class="text-blue-100 text-sm font-medium uppercase tracking-wider">Potential Monthly Savings</div>
+                    </div>
+                    <div class="pt-6 border-t border-blue-500">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-5 h-5 text-blue-200" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3.005 3.005 0 013.75-2.906z"/></svg>
+                            <span>Pays for itself in <span class="font-bold underline" id="roi-days">0</span> days</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-[10px] text-slate-400 text-center leading-tight">
+                Assumes S3 Standard in us-east-1. Savings estimate based on a conservative 10% reduction in total storage bill via lifecycle optimization, duplicate removal, and fixing small file traps. Actual savings vary by data profile.
+            </p>
+        </div>
+    </section>
+
+    <script>
+        const input = document.getElementById('object-count');
+        const elements = {
+            inventory: document.getElementById('cost-inventory'),
+            storageInv: document.getElementById('cost-storage-inv'),
+            lambda: document.getElementById('cost-lambda'),
+            total: document.getElementById('cost-total'),
+            savings: document.getElementById('savings-monthly'),
+            roi: document.getElementById('roi-days')
+        };
+
+        function calculate() {
+            const n = parseFloat(input.value) || 0;
+            const m = n / 1000000; // millions of objects
+
+            // Costs (US-East-1)
+            const costInvGen = m * 0.0025;
+            const costInvStore = m * 0.14 * 0.023; // ~140MB per 1M objects
+            const costLambda = m * 30000 * 0.0000000083; // 30s per 1M objects @ 512MB
+            const costCW = 3.10; // Fixed monthly for metrics + small logging
+
+            const totalCost = costInvGen + costInvStore + costLambda + costCW;
+
+            // Savings
+            // Assume average object size of 1MB (conservative enterprise average)
+            const totalStorageGB = (n * 1024 * 1024) / (1024 * 1024 * 1024); 
+            const monthlyStorageBill = totalStorageGB * 0.023;
+            const potentialSavings = monthlyStorageBill * 0.10; // 10% savings
+
+            const roiDays = potentialSavings > 0 ? Math.ceil((totalCost / potentialSavings) * 30) : 0;
+
+            // Update UI
+            elements.inventory.innerText = '$' + costInvGen.toFixed(2);
+            elements.storageInv.innerText = '$' + costInvStore.toFixed(2);
+            elements.lambda.innerText = '$' + costLambda.toFixed(2);
+            elements.total.innerText = '$' + totalCost.toFixed(2);
+            elements.savings.innerText = '$' + Math.floor(potentialSavings).toLocaleString();
+            elements.roi.innerText = roiDays;
+        }
+
+        input.addEventListener('input', calculate);
+        calculate();
+    </script>
+
     <section class="space-y-12 py-12 border-t border-slate-100">
         <div class="text-center space-y-4 max-w-2xl mx-auto">
             <h2 class="text-4xl font-black tracking-tight">{{ .Params.pricing.title }}</h2>
