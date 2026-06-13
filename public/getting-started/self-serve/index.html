@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metrics Reference | s3lim</title>
+    <title>Self-Serve Deployment | s3lim</title>
     <meta name="description" content="High-performance S3 inventory analysis">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -77,25 +77,41 @@
             </nav>
         </aside>
         <article class="prose prose-slate max-w-none flex-grow">
-            <p>Available CloudWatch metrics produced by the <code>s3lim</code> analysis engine.</p>
-
-            <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                <a href="/metrics/overview/" class="block p-6 rounded-xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 no-underline group">
-                    <h3 class="m-0 text-lg group-hover:text-blue-600 transition-colors">Available Metrics</h3>
-                    <p class="m-0 mt-2 text-sm text-slate-500"><h1 id="available-cloudwatch-metrics">Available CloudWatch Metrics</h1>
-<p><code>s3lim</code> surfaces storage insights through two primary mechanisms in AWS CloudWatch: <strong>Direct Metrics</strong> and <strong>Log-Based Metrics</strong>. These metrics are automatically displayed in the CloudWatch Dashboard provided by the deployment templates.</p>
-<h2 id="metric-types--naming">Metric Types &amp; Naming</h2>
-<h3 id="rollup-vs-direct-metrics">Rollup vs. Direct Metrics</h3>
+            <h1 id="self-serve-deployment-byo-iam">Self-Serve Deployment (BYO-IAM)</h1>
+<p>This guide is for Cloud Architects and teams who require granular control over IAM roles, KMS encryption, and VPC networking.</p>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<p>The Self-Serve deployment uses the <code>readonly</code> template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.</p>
+<h2 id="iam-requirements">IAM Requirements</h2>
+<p>Your Lambda execution role must have the following permissions:</p>
+<h3 id="s3-permissions">S3 Permissions</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;Version&#34;</span>: <span style="color:#e6db74">&#34;2012-10-17&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;Statement&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Effect&#34;</span>: <span style="color:#e6db74">&#34;Allow&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Action&#34;</span>: [<span style="color:#e6db74">&#34;s3:GetObject&#34;</span>, <span style="color:#e6db74">&#34;s3:ListBucket&#34;</span>],
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Resource&#34;</span>: [
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;arn:aws:s3:::your-inventory-bucket&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;arn:aws:s3:::your-inventory-bucket/*&#34;</span>
+</span></span><span style="display:flex;"><span>            ]
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="cloudwatch-permissions">CloudWatch Permissions</h3>
 <ul>
-<li><strong>Rollup Metrics</strong> (default): Aggregate data recursively across prefix levels. For example, a rollup metric for the <code>/data/</code> prefix includes all objects in <code>/data/logs/</code> and <code>/data/temp/</code>. These are essential for high-level cost deconstruction.</li>
-<li><strong>Direct Metrics</strong>: Only include objects located exactly within that specific prefix level. These are useful for surgical analysis of a single folder&rsquo;s contents.</li>
+<li><code>cloudwatch:PutMetricData</code> (Namespace: <code>s3lim</code>)</li>
+<li><code>logs:CreateLogStream</code></li>
+<li><code>logs:PutLogEvents</code></li>
 </ul>
-<h3 id="metric-dimensions">Metric Dimensions</h3>
-<p>Most metrics are partitioned by:</p></p>
-                </a>
-                
-            </div>
+<h2 id="deployment-steps">Deployment Steps</h2>
+<ol>
+<li>Create the IAM role with the permissions above.</li>
+<li>Deploy the <code>s3lim-readonly</code> stack via SAM or CloudFormation.</li>
+<li>Provide the <code>LambdaRoleArn</code> as a parameter.</li>
+<li>Manually configure your S3 Inventory to deliver to your chosen bucket.</li>
+<li>Add an S3 Event Notification to trigger the <code>s3lim</code> Lambda ARN.</li>
+</ol>
+
         </article>
     </div>
 </div>

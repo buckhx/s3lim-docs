@@ -1,14 +1,14 @@
 ---
-title: "Enterprise Deployment (BYO-IAM)"
+title: "Self-Serve Deployment"
 weight: 2
 ---
 
-# Enterprise Deployment (BYO-IAM)
+# Self-Serve Deployment (BYO-IAM)
 
-This guide is for Cloud Architects and InfoSec teams who require granular control over IAM roles, KMS encryption, and VPC networking.
+This guide is for Cloud Architects and teams who require granular control over IAM roles, KMS encryption, and VPC networking.
 
 ## Architecture Overview
-The Enterprise deployment uses the `readonly` template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.
+The Self-Serve deployment uses the `readonly` template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.
 
 ## IAM Requirements
 Your Lambda execution role must have the following permissions:
