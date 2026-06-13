@@ -71,25 +71,13 @@
         </div>
 
         <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl border border-slate-100 shadow-xl space-y-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-                <div class="space-y-4 text-center">
-                    <label for="object-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest">Number of Objects</label>
-                    <div class="relative">
-                        <input type="text" id="object-count" value="100" 
-                            class="w-full text-4xl font-black text-center py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:ring-0 transition-colors">
-                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                            <span class="text-slate-400 font-bold uppercase text-[10px] tracking-tighter">M Objects</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="space-y-4 text-center">
-                    <label for="prefix-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest">Custom Prefixes</label>
-                    <div class="relative">
-                        <input type="number" id="prefix-count" value="10" step="1" min="0" 
-                            class="w-full text-4xl font-black text-center py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:ring-0 transition-colors">
-                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                            <span class="text-slate-400 font-bold uppercase text-[10px] tracking-tighter">Prefixes</span>
-                        </div>
+            <div class="space-y-4 text-center">
+                <label for="object-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest">Number of Objects (Millions)</label>
+                <div class="relative max-w-md mx-auto">
+                    <input type="text" id="object-count" value="100" 
+                        class="w-full text-4xl font-black text-center py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:ring-0 transition-colors">
+                    <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none">
+                        <span class="text-slate-400 font-bold uppercase text-xs tracking-tighter">M Objects</span>
                     </div>
                 </div>
             </div>
@@ -127,10 +115,6 @@
                             <span class="text-slate-500">s3lim Core</span>
                             <span class="font-mono font-bold" id="cost-s3lim-core">$0.00</span>
                         </li>
-                        <li class="flex justify-between text-sm">
-                            <span class="text-slate-500">Prefix Tracking</span>
-                            <span class="font-mono font-bold" id="cost-s3lim-prefixes">$0.00</span>
-                        </li>
                         <li class="flex justify-between pt-4 border-t border-slate-50">
                             <span class="font-bold">Total Cost</span>
                             <span class="font-mono font-black text-slate-900" id="cost-total">$0.00</span>
@@ -162,13 +146,11 @@
 
     <script>
         const input = document.getElementById('object-count');
-        const prefixInput = document.getElementById('prefix-count');
         const elements = {
             inventory: document.getElementById('cost-inventory'),
             storageInv: document.getElementById('cost-storage-inv'),
             lambda: document.getElementById('cost-lambda'),
             s3limCore: document.getElementById('cost-s3lim-core'),
-            s3limPrefixes: document.getElementById('cost-s3lim-prefixes'),
             total: document.getElementById('cost-total'),
             savings: document.getElementById('savings-monthly'),
             roi: document.getElementById('roi-days'),
@@ -182,7 +164,6 @@
         function calculate() {
             const rawValue = input.value.replace(/,/g, '');
             const m = parseFloat(rawValue) || 0; // millions of objects
-            const p = parseFloat(prefixInput.value) || 0; // prefixes
             const n = m * 1000000;
 
             // Costs (US-East-1)
@@ -195,9 +176,8 @@
             const costCW = 3.10; // Fixed monthly for metrics + small logging
             
             const costS3limCore = m * 0.20;
-            const costS3limPrefixes = m * p * 0.01;
 
-            const totalCost = costInvGen + costInvStore + costLambda + costCW + costS3limCore + costS3limPrefixes;
+            const totalCost = costInvGen + costInvStore + costLambda + costCW + costS3limCore;
 
             // Savings
             // Assume average object size of 1MB (conservative enterprise average)
@@ -212,7 +192,6 @@
             elements.storageInv.innerText = '$' + costInvStore.toFixed(2);
             elements.lambda.innerText = '$' + costLambda.toFixed(2);
             elements.s3limCore.innerText = '$' + costS3limCore.toFixed(2);
-            elements.s3limPrefixes.innerText = '$' + costS3limPrefixes.toFixed(2);
             elements.total.innerText = '$' + totalCost.toFixed(2);
             elements.savings.innerText = '$' + Math.floor(potentialSavings).toLocaleString();
             elements.roi.innerText = roiDays;
@@ -227,8 +206,6 @@
             e.target.setSelectionRange(cursor + (newLen - oldLen), cursor + (newLen - oldLen));
             calculate();
         });
-
-        prefixInput.addEventListener('input', calculate);
         
         // Initial format and calc
         input.value = formatCommas(input.value);
