@@ -33,15 +33,4 @@ Every object in S3 has index metadata. Managing millions of small objects increa
 
 ## Detecting the Trap with s3lim
 
-`s3lim` makes it easy to identify if your buckets are suffering from the small file trap. By analyzing your inventory, `s3lim` provides:
-
-- **Average Object Size**: A quick indicator of overall bucket health.
-- **Size Distribution**: Histograms showing how much of your storage is consumed by small objects vs. large ones.
-- **Small File Density**: Reports highlighting prefixes with high counts of small files.
-
-## How to Fix It
-
-If `s3lim` identifies a small file problem, consider the following strategies:
-- **Batching**: Aggregate small records into larger Parquet or Avro files before uploading.
-- **S3 Object Lambda**: Use Lambda to serve small logical objects from a larger physical archive.
-- **Compaction Jobs**: Periodically run jobs to merge small files in your data lake.
+`s3lim` makes it easy to identify if your buckets are suffering from the small file trap. By analyzing your inventory, `s3lim` provides histograms showing size distribution and prefix-level density reports.
