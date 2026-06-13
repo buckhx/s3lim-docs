@@ -31,6 +31,38 @@
         {{ end }}
     </section>
 
+    <section class="space-y-12 py-12 border-t border-slate-100">
+        <div class="text-center space-y-4 max-w-2xl mx-auto">
+            <h2 class="text-4xl font-black tracking-tight">{{ .Params.pricing.title }}</h2>
+            <h4 class="text-blue-600 font-bold tracking-widest text-xs uppercase">{{ .Params.pricing.subtitle }}</h4>
+            <p class="text-slate-500 leading-relaxed">{{ .Params.pricing.description }}</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {{ range .Params.pricing.plans }}
+            <div class="bg-white p-10 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl transition-all duration-300">
+                <div class="space-y-2">
+                    <h3 class="text-2xl font-bold tracking-tight">{{ .title }}</h3>
+                    <div class="flex items-baseline gap-1 justify-center">
+                        <span class="text-4xl font-black text-slate-900">{{ .price }}</span>
+                        <span class="text-slate-400 text-sm">{{ .unit }}</span>
+                    </div>
+                </div>
+                <ul class="space-y-3 text-left list-none p-0 m-0 border-t border-slate-50 pt-6">
+                    {{ range .features }}
+                    <li class="flex items-center gap-3 text-slate-600">
+                        <svg class="w-5 h-5 text-green-500 fill-current" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                        {{ . }}
+                    </li>
+                    {{ end }}
+                </ul>
+            </div>
+            {{ end }}
+        </div>
+        <div class="pt-8 text-center">
+            <p class="text-sm text-slate-400">All billing is handled via AWS Marketplace. No credit card required to start.</p>
+        </div>
+    </section>
+
     <section class="space-y-12 py-12 border-t border-slate-100 bg-slate-50/50 -mx-6 px-6 md:-mx-12 md:px-12">
         <div class="text-center space-y-4 max-w-2xl mx-auto">
             <h2 class="text-4xl font-black tracking-tight">Savings Calculator</h2>
@@ -39,10 +71,10 @@
         </div>
 
         <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl border border-slate-100 shadow-xl space-y-10">
-            <div class="space-y-4">
-                <label for="object-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest text-center">Number of Objects (Millions)</label>
+            <div class="space-y-4 text-center">
+                <label for="object-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest">Number of Objects (Millions)</label>
                 <div class="relative max-w-md mx-auto">
-                    <input type="number" id="object-count" value="100" step="1" min="1" 
+                    <input type="text" id="object-count" value="100" 
                         class="w-full text-4xl font-black text-center py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:ring-0 transition-colors">
                     <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none">
                         <span class="text-slate-400 font-bold uppercase text-xs tracking-tighter">M Objects</span>
@@ -50,13 +82,13 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
                 <!-- Analysis Costs -->
                 <div class="space-y-6">
                     <h3 class="text-xl font-bold border-b border-slate-100 pb-4">Analysis Infrastructure <span class="text-slate-400 font-normal text-sm">(Monthly)</span></h3>
                     <ul class="space-y-3 list-none p-0 m-0">
                         <li class="flex justify-between text-sm">
-                            <span class="text-slate-500 italic">Full Monthly Storage Bill</span>
+                            <span class="text-slate-500 italic">Estimated Monthly Storage Bill</span>
                             <span class="font-mono font-bold text-slate-400" id="cost-full-storage">$0.00</span>
                         </li>
                         <li class="flex justify-between text-sm pt-2">
@@ -68,12 +100,20 @@
                             <span class="font-mono font-bold" id="cost-storage-inv">$0.00</span>
                         </li>
                         <li class="flex justify-between text-sm">
-                            <span class="text-slate-500">s3lim Lambda (512MB)</span>
+                            <span class="text-slate-500">Lambda Execution (3GB)</span>
                             <span class="font-mono font-bold" id="cost-lambda">$0.00</span>
                         </li>
                         <li class="flex justify-between text-sm">
                             <span class="text-slate-500">CloudWatch Metrics & Logs</span>
                             <span class="font-mono font-bold" id="cost-cw">$3.10</span>
+                        </li>
+                        <li class="flex justify-between text-sm">
+                            <span class="text-slate-500">Data Egress</span>
+                            <span class="font-mono font-bold text-green-500">$0.00</span>
+                        </li>
+                        <li class="flex justify-between text-sm">
+                            <span class="text-slate-500">s3lim Service Fee</span>
+                            <span class="font-mono font-bold" id="cost-s3lim">$0.00</span>
                         </li>
                         <li class="flex justify-between pt-4 border-t border-slate-50">
                             <span class="font-bold">Total Cost</span>
@@ -84,13 +124,13 @@
 
                 <!-- Savings -->
                 <div class="bg-blue-600 rounded-2xl p-8 text-white space-y-6 shadow-lg shadow-blue-200">
-                    <h3 class="text-xl font-bold border-b border-blue-500 pb-4">Estimated Savings</h3>
-                    <div class="space-y-2">
+                    <h3 class="text-xl font-bold border-b border-blue-500 pb-4 text-left">Estimated Savings</h3>
+                    <div class="space-y-2 text-left">
                         <div class="text-5xl font-black" id="savings-monthly">$0.00</div>
-                        <div class="text-blue-100 text-sm font-medium uppercase tracking-wider">Potential Monthly Savings</div>
+                        <div class="text-blue-100 text-sm font-medium uppercase tracking-wider">Average Monthly Savings</div>
                     </div>
                     <div class="pt-6 border-t border-blue-500">
-                        <div class="flex items-center gap-2 text-sm">
+                        <div class="flex items-center gap-2 text-sm text-left">
                             <svg class="w-5 h-5 text-blue-200" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3.005 3.005 0 013.75-2.906z"/></svg>
                             <span>Pays for itself in <span class="font-bold underline" id="roi-days">0</span> days</span>
                         </div>
@@ -110,29 +150,40 @@
             inventory: document.getElementById('cost-inventory'),
             storageInv: document.getElementById('cost-storage-inv'),
             lambda: document.getElementById('cost-lambda'),
+            s3lim: document.getElementById('cost-s3lim'),
             total: document.getElementById('cost-total'),
             savings: document.getElementById('savings-monthly'),
             roi: document.getElementById('roi-days'),
             fullStorage: document.getElementById('cost-full-storage')
         };
 
+        function formatCommas(val) {
+            return val.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
         function calculate() {
-            const m = parseFloat(input.value) || 0; // millions of objects
+            const rawValue = input.value.replace(/,/g, '');
+            const m = parseFloat(rawValue) || 0; // millions of objects
             const n = m * 1000000;
 
             // Costs (US-East-1)
             const costInvGen = m * 0.0025;
             const costInvStore = m * 0.14 * 0.023; // ~140MB per 1M objects
-            const costLambda = m * 30000 * 0.0000000083; // 30s per 1M objects @ 512MB
+            
+            // Lambda: 300s (5m) per 1M objects @ 3072MB (3GB)
+            // Duration cost: $0.0000166667 per GB-second
+            const costLambda = m * 300 * 3 * 0.0000166667; 
+            
             const costCW = 3.10; // Fixed monthly for metrics + small logging
+            const costS3limFee = m * 0.20;
 
-            const totalCost = costInvGen + costInvStore + costLambda + costCW;
+            const totalCost = costInvGen + costInvStore + costLambda + costCW + costS3limFee;
 
             // Savings
             // Assume average object size of 1MB (conservative enterprise average)
             const totalStorageGB = (n * 1024 * 1024) / (1024 * 1024 * 1024); 
             const monthlyStorageBill = totalStorageGB * 0.023;
-            const potentialSavings = monthlyStorageBill * 0.10; // 10% savings
+            const potentialSavings = monthlyStorageBill * 0.18; // 18% savings
 
             const roiDays = potentialSavings > 0 ? Math.ceil((totalCost / potentialSavings) * 30) : 0;
 
@@ -140,21 +191,26 @@
             elements.inventory.innerText = '$' + costInvGen.toFixed(2);
             elements.storageInv.innerText = '$' + costInvStore.toFixed(2);
             elements.lambda.innerText = '$' + costLambda.toFixed(2);
+            elements.s3lim.innerText = '$' + costS3limFee.toFixed(2);
             elements.total.innerText = '$' + totalCost.toFixed(2);
             elements.savings.innerText = '$' + Math.floor(potentialSavings).toLocaleString();
             elements.roi.innerText = roiDays;
             elements.fullStorage.innerText = '$' + Math.floor(monthlyStorageBill).toLocaleString();
         }
 
-        input.addEventListener('input', calculate);
+        input.addEventListener('input', (e) => {
+            const cursor = e.target.selectionStart;
+            const oldLen = e.target.value.length;
+            e.target.value = formatCommas(e.target.value);
+            const newLen = e.target.value.length;
+            e.target.setSelectionRange(cursor + (newLen - oldLen), cursor + (newLen - oldLen));
+            calculate();
+        });
+        
+        // Initial format and calc
+        input.value = formatCommas(input.value);
         calculate();
     </script>
-
-    <section class="space-y-12 py-12 border-t border-slate-100">
-        <div class="text-center space-y-4 max-w-2xl mx-auto">
-            <h2 class="text-4xl font-black tracking-tight">{{ .Params.pricing.title }}</h2>
-            <h4 class="text-blue-600 font-bold tracking-widest text-xs uppercase">{{ .Params.pricing.subtitle }}</h4>
-            <p class="text-slate-500 leading-relaxed">{{ .Params.pricing.description }}</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {{ range .Params.pricing.plans }}
