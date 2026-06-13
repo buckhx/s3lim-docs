@@ -6,3 +6,8 @@ theme = 's3lim-minimal'
 [params]
   description = 'High-performance S3 inventory analysis'
   github_repo = 'https://github.com/buckhx/s3lim'
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true

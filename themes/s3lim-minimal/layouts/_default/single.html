@@ -1,6 +1,7 @@
 {{ define "main" }}
 <div class="container">
     <div class="flex flex-col md:flex-row gap-16 py-8">
+        {{ if not .Params.hide_sidebar }}
         <aside class="w-full md:w-64 flex-shrink-0">
             <nav class="sticky top-32 space-y-8">
                 {{ if eq .Section "about" }}
@@ -39,7 +40,8 @@
                 {{ end }}
             </nav>
         </aside>
-        <article class="prose prose-slate max-w-none flex-grow">
+        {{ end }}
+        <article class="prose prose-slate max-w-none flex-grow {{ if .Params.hide_sidebar }}max-w-4xl mx-auto text-center{{ end }}">
             {{ .Content }}
         </article>
     </div>
