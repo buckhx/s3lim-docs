@@ -40,12 +40,12 @@
 
         <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl border border-slate-100 shadow-xl space-y-10">
             <div class="space-y-4">
-                <label for="object-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest text-center">Number of Objects</label>
+                <label for="object-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest text-center">Number of Objects (Millions)</label>
                 <div class="relative max-w-md mx-auto">
-                    <input type="number" id="object-count" value="10000000" step="1000000" min="1000000" 
+                    <input type="number" id="object-count" value="100" step="1" min="1" 
                         class="w-full text-4xl font-black text-center py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:ring-0 transition-colors">
                     <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none">
-                        <span class="text-slate-400 font-bold uppercase text-xs tracking-tighter">Objects</span>
+                        <span class="text-slate-400 font-bold uppercase text-xs tracking-tighter">M Objects</span>
                     </div>
                 </div>
             </div>
@@ -56,6 +56,10 @@
                     <h3 class="text-xl font-bold border-b border-slate-100 pb-4">Analysis Infrastructure <span class="text-slate-400 font-normal text-sm">(Monthly)</span></h3>
                     <ul class="space-y-3 list-none p-0 m-0">
                         <li class="flex justify-between text-sm">
+                            <span class="text-slate-500 italic">Full Monthly Storage Bill</span>
+                            <span class="font-mono font-bold text-slate-400" id="cost-full-storage">$0.00</span>
+                        </li>
+                        <li class="flex justify-between text-sm pt-2">
                             <span class="text-slate-500">Inventory Generation</span>
                             <span class="font-mono font-bold" id="cost-inventory">$0.00</span>
                         </li>
@@ -108,12 +112,13 @@
             lambda: document.getElementById('cost-lambda'),
             total: document.getElementById('cost-total'),
             savings: document.getElementById('savings-monthly'),
-            roi: document.getElementById('roi-days')
+            roi: document.getElementById('roi-days'),
+            fullStorage: document.getElementById('cost-full-storage')
         };
 
         function calculate() {
-            const n = parseFloat(input.value) || 0;
-            const m = n / 1000000; // millions of objects
+            const m = parseFloat(input.value) || 0; // millions of objects
+            const n = m * 1000000;
 
             // Costs (US-East-1)
             const costInvGen = m * 0.0025;
@@ -138,6 +143,7 @@
             elements.total.innerText = '$' + totalCost.toFixed(2);
             elements.savings.innerText = '$' + Math.floor(potentialSavings).toLocaleString();
             elements.roi.innerText = roiDays;
+            elements.fullStorage.innerText = '$' + Math.floor(monthlyStorageBill).toLocaleString();
         }
 
         input.addEventListener('input', calculate);
