@@ -10,6 +10,7 @@
                     <ul class="list-none p-0 m-0 space-y-1">
                         <li><a href="{{ "about/" | relURL }}" class="sidebar-link">Our Story</a></li>
                         <li><a href="{{ "about/alternatives/" | relURL }}" class="sidebar-link">Alternatives</a></li>
+                        <li><a href="{{ "about/glossary/" | relURL }}" class="sidebar-link">Glossary</a></li>
                         <li><a href="{{ "about/faq/" | relURL }}" class="sidebar-link">FAQ</a></li>
                     </ul>
                 </div>
@@ -18,7 +19,6 @@
                     <ul class="list-none p-0 m-0 space-y-1">
                         <li><a href="{{ "about/optimization/" | relURL }}" class="sidebar-link">Overview</a></li>
                         <li><a href="{{ "about/optimization/small-file-trap/" | relURL }}" class="sidebar-link">Small File Trap</a></li>
-                        <li><a href="{{ "about/optimization/glossary/" | relURL }}" class="sidebar-link">Glossary</a></li>
                     </ul>
                 </div>
                 {{ else }}
@@ -73,6 +73,42 @@
                     </div>
                     {{ end }}
                 </div>
+            </div>
+            {{ end }}
+
+            {{ if isset .Params "comparison_table" }}
+            <div class="mt-12 block w-full overflow-x-auto">
+                <table class="w-full text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="text-left py-4 px-6 font-bold text-slate-900 border-b-2 border-slate-100">Feature</th>
+                            <th class="text-left py-4 px-6 font-bold text-blue-600 border-b-2 border-blue-100 bg-blue-50/50">s3lim</th>
+                            <th class="text-left py-4 px-6 font-bold text-slate-500 border-b-2 border-slate-100">Storage Lens</th>
+                            <th class="text-left py-4 px-6 font-bold text-slate-500 border-b-2 border-slate-100">Athena</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range .Params.comparison_table }}
+                        <tr>
+                            <td class="py-4 px-6 border-b border-slate-50 font-medium">{{ .feature }}</td>
+                            <td class="py-4 px-6 border-b border-blue-50 bg-blue-50/20 font-bold text-slate-900">{{ .s3lim }}</td>
+                            <td class="py-4 px-6 border-b border-slate-50 text-slate-500">{{ .storage_lens }}</td>
+                            <td class="py-4 px-6 border-b border-slate-50 text-slate-500">{{ .athena }}</td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+            {{ end }}
+
+            {{ if isset .Params "glossary" }}
+            <div class="mt-12 space-y-12">
+                {{ range .Params.glossary }}
+                <div class="glossary-item">
+                    <h2 class="text-2xl font-bold mb-4 text-slate-900">{{ .term }}</h2>
+                    <p class="text-slate-600 leading-relaxed">{{ .definition }}</p>
+                </div>
+                {{ end }}
             </div>
             {{ end }}
         </article>

@@ -16,13 +16,4 @@ glossary:
 
 # S3 Optimization Glossary
 
-Understanding these key terms is essential for effective storage cost management and observability.
-
-<div class="mt-12 space-y-12">
-    {{ range .Params.glossary }}
-    <div class="glossary-item">
-        <h2 class="text-2xl font-bold mb-4 text-slate-900">{{ .term }}</h2>
-        <p class="text-slate-600 leading-relaxed">{{ .answer | default .definition }}</p>
-    </div>
-    {{ end }}
-</div>
+Understanding these key terms is essential for effective storage cost management and observability. Each term represents a core concept that `s3lim` is designed to detect and measure.

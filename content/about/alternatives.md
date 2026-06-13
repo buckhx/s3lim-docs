@@ -26,37 +26,12 @@ comparison_table:
 
 # Comparing S3 Observability Tools
 
-When managing S3 at scale, choosing the right tool depends on your requirements for speed, cost, and depth of insight.
-
-{{ if isset .Params "comparison_table" }}
-<div class="block w-full overflow-x-auto mb-12">
-    <table class="w-full text-sm border-collapse">
-        <thead>
-            <tr class="bg-slate-50">
-                <th class="text-left py-4 px-6 font-bold text-slate-900 border-b-2 border-slate-100">Feature</th>
-                <th class="text-left py-4 px-6 font-bold text-blue-600 border-b-2 border-blue-100 bg-blue-50/50">s3lim</th>
-                <th class="text-left py-4 px-6 font-bold text-slate-500 border-b-2 border-slate-100">Storage Lens</th>
-                <th class="text-left py-4 px-6 font-bold text-slate-500 border-b-2 border-slate-100">Athena</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{ range .Params.comparison_table }}
-            <tr>
-                <td class="py-4 px-6 border-b border-slate-50 font-medium">{{ .feature }}</td>
-                <td class="py-4 px-6 border-b border-blue-50 bg-blue-50/20 font-bold text-slate-900">{{ .s3lim }}</td>
-                <td class="py-4 px-6 border-b border-slate-50 text-slate-500">{{ .storage_lens }}</td>
-                <td class="py-4 px-6 border-b border-slate-50 text-slate-500">{{ .athena }}</td>
-            </tr>
-            {{ end }}
-        </tbody>
-    </table>
-</div>
-{{ end }}
+When managing S3 at scale, choosing the right tool depends on your requirements for speed, cost, and depth of insight. Below is a high-level comparison of the most common methods for S3 inventory analysis.
 
 ## Why use s3lim?
 
 ### 1. Instant Results vs. 24-Hour Latency
-AWS Storage Lens is excellent for high-level trends, but it only updates once a day. If you are performing a migration or a cleanup job, you need instant feedback. **s3lim** runs on-demand and provides results in minutes.
+AWS Storage Lens is excellent for high-level trends, but it only updates once a day. If you are performing a migration, a cleanup job, or a cost-audit, you need instant feedback. **s3lim** runs on-demand and provides results in minutes.
 
 ### 2. Deep Prefix Visibility
 Storage Lens Advanced only provides metrics at the bucket level or for a few top-level prefixes. **s3lim** recursively analyzes your entire directory structure, finding "hotspots" buried ten levels deep.
