@@ -22,8 +22,10 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-12 text-left">
             {{ range .Params.features.features_blocks }}
         <div class="space-y-4 group">
-            <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">{{ .icon }}</div>
-            <h3 class="text-xl font-black tracking-tight">{{ .title }}</h3>
+            <div class="flex items-center gap-4 md:flex-col md:items-start md:gap-4">
+                <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">{{ .icon }}</div>
+                <h3 class="text-xl font-black tracking-tight">{{ .title }}</h3>
+            </div>
             <p class="text-slate-500 leading-relaxed">{{ .content }}</p>
         </div>
         {{ end }}
