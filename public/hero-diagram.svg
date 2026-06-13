@@ -15,33 +15,21 @@
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#CBD5E1" />
-    </marker>
-    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#EF4444" fill-opacity="0.4" />
-    </marker>
   </defs>
 
   <!-- BACKGROUND: Subtle Flow Path -->
-  <path d="M100 150 H 700" stroke="#F1F5F9" stroke-width="1" stroke-dasharray="10 10" />
+  <path d="M100 145 H 700" stroke="#F1F5F9" stroke-width="1" stroke-dasharray="10 10" />
 
-  <!-- STAGE 1: SOURCE BUCKET -->
+  <!-- STAGE 1: SOURCE BUCKET (Center-Y: 145) -->
   <g filter="url(#dropshadow)" transform="translate(30, 80)">
-    <!-- Handle -->
-    <path d="M20 30 C 20 -5, 80 -5, 80 30" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
-    <!-- Body -->
     <path d="M10 30 L 18 100 C 18 115, 82 115, 82 100 L 90 30 Z" fill="white" stroke="#E2E8F0" stroke-width="2"/>
-    <!-- Fill (2/3) -->
-    <path d="M15 55 L 18 100 C 18 115, 82 115, 82 100 L 85 55 C 85 55, 50 62, 15 55 Z" fill="#DBEAFE" />
-    <!-- Rim -->
     <ellipse cx="50" cy="30" rx="40" ry="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
     <text x="50" y="80" text-anchor="middle" fill="#94A3B8" font-family="sans-serif" font-weight="800" font-size="8">SOURCE</text>
     <text x="50" y="95" text-anchor="middle" fill="#1E293B" font-family="sans-serif" font-weight="900" font-size="12">100 TB</text>
   </g>
 
-  <!-- STAGE 2: s3lim ENGINE -->
-  <g filter="url(#dropshadow)" transform="translate(180, 110)">
+  <!-- STAGE 2: s3lim ENGINE (Center-Y: 145) -->
+  <g filter="url(#dropshadow)" transform="translate(180, 105)">
     <path d="M40 0 L75 20 L75 60 L40 80 L5 60 L5 20 Z" fill="url(#blueGradient)" />
     <path d="M22 25 L58 40 L22 55 L32 40 Z" fill="white" />
     <text x="40" y="100" text-anchor="middle" fill="#2563EB" font-family="sans-serif" font-weight="800" font-size="10">s3lim</text>
@@ -49,58 +37,66 @@
 
   <!-- STAGE 3: PREFIX BREAKDOWN -->
   <g transform="translate(330, 45)">
-    <g filter="url(#dropshadow)" transform="translate(0, 0)">
-      <rect width="100" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
+    <!-- /users (Center-Y: 63) -->
+    <g filter="url(#dropshadow)">
+      <rect width="110" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
       <text x="12" y="23" fill="#1E293B" font-family="monospace" font-weight="bold" font-size="10">/users</text>
-      <text x="70" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">40 TB</text>
+      <text x="75" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">40 TB</text>
     </g>
+    <!-- /logs (Center-Y: 148) -->
     <g filter="url(#dropshadow)" transform="translate(15, 85)">
-      <rect width="100" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
+      <rect width="110" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
       <text x="12" y="23" fill="#1E293B" font-family="monospace" font-weight="bold" font-size="10">/logs</text>
-      <text x="70" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">30 TB</text>
+      <text x="75" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">30 TB</text>
     </g>
+    <!-- /tmp (Center-Y: 233) -->
     <g filter="url(#dropshadow)" transform="translate(0, 170)">
-      <rect width="100" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
+      <rect width="110" height="36" rx="8" fill="white" stroke="#F1F5F9" stroke-width="2"/>
       <text x="12" y="23" fill="#1E293B" font-family="monospace" font-weight="bold" font-size="10">/tmp</text>
-      <text x="70" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">30 TB</text>
+      <text x="75" y="23" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="9">30 TB</text>
     </g>
   </g>
 
-  <!-- STAGE 4: INSIGHTS -->
+  <!-- STAGE 4: INSIGHTS (Y adjusted to align with links) -->
   <g transform="translate(480, 30)">
-    <text id="i1" x="0" y="25" fill="#EF4444" font-family="sans-serif" font-weight="bold" font-size="10">Duplicates (12TB)</text>
-    <text id="i2" x="10" y="85" fill="#F59E0B" font-family="sans-serif" font-weight="bold" font-size="10">Ghost Data (8TB)</text>
-    <text id="i3" x="25" y="115" fill="#6366F1" font-family="sans-serif" font-weight="bold" font-size="10">Wasteful Tier (14TB)</text>
-    <text id="i4" x="15" y="145" fill="#3B82F6" font-family="sans-serif" font-weight="bold" font-size="10">Small Files (5TB)</text>
-    <text id="i5" x="0" y="225" fill="#047857" font-family="sans-serif" font-weight="bold" font-size="10">Abandoned (5TB)</text>
+    <text x="0" y="25" fill="#EF4444" font-family="sans-serif" font-weight="bold" font-size="10">Duplicates (12TB)</text>
+    <text x="10" y="85" fill="#94A3B8" font-family="sans-serif" font-weight="bold" font-size="10">Ghost Data (8TB)</text>
+    <text x="25" y="115" fill="#6366F1" font-family="sans-serif" font-weight="bold" font-size="10">Wasteful Tier (14TB)</text>
+    <text x="15" y="195" fill="#3B82F6" font-family="sans-serif" font-weight="bold" font-size="10">Small Files (5TB)</text>
+    <text x="0" y="225" fill="#F59E0B" font-family="sans-serif" font-weight="bold" font-size="10">Abandoned (5TB)</text>
   </g>
 
-  <!-- STAGE 5: TOTAL WASTE (Outcome) -->
-  <g filter="url(#dropshadow)" transform="translate(660, 120)">
-    <rect width="110" height="90" rx="16" fill="#FEF2F2" stroke="#EF4444" stroke-width="2" stroke-dasharray="4 2"/>
-    <text x="55" y="25" text-anchor="middle" fill="#991B1B" font-family="sans-serif" font-weight="800" font-size="8">TOTAL WASTE</text>
-    <text x="55" y="55" text-anchor="middle" fill="#B91C1C" font-family="sans-serif" font-weight="900" font-size="20">44 TB</text>
-    <text x="55" y="78" text-anchor="middle" fill="#EF4444" font-family="sans-serif" font-weight="bold" font-size="11">$1,012/mo</text>
+  <!-- STAGE 5: GARBAGE BIN (Center-Y: 145) -->
+  <g filter="url(#dropshadow)" transform="translate(660, 80)">
+    <path d="M10 30 L 18 100 C 18 115, 82 115, 82 100 L 90 30 Z" fill="#FEF2F2" stroke="#EF4444" stroke-width="2" stroke-dasharray="4 2"/>
+    <ellipse cx="50" cy="30" rx="42" ry="12" fill="#FEE2E2" stroke="#EF4444" stroke-width="2"/>
+    <path d="M40 22 C 40 12, 60 12, 60 22" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
+    <text x="50" y="80" text-anchor="middle" fill="#EF4444" font-family="sans-serif" font-weight="800" font-size="8">WASTE</text>
+    <text x="50" y="95" text-anchor="middle" fill="#B91C1C" font-family="sans-serif" font-weight="900" font-size="12">$1,012</text>
   </g>
 
   <!-- CONNECTORS (Source -> Hub -> Prefixes -> Insights -> Total) -->
-  <path d="M120 150 C 140 150, 160 150, 185 150" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
+  <!-- Center Flow Line is y=145 -->
+  <path d="M120 145 C 140 145, 160 145, 185 145" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3"/>
 
-  <path d="M255 150 C 290 150, 310 63, 330 63" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
-  <path d="M255 150 C 290 150, 310 150, 345 148" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
-  <path d="M255 150 C 290 150, 310 233, 330 233" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
+  <path d="M255 145 C 290 145, 310 63, 330 63" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3"/>
+  <path d="M255 145 C 290 145, 320 148, 345 148" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3"/>
+  <path d="M255 145 C 290 145, 310 233, 330 233" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="5 3"/>
 
-  <!-- Prefixes to Insights -->
-  <path d="M430 63 C 450 63, 460 51, 480 51" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
-  <path d="M445 148 C 465 148, 470 111, 490 111" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
-  <path d="M445 148 C 465 148, 485 141, 505 141" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
-  <path d="M445 148 C 465 148, 475 171, 495 171" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
-  <path d="M430 233 C 450 233, 460 251, 480 251" stroke="#CBD5E1" stroke-width="1.5" stroke-opacity="0.3" marker-end="url(#arrowhead)"/>
+  <!-- Prefixes (y=63, 148, 233) to Insights (y=55, 115, 145, 225, 255) -->
+  <!-- Alignment points are middle of text (approx y - 4) -->
+  <path d="M440 63 C 460 63, 470 51, 480 51" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.3"/>
+  
+  <path d="M455 143 C 475 143, 480 111, 490 111" stroke="#94A3B8" stroke-width="1.5" stroke-opacity="0.3"/>
+  <path d="M455 153 C 475 153, 495 141, 505 141" stroke="#6366F1" stroke-width="1.5" stroke-opacity="0.3"/>
+  
+  <path d="M440 228 C 465 228, 485 221, 495 221" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.3"/>
+  <path d="M440 238 C 460 238, 470 251, 480 251" stroke="#F59E0B" stroke-width="1.5" stroke-opacity="0.3"/>
 
-  <!-- Insights to Total Outcome (Contributing) -->
-  <path d="M580 51 C 630 51, 630 150, 660 150" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
-  <path d="M595 111 C 630 111, 640 160, 660 160" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
-  <path d="M605 141 C 630 141, 645 165, 660 165" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
-  <path d="M600 171 C 630 171, 640 180, 660 180" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
-  <path d="M580 251 C 630 251, 640 200, 660 200" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.2" marker-end="url(#arrowhead-red)"/>
+  <!-- Insights to Bin (Red and Aligned to Bin Center y=145) -->
+  <path d="M570 51 C 620 51, 630 145, 660 145" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.3"/>
+  <path d="M575 111 C 620 111, 635 145, 665 145" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.3"/>
+  <path d="M605 141 C 630 141, 645 145, 670 145" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.3"/>
+  <path d="M580 221 C 630 221, 635 145, 665 145" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.3"/>
+  <path d="M560 251 C 620 251, 630 145, 660 145" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.3"/>
 </svg>
