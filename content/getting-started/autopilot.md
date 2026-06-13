@@ -6,6 +6,7 @@ weight: 1
 # Quickstart (Autopilot)
 
 This guide is for users who want to get up and running with `s3lim` as quickly as possible using the **Autopilot** deployment mode.
+This deployment method is fully managed via a CloudFormation Stack which will generate the required resources including a new bucket for the S3 Inventory Report.
 
 ## Prerequisites
 - An AWS account with permissions to deploy Lambda and CloudFormation.
@@ -14,6 +15,7 @@ This guide is for users who want to get up and running with `s3lim` as quickly a
 ## Deployment Steps
 1. Navigate to the [s3lim-autopilot](https://serverlessrepo.aws.amazon.com/applications) on the AWS Serverless Application Repository.
 2. Enter your `SourceBucketName`.
+* See [deployment] for values to override
 3. Click **Deploy**.
 
 ## What Happens Next?
@@ -21,5 +23,12 @@ This guide is for users who want to get up and running with `s3lim` as quickly a
 1. Configure an S3 Inventory report on your source bucket.
 2. Create a destination bucket for inventory delivery.
 3. Set up an S3 Event Notification to trigger analysis when new reports arrive.
+4. Create a CloudWatch dashboard for analysis
+5. [WIP] Generate preview metrics
 
 **Note:** It can take up to 48 hours for AWS to deliver the first S3 Inventory report. Your dashboard will remain empty until then.
+
+See /configuration to configure the lambdas behavior
+
+To decommission s3lim, simply delete the CloudFormation stack
+

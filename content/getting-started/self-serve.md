@@ -5,10 +5,15 @@ weight: 2
 
 # Self-Serve Deployment (BYO-IAM)
 
-This guide is for Cloud Architects and teams who require granular control over IAM roles, KMS encryption, and VPC networking.
+This guide is for teams who require granular control over IAM roles, KMS encryption, and VPC networking.
+The SAM template will only manage the s3lim lambda and all other resources will need to be created.
 
 ## Architecture Overview
 The Self-Serve deployment uses the `readonly` template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.
+
+## Prerequisites
+* Existing S3 Inventory Report Bucket Destination
+* IAM Role 
 
 ## IAM Requirements
 Your Lambda execution role must have the following permissions:

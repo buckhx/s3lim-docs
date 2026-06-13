@@ -84,7 +84,8 @@
                 <a href="/getting-started/autopilot/" class="block p-6 rounded-xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 no-underline group">
                     <h3 class="m-0 text-lg group-hover:text-blue-600 transition-colors">Quickstart (Autopilot)</h3>
                     <p class="m-0 mt-2 text-sm text-slate-500"><h1 id="quickstart-autopilot">Quickstart (Autopilot)</h1>
-<p>This guide is for users who want to get up and running with <code>s3lim</code> as quickly as possible using the <strong>Autopilot</strong> deployment mode.</p>
+<p>This guide is for users who want to get up and running with <code>s3lim</code> as quickly as possible using the <strong>Autopilot</strong> deployment mode.
+A CloudFormation stack will be created to generate the required resources including a new bucket for the S3 Inventory Report.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li>An AWS account with permissions to deploy Lambda and CloudFormation.</li>
@@ -94,16 +95,15 @@
 <ol>
 <li>Navigate to the <a href="https://serverlessrepo.aws.amazon.com/applications">s3lim-autopilot</a> on the AWS Serverless Application Repository.</li>
 <li>Enter your <code>SourceBucketName</code>.</li>
+</ol>
+<ul>
+<li>See [deployment] for values to override</li>
+</ul>
+<ol start="3">
 <li>Click <strong>Deploy</strong>.</li>
 </ol>
 <h2 id="what-happens-next">What Happens Next?</h2>
-<p><code>s3lim</code> will automatically:</p>
-<ol>
-<li>Configure an S3 Inventory report on your source bucket.</li>
-<li>Create a destination bucket for inventory delivery.</li>
-<li>Set up an S3 Event Notification to trigger analysis when new reports arrive.</li>
-</ol>
-<p><strong>Note:</strong> It can take up to 48 hours for AWS to deliver the first S3 Inventory report. Your dashboard will remain empty until then.</p></p>
+<p><code>s3lim</code> will automatically:</p></p>
                 </a>
                 
                 <a href="/getting-started/self-serve/" class="block p-6 rounded-xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 no-underline group">
