@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories | s3lim</title>
+    <title>Configuration | s3lim</title>
     <meta name="description" content="High-performance S3 inventory analysis">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -78,7 +78,157 @@
             </nav>
         </aside>
         <article class="prose prose-slate max-w-none flex-grow">
-            
+            <h1 id="lambda-configuration">Lambda Configuration</h1>
+<p>The <code>s3lim</code> Lambda function is configured primarily through environment variables. These settings allow you to tune the analysis depth, performance, and reporting behavior.</p>
+<h2 id="core-analysis-settings">Core Analysis Settings</h2>
+<table>
+	<thead>
+			<tr>
+					<th>Variable</th>
+					<th>Default</th>
+					<th>Description</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>TOP_K</code></td>
+					<td><code>100</code></td>
+					<td>The number of &ldquo;heavy hitter&rdquo; prefixes or objects to track per aggregator.</td>
+			</tr>
+			<tr>
+					<td><code>MAX_PREFIX_DEPTH</code></td>
+					<td><code>10</code></td>
+					<td>Maximum depth for recursive prefix aggregation (e.g., <code>/a/b/c/</code> is depth 3).</td>
+			</tr>
+			<tr>
+					<td><code>MIN_PREFIX_DEPTH</code></td>
+					<td><code>1</code></td>
+					<td>Minimum depth to start prefix aggregation.</td>
+			</tr>
+			<tr>
+					<td><code>DELIMITER</code></td>
+					<td><code>/</code></td>
+					<td>The character used to separate prefix levels.</td>
+			</tr>
+			<tr>
+					<td><code>SMALL_FILE_THRESHOLD_KB</code></td>
+					<td><code>128</code></td>
+					<td>Objects smaller than this threshold (in KB) are counted by the Small File aggregator.</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="performance--scaling">Performance &amp; Scaling</h2>
+<table>
+	<thead>
+			<tr>
+					<th>Variable</th>
+					<th>Default</th>
+					<th>Description</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>CONCURRENCY</code></td>
+					<td><em>Auto</em></td>
+					<td>Number of concurrent workers. Defaults to the number of vCPUs available (derived from Lambda memory).</td>
+			</tr>
+			<tr>
+					<td><code>BATCH_SIZE</code></td>
+					<td><code>1024</code></td>
+					<td>Number of objects to process in a single batch before updating sketches.</td>
+			</tr>
+			<tr>
+					<td><code>K_BUFFER</code></td>
+					<td><code>20</code></td>
+					<td>Percentage of extra capacity for internal Top-K sketches to improve accuracy.</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="metrics--reporting">Metrics &amp; Reporting</h2>
+<table>
+	<thead>
+			<tr>
+					<th>Variable</th>
+					<th>Default</th>
+					<th>Description</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>CW_METRICS_ENABLED</code></td>
+					<td><code>true</code></td>
+					<td>Whether to publish custom CloudWatch metrics.</td>
+			</tr>
+			<tr>
+					<td><code>CW_NAMESPACE</code></td>
+					<td><code>s3lim</code></td>
+					<td>The CloudWatch namespace for published metrics.</td>
+			</tr>
+			<tr>
+					<td><code>CW_TOP_K</code></td>
+					<td><code>5</code></td>
+					<td>The number of top prefixes to publish as individual CloudWatch metrics.</td>
+			</tr>
+			<tr>
+					<td><code>CW_STATS</code></td>
+					<td><code>object-count,bytes,duplicates,audit</code></td>
+					<td>Comma-separated list of statistic categories to publish.</td>
+			</tr>
+			<tr>
+					<td><code>OUTPUT_FORMAT</code></td>
+					<td><code>cloudwatch</code></td>
+					<td>Primary output format (<code>cloudwatch</code>, <code>json</code>, or <code>console</code>).</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="resource-requirements">Resource Requirements</h2>
+<p>For processing large inventory files (billions of objects), the following settings are recommended:</p>
+<ul>
+<li><strong>Memory</strong>: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go&rsquo;s GC and the Parquet/ORC parsers benefit from a larger heap.</li>
+<li><strong>Timeout</strong>: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.</li>
+<li><strong>Architecture</strong>: <code>arm64</code> (Graviton). Optimized for price/performance.</li>
+</ul>
+<h2 id="iam-permissions">IAM Permissions</h2>
+<p>The Lambda function requires the following minimum permissions:</p>
+<h3 id="1-s3-read-access">1. S3 Read Access</h3>
+<p>Required to read the inventory manifest and the data files (CSV, Parquet, or ORC).</p>
+<ul>
+<li><code>s3:GetObject</code> on <code>arn:aws:s3:::&lt;InventoryBucket&gt;/&lt;Prefix&gt;/*</code></li>
+<li><code>s3:ListBucket</code> on <code>arn:aws:s3:::&lt;InventoryBucket&gt;</code></li>
+</ul>
+<h3 id="2-cloudwatch-metrics">2. CloudWatch Metrics</h3>
+<p>Required to publish the analyzed metrics.</p>
+<ul>
+<li><code>cloudwatch:PutMetricData</code></li>
+</ul>
+<h2 id="advanced-diagnostics">Advanced Diagnostics</h2>
+<table>
+	<thead>
+			<tr>
+					<th>Variable</th>
+					<th>Default</th>
+					<th>Description</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>INVENTORY_DESTINATION</code></td>
+					<td>-</td>
+					<td>S3 URI where inventories are delivered. Required for scheduled scans.</td>
+			</tr>
+			<tr>
+					<td><code>S3LIM_ENABLE_XRAY</code></td>
+					<td><code>false</code></td>
+					<td>Enable AWS X-Ray tracing for deep observability.</td>
+			</tr>
+			<tr>
+					<td><code>DIAGNOSTICS_DEST</code></td>
+					<td>-</td>
+					<td>Optional S3 URI to upload CPU/Mem profiles for troubleshooting.</td>
+			</tr>
+	</tbody>
+</table>
+
             <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
             </div>

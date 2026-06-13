@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Readonly Deployment | s3lim</title>
+    <title>Read-Only Mode | s3lim</title>
     <meta name="description" content="High-performance S3 inventory analysis">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -44,7 +44,7 @@
             </a>
             <ul class="hidden md:flex gap-10 list-none m-0 p-0">
                 <li><a href="/getting-started/autopilot/" class="nav-link text-sm uppercase tracking-wider">Docs</a></li>
-                <li><a href="/cli/s3lim/" class="nav-link text-sm uppercase tracking-wider">CLI</a></li>
+                <li><a href="/configuration/" class="nav-link text-sm uppercase tracking-wider">Configuration</a></li>
                 <li><a href="/metrics/overview/" class="nav-link text-sm uppercase tracking-wider">Metrics</a></li>
                 <li><a href="https://github.com/buckhx/s3lim" target="_blank" class="nav-link text-sm uppercase tracking-wider flex items-center gap-2">
                     <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 4.438 9.8 10.564 11.307.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C19.563 21.798 24 17.298 24 12c0-6.627-5.374-12-12-12z"/></svg>
@@ -70,22 +70,24 @@
                 <div class="space-y-3">
                     <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
                     <ul class="list-none p-0 m-0 space-y-1">
-                        <li><a href="/cli/s3lim/" class="sidebar-link">CLI Command</a></li>
-                        <li><a href="/deployment/autopilot/" class="sidebar-link">SAM Template</a></li>
+                        <li><a href="/configuration/" class="sidebar-link">Configuration</a></li>
+                        <li><a href="/deployment/autopilot/" class="sidebar-link">Deployment</a></li>
                         <li><a href="/metrics/overview/" class="sidebar-link">Metrics</a></li>
                     </ul>
                 </div>
             </nav>
         </aside>
         <article class="prose prose-slate max-w-none flex-grow">
-            <h1 id="readonly-deployment-reference">Readonly Deployment Reference</h1>
-<p>s3lim (Read-Only) - Process existing S3 Inventory reports.</p>
+            <h1 id="read-only-deployment">Read-Only Deployment</h1>
+<p>Read-Only mode is designed for environments where you already have S3 Inventory reports being delivered and want to analyze them without granting <code>s3lim</code> permission to modify your source bucket configurations.</p>
+<h2 id="use-case">Use Case</h2>
+<p>Ideal for <strong>Enterprise environments</strong> with strict IAM controls or existing inventory pipelines. It requires an existing IAM role and does not create any new roles or bucket configurations.</p>
 <h2 id="parameters">Parameters</h2>
 <table>
 	<thead>
 			<tr>
-					<th>Name</th>
-					<th>Type</th>
+					<th>Parameter</th>
+					<th>Required</th>
 					<th>Default</th>
 					<th>Description</th>
 			</tr>
@@ -93,49 +95,38 @@
 	<tbody>
 			<tr>
 					<td><code>InventoryDestination</code></td>
-					<td>String</td>
+					<td><strong>Yes</strong></td>
 					<td>-</td>
-					<td>The S3 URI where existing inventories are delivered (e.g. s3://my-bucket/inventory/).</td>
+					<td>The S3 URI where existing inventories are delivered (e.g., <code>s3://my-bucket/inventory/</code>).</td>
 			</tr>
 			<tr>
 					<td><code>LambdaRoleArn</code></td>
-					<td>String</td>
+					<td><strong>Yes</strong></td>
 					<td>-</td>
-					<td>ARN of an existing IAM Role for the Lambda function. The role must have: 1. &lsquo;s3:GetObject&rsquo; and &lsquo;s3:ListBucket&rsquo; on your inventory destination. 2. &lsquo;cloudwatch:PutMetricData&rsquo; (Namespace: s3lim). 3. &rsquo;logs:CreateLogStream&rsquo; and &rsquo;logs:PutLogEvents&rsquo;. 4. &lsquo;sqs:SendMessage&rsquo;, &lsquo;sqs:ReceiveMessage&rsquo;, &lsquo;sqs:DeleteMessage&rsquo;, and &lsquo;sqs:GetQueueAttributes&rsquo; on the DLQ.</td>
-			</tr>
-			<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
+					<td>ARN of an existing IAM Role for the Lambda function. See <a href="#iam-requirements">IAM Requirements</a> below.</td>
 			</tr>
 			<tr>
 					<td><code>MaxPrefixDepth</code></td>
-					<td>Number</td>
-					<td>10</td>
+					<td>No</td>
+					<td><code>10</code></td>
 					<td>Maximum depth for recursive prefix aggregation.</td>
 			</tr>
 	</tbody>
 </table>
+<h2 id="iam-requirements">IAM Requirements</h2>
+<p>The provided <code>LambdaRoleArn</code> must have the following minimum permissions:</p>
+<ol>
+<li><code>s3:GetObject</code> and <code>s3:ListBucket</code> on the <code>InventoryDestination</code> bucket.</li>
+<li><code>cloudwatch:PutMetricData</code> (Namespace: <code>s3lim</code>).</li>
+<li><code>logs:CreateLogStream</code> and <code>logs:PutLogEvents</code> for the Lambda&rsquo;s log group.</li>
+<li><code>sqs:SendMessage</code>, <code>sqs:ReceiveMessage</code>, and <code>sqs:DeleteMessage</code> on the stack&rsquo;s DLQ.</li>
+</ol>
+<h2 id="operational-note">Operational Note</h2>
+<p>By default, this mode uses a <strong>daily scheduled trigger</strong> (cron) to scan the destination bucket for new manifests. For real-time analysis, we recommend manually adding an S3 Object Created trigger to the <code>InventoryDestination</code> bucket.</p>
 <h2 id="outputs">Outputs</h2>
-<table>
-	<thead>
-			<tr>
-					<th>Name</th>
-					<th>Description</th>
-			</tr>
-	</thead>
-	<tbody>
-			<tr>
-					<td><code>AnalyzeFunctionArn</code></td>
-					<td>Lambda function ARN.  To improve performance and remove the daily cron: 1. Add an &lsquo;S3 Event Trigger&rsquo; to your inventory bucket. 2. Filter for prefix: &lsquo;inventory/&rsquo; and suffix: &lsquo;manifest.json&rsquo;. 3. Grant &rsquo;lambda:InvokeFunction&rsquo; permission to S3.</td>
-			</tr>
-			<tr>
-					<td></td>
-					<td></td>
-			</tr>
-	</tbody>
-</table>
+<ul>
+<li><code>AnalyzeFunctionArn</code>: The ARN of the processor Lambda function.</li>
+</ul>
 
         </article>
     </div>

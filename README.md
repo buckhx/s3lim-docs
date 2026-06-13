@@ -5,7 +5,7 @@ This directory contains the source code for the `s3lim` documentation site, buil
 ## Structure
 
 - `content/`: Markdown files for the site.
-  - `cli/`: Auto-generated documentation for CLI commands.
+  - `configuration/`: Technical configuration for the Lambda function.
   - `deployment/`: Auto-generated documentation for SAM templates.
   - `metrics/`: Auto-generated documentation for Aggregator metrics.
   - `getting-started/`: Manual onboarding guides.

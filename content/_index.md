@@ -40,4 +40,28 @@ how_it_works:
     description: "Built wth novel methods, s3lim analyzes billions of objects in minutes using constant memory. It's engineered to scale to the world's largest S3 buckets without breaking a sweat."
   - title: "Serverless Efficiency"
     description: "Running entirely on AWS Lambda, s3lim provides a cost-effective, on-demand analysis engine that only runs when you need it. No servers to manage, no idle costs."
+
+# pricing
+pricing:
+  enable: true
+  title: "Simple, Volume-Based Pricing"
+  subtitle: "Pay Only for What You Analyze"
+  description: "s3lim is billed directly through your AWS account. Tiered pricing is available at specific volumes. No extra procurement, no hidden fees."
+  plans:
+    - title: "Core Analysis"
+      price: "TBD"
+      unit: "per million objects"
+      features:
+        - "Full Bucket Scan"
+        - "Standard Aggregators"
+        - "In-Account Processing"
+        - "AWS Console Integration"
+    - title: "Custom Insights"
+      price: "+TBD"
+      unit: "per million objects"
+      features:
+        - "Custom Prefix Rollups"
+        - "Advanced Filtering"
+        - "Multi-Level Aggregation"
+        - "Dedicated Reporting"
 ---

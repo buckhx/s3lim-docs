@@ -29,16 +29,36 @@
         {{ end }}
     </section>
 
-    <section class="space-y-6 py-4 border-t border-slate-100">
-        <h2 class="text-4xl font-black tracking-tight">{{ .Params.how_it_works.title }}</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 text-left">
-            {{ range .Params.how_it_works.block }}
-            <div class="bg-white p-8 md:p-12 rounded-3xl border border-slate-100 space-y-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <h3 class="text-2xl md:text-3xl font-bold tracking-tight">{{ .title }}</h3>
-                <p class="text-slate-500 leading-relaxed text-lg">{{ .description }}</p>
+    <section class="space-y-12 py-12 border-t border-slate-100">
+        <div class="text-center space-y-4 max-w-2xl mx-auto">
+            <h2 class="text-4xl font-black tracking-tight">{{ .Params.pricing.title }}</h2>
+            <h4 class="text-blue-600 font-bold tracking-widest text-xs uppercase">{{ .Params.pricing.subtitle }}</h4>
+            <p class="text-slate-500 leading-relaxed">{{ .Params.pricing.description }}</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {{ range .Params.pricing.plans }}
+            <div class="bg-white p-10 rounded-3xl border border-slate-100 space-y-6 shadow-sm hover:shadow-xl transition-all duration-300">
+                <div class="space-y-2">
+                    <h3 class="text-2xl font-bold tracking-tight">{{ .title }}</h3>
+                    <div class="flex items-baseline gap-1 justify-center">
+                        <span class="text-4xl font-black text-slate-900">{{ .price }}</span>
+                        <span class="text-slate-400 text-sm">{{ .unit }}</span>
+                    </div>
+                </div>
+                <ul class="space-y-3 text-left list-none p-0 m-0 border-t border-slate-50 pt-6">
+                    {{ range .features }}
+                    <li class="flex items-center gap-3 text-slate-600">
+                        <svg class="w-5 h-5 text-green-500 fill-current" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                        {{ . }}
+                    </li>
+                    {{ end }}
+                </ul>
             </div>
             {{ end }}
         </div>
+        <div class="pt-8">
+            <p class="text-sm text-slate-400">All billing is handled via AWS Marketplace. No credit card required to start.</p>
+        </div>
     </section>
-</div>
-{{ end }}
+    </div>
+    {{ end }}

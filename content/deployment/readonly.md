@@ -1,26 +1,32 @@
 ---
-title: "Readonly Deployment"
-weight: 10
+title: "Read-Only Mode"
+weight: 20
 ---
 
-# Readonly Deployment Reference
+# Read-Only Deployment
 
-s3lim (Read-Only) - Process existing S3 Inventory reports.
+Read-Only mode is designed for environments where you already have S3 Inventory reports being delivered and want to analyze them without granting `s3lim` permission to modify your source bucket configurations.
 
+## Use Case
+Ideal for **Enterprise environments** with strict IAM controls or existing inventory pipelines. It requires an existing IAM role and does not create any new roles or bucket configurations.
 
 ## Parameters
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `InventoryDestination` | String | - | The S3 URI where existing inventories are delivered (e.g. s3://my-bucket/inventory/). |
-| `LambdaRoleArn` | String | - | ARN of an existing IAM Role for the Lambda function. The role must have: 1. 's3:GetObject' and 's3:ListBucket' on your inventory destination. 2. 'cloudwatch:PutMetricData' (Namespace: s3lim). 3. 'logs:CreateLogStream' and 'logs:PutLogEvents'. 4. 'sqs:SendMessage', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', and 'sqs:GetQueueAttributes' on the DLQ.
- |
-| `MaxPrefixDepth` | Number | 10 | Maximum depth for recursive prefix aggregation. |
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `InventoryDestination` | **Yes** | - | The S3 URI where existing inventories are delivered (e.g., `s3://my-bucket/inventory/`). |
+| `LambdaRoleArn` | **Yes** | - | ARN of an existing IAM Role for the Lambda function. See [IAM Requirements](#iam-requirements) below. |
+| `MaxPrefixDepth` | No | `10` | Maximum depth for recursive prefix aggregation. |
+
+## IAM Requirements
+The provided `LambdaRoleArn` must have the following minimum permissions:
+1.  `s3:GetObject` and `s3:ListBucket` on the `InventoryDestination` bucket.
+2.  `cloudwatch:PutMetricData` (Namespace: `s3lim`).
+3.  `logs:CreateLogStream` and `logs:PutLogEvents` for the Lambda's log group.
+4.  `sqs:SendMessage`, `sqs:ReceiveMessage`, and `sqs:DeleteMessage` on the stack's DLQ.
+
+## Operational Note
+By default, this mode uses a **daily scheduled trigger** (cron) to scan the destination bucket for new manifests. For real-time analysis, we recommend manually adding an S3 Object Created trigger to the `InventoryDestination` bucket.
 
 ## Outputs
-
-| Name | Description |
-|------|-------------|
-| `AnalyzeFunctionArn` | Lambda function ARN.  To improve performance and remove the daily cron: 1. Add an 'S3 Event Trigger' to your inventory bucket. 2. Filter for prefix: 'inventory/' and suffix: 'manifest.json'. 3. Grant 'lambda:InvokeFunction' permission to S3.
- |
-
+- `AnalyzeFunctionArn`: The ARN of the processor Lambda function.

@@ -1,27 +1,32 @@
 ---
-title: "Autopilot Deployment"
+title: "Autopilot Mode"
 weight: 10
 ---
 
-# Autopilot Deployment Reference
+# Autopilot Deployment
 
-s3lim (Autopilot) - Automatically configure and analyze S3 inventory.
+Autopilot mode is the easiest way to get started with `s3lim`. It automatically configures S3 Inventory on your source bucket and sets up a Lambda function to process the results as they are delivered.
 
+## Use Case
+Recommended for users who want a **fully automated setup** with minimal manual configuration. It creates the necessary S3 buckets, policies, and triggers for you.
 
 ## Parameters
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `InventoryDestination` | String |  | Optional: The S3 URI where inventories will be delivered (e.g. s3://my-bucket/inventory/). If not provided, a bucket will be generated. |
-| `InventoryFormat` | String | Parquet | The format of the inventory files. |
-| `MaxPrefixDepth` | Number | 10 | Maximum depth for recursive prefix aggregation. |
-| `SourceBucketName` | String | - | The name of the existing S3 bucket to create an inventory for. |
-| `SourcePrefixFilter` | String |  | Optional: The prefix of the objects in the source bucket to include in the inventory. Leave empty for the entire bucket. |
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `SourceBucketName` | **Yes** | - | The name of the existing S3 bucket you want to analyze. |
+| `InventoryDestination` | No | *Generated* | The S3 URI where inventories will be delivered (e.g., `s3://my-bucket/inventory/`). If empty, a new bucket named `<StackName>-inventory` is created. |
+| `InventoryFormat` | No | `Parquet` | The format for inventory files (`CSV`, `ORC`, or `Parquet`). Parquet is recommended for performance. |
+| `SourcePrefixFilter` | No | - | Filter the inventory to only include objects under this prefix. |
+| `MaxPrefixDepth` | No | `10` | Maximum depth for recursive prefix aggregation. |
+
+## Resources Created
+- **S3 Bucket**: (Optional) For inventory delivery.
+- **Lambda Function**: The core `s3lim` analysis engine.
+- **SQS Queue**: A Dead Letter Queue (DLQ) for handling processing failures.
+- **IAM Roles**: Execution roles for Lambda with scoped permissions to your buckets.
+- **Custom Resource**: Automatically registers the inventory configuration with your source bucket.
 
 ## Outputs
-
-| Name | Description |
-|------|-------------|
-| `AnalyzeFunctionArn` | Lambda function ARN |
-| `InventoryDestinationURI` | S3 URI where inventories are delivered |
-
+- `InventoryDestinationURI`: The S3 location where your inventories are stored.
+- `AnalyzeFunctionArn`: The ARN of the processor Lambda function.

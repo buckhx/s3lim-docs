@@ -3,7 +3,7 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autopilot Deployment | s3lim</title>
+    <title>Autopilot Mode | s3lim</title>
     <meta name="description" content="High-performance S3 inventory analysis">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -44,7 +44,7 @@
             </a>
             <ul class="hidden md:flex gap-10 list-none m-0 p-0">
                 <li><a href="/getting-started/autopilot/" class="nav-link text-sm uppercase tracking-wider">Docs</a></li>
-                <li><a href="/cli/s3lim/" class="nav-link text-sm uppercase tracking-wider">CLI</a></li>
+                <li><a href="/configuration/" class="nav-link text-sm uppercase tracking-wider">Configuration</a></li>
                 <li><a href="/metrics/overview/" class="nav-link text-sm uppercase tracking-wider">Metrics</a></li>
                 <li><a href="https://github.com/buckhx/s3lim" target="_blank" class="nav-link text-sm uppercase tracking-wider flex items-center gap-2">
                     <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 4.438 9.8 10.564 11.307.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C19.563 21.798 24 17.298 24 12c0-6.627-5.374-12-12-12z"/></svg>
@@ -70,78 +70,74 @@
                 <div class="space-y-3">
                     <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
                     <ul class="list-none p-0 m-0 space-y-1">
-                        <li><a href="/cli/s3lim/" class="sidebar-link">CLI Command</a></li>
-                        <li><a href="/deployment/autopilot/" class="sidebar-link">SAM Template</a></li>
+                        <li><a href="/configuration/" class="sidebar-link">Configuration</a></li>
+                        <li><a href="/deployment/autopilot/" class="sidebar-link">Deployment</a></li>
                         <li><a href="/metrics/overview/" class="sidebar-link">Metrics</a></li>
                     </ul>
                 </div>
             </nav>
         </aside>
         <article class="prose prose-slate max-w-none flex-grow">
-            <h1 id="autopilot-deployment-reference">Autopilot Deployment Reference</h1>
-<p>s3lim (Autopilot) - Automatically configure and analyze S3 inventory.</p>
+            <h1 id="autopilot-deployment">Autopilot Deployment</h1>
+<p>Autopilot mode is the easiest way to get started with <code>s3lim</code>. It automatically configures S3 Inventory on your source bucket and sets up a Lambda function to process the results as they are delivered.</p>
+<h2 id="use-case">Use Case</h2>
+<p>Recommended for users who want a <strong>fully automated setup</strong> with minimal manual configuration. It creates the necessary S3 buckets, policies, and triggers for you.</p>
 <h2 id="parameters">Parameters</h2>
 <table>
 	<thead>
 			<tr>
-					<th>Name</th>
-					<th>Type</th>
+					<th>Parameter</th>
+					<th>Required</th>
 					<th>Default</th>
 					<th>Description</th>
 			</tr>
 	</thead>
 	<tbody>
 			<tr>
+					<td><code>SourceBucketName</code></td>
+					<td><strong>Yes</strong></td>
+					<td>-</td>
+					<td>The name of the existing S3 bucket you want to analyze.</td>
+			</tr>
+			<tr>
 					<td><code>InventoryDestination</code></td>
-					<td>String</td>
-					<td></td>
-					<td>Optional: The S3 URI where inventories will be delivered (e.g. s3://my-bucket/inventory/). If not provided, a bucket will be generated.</td>
+					<td>No</td>
+					<td><em>Generated</em></td>
+					<td>The S3 URI where inventories will be delivered (e.g., <code>s3://my-bucket/inventory/</code>). If empty, a new bucket named <code>&lt;StackName&gt;-inventory</code> is created.</td>
 			</tr>
 			<tr>
 					<td><code>InventoryFormat</code></td>
-					<td>String</td>
-					<td>Parquet</td>
-					<td>The format of the inventory files.</td>
-			</tr>
-			<tr>
-					<td><code>MaxPrefixDepth</code></td>
-					<td>Number</td>
-					<td>10</td>
-					<td>Maximum depth for recursive prefix aggregation.</td>
-			</tr>
-			<tr>
-					<td><code>SourceBucketName</code></td>
-					<td>String</td>
-					<td>-</td>
-					<td>The name of the existing S3 bucket to create an inventory for.</td>
+					<td>No</td>
+					<td><code>Parquet</code></td>
+					<td>The format for inventory files (<code>CSV</code>, <code>ORC</code>, or <code>Parquet</code>). Parquet is recommended for performance.</td>
 			</tr>
 			<tr>
 					<td><code>SourcePrefixFilter</code></td>
-					<td>String</td>
-					<td></td>
-					<td>Optional: The prefix of the objects in the source bucket to include in the inventory. Leave empty for the entire bucket.</td>
+					<td>No</td>
+					<td>-</td>
+					<td>Filter the inventory to only include objects under this prefix.</td>
+			</tr>
+			<tr>
+					<td><code>MaxPrefixDepth</code></td>
+					<td>No</td>
+					<td><code>10</code></td>
+					<td>Maximum depth for recursive prefix aggregation.</td>
 			</tr>
 	</tbody>
 </table>
+<h2 id="resources-created">Resources Created</h2>
+<ul>
+<li><strong>S3 Bucket</strong>: (Optional) For inventory delivery.</li>
+<li><strong>Lambda Function</strong>: The core <code>s3lim</code> analysis engine.</li>
+<li><strong>SQS Queue</strong>: A Dead Letter Queue (DLQ) for handling processing failures.</li>
+<li><strong>IAM Roles</strong>: Execution roles for Lambda with scoped permissions to your buckets.</li>
+<li><strong>Custom Resource</strong>: Automatically registers the inventory configuration with your source bucket.</li>
+</ul>
 <h2 id="outputs">Outputs</h2>
-<table>
-	<thead>
-			<tr>
-					<th>Name</th>
-					<th>Description</th>
-			</tr>
-	</thead>
-	<tbody>
-			<tr>
-					<td><code>AnalyzeFunctionArn</code></td>
-					<td>Lambda function ARN</td>
-			</tr>
-			<tr>
-					<td><code>InventoryDestinationURI</code></td>
-					<td>S3 URI where inventories are delivered</td>
-			</tr>
-	</tbody>
-</table>
+<ul>
+<li><code>InventoryDestinationURI</code>: The S3 location where your inventories are stored.</li>
+<li><code>AnalyzeFunctionArn</code>: The ARN of the processor Lambda function.</li>
+</ul>
 
         </article>
     </div>

@@ -8,21 +8,15 @@
   </url><url>
     <loc>http://localhost:1313/deployment/autopilot/</loc>
   </url><url>
-    <loc>http://localhost:1313/deployment/readonly/</loc>
-  </url><url>
     <loc>http://localhost:1313/metrics/overview/</loc>
   </url><url>
-    <loc>http://localhost:1313/deployment/lambda-config/</loc>
+    <loc>http://localhost:1313/deployment/readonly/</loc>
+  </url><url>
+    <loc>http://localhost:1313/configuration/</loc>
   </url><url>
     <loc>http://localhost:1313/</loc>
   </url><url>
-    <loc>http://localhost:1313/cli/s3lim/</loc>
-  </url><url>
-    <loc>http://localhost:1313/cli/s3lim_analyze/</loc>
-  </url><url>
     <loc>http://localhost:1313/categories/</loc>
-  </url><url>
-    <loc>http://localhost:1313/cli/</loc>
   </url><url>
     <loc>http://localhost:1313/deployment/</loc>
   </url><url>
