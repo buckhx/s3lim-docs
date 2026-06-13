@@ -1,6 +1,10 @@
 ---
 title: "Configuration"
+description: "Detailed reference for s3lim Lambda environment variables and tuning parameters."
 weight: 30
+tech_metadata:
+  dependencies: "AWS Lambda, Amazon S3, Amazon CloudWatch"
+  proficiency: "Intermediate"
 ---
 
 # Lambda Configuration

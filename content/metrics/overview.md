@@ -1,6 +1,10 @@
 ---
 title: "Available Metrics"
+description: "Reference guide for all CloudWatch metrics and dimensions produced by the s3lim analysis engine."
 weight: 20
+tech_metadata:
+  dependencies: "Amazon CloudWatch"
+  proficiency: "Beginner"
 ---
 
 # Available CloudWatch Metrics

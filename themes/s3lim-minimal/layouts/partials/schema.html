@@ -41,25 +41,63 @@
 {{ end }}
 
 {{ if isset .Params "howto_steps" }}
+...
+</script>
+{{ end }}
+
+{{/* BreadcrumbList Schema */}}
+{{ if not .IsHome }}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "HowTo",
-  "name": "{{ .Title }}",
-  "description": "{{ .Description }}",
-  "step": [
-    {{ range $index, $element := .Params.howto_steps }}
-    {{ if $index }},{{ end }}
+  "@type": "BreadcrumbList",
+  "itemListElement": [
     {
-      "@type": "HowToStep",
-      "name": "{{ .name }}",
-      "itemListElement": [{
-        "@type": "HowToDirection",
-        "text": "{{ .text }}"
-      }]
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ .Site.BaseURL }}"
     }
+    {{ $position := 1 }}
+    {{ range .Ancestors.Reverse }}
+      {{ if not .IsHome }}
+        {{ $position = add $position 1 }}
+        ,{
+          "@type": "ListItem",
+          "position": {{ $position }},
+          "name": "{{ .Title }}",
+          "item": "{{ .Permalink }}"
+        }
+      {{ end }}
     {{ end }}
+    {{ $position = add $position 1 }}
+    ,{
+      "@type": "ListItem",
+      "position": {{ $position }},
+      "name": "{{ .Title }}",
+      "item": "{{ .Permalink }}"
+    }
   ]
+}
+</script>
+{{ end }}
+
+{{/* TechArticle Schema */}}
+{{ if isset .Params "tech_metadata" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "{{ .Title }}",
+  "description": "{{ .Description }}",
+  "dependencies": "{{ .Params.tech_metadata.dependencies }}",
+  "proficiencyLevel": "{{ .Params.tech_metadata.proficiency }}",
+  "articleBody": "{{ .Plain | truncate 200 }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "s3lim",
+    "url": "{{ .Site.BaseURL }}"
+  }
 }
 </script>
 {{ end }}
