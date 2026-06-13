@@ -1,7 +1,7 @@
 ---
 # banner
 banner:
-  title: "Securely Analyze S3 Costs Without Data Egress"
+  title: "Deep S3 Observability"
   button: "Start Saving Now"
   button_link: "/getting-started/autopilot/"
 
@@ -10,7 +10,7 @@ features:
   enable: true
   subtitle: "Actionable Storage Insights"
   title: "Stop S3 Bill Bloat"
-  description: "Analyze billions of objects directly in your AWS account. s3lim surfaces hidden costs and optimization opportunities without your data ever leaving your VPC."
+  description: "Break down billions of objects into their top prefixes directly in your account. s3lim surfaces hidden costs and optimization opportunities without your data ever leaving your VPC."
   features_blocks:
     - icon: "🛡️"
       title: "Zero Egress Security"
@@ -28,8 +28,8 @@ features:
       title: "Unfinished Uploads"
       content: "Surface incomplete multipart uploads that occupy space and cost money, but are invisible to standard S3 management tools."
     - icon: "☁️"
-      title: "Native AWS Integration"
-      content: "Deploys directly as a Lambda function. Manage everything via the AWS Console with zero infrastructure to maintain."
+      title: "Native to AWS"
+      content: "Deploys directly as a Lambda function. Manage everything via the AWS Console and analyze in CloudWatch with zero infrastructure to maintain."
 
 # how_it_works
 how_it_works:   
@@ -37,7 +37,7 @@ how_it_works:
   title: "How it Works"
   block:
   - title: "Massive Scale, Tiny Footprint"
-    description: "Built in high-performance Go, s3lim analyzes billions of objects in minutes using constant memory. It's engineered to scale to the world's largest S3 buckets without breaking a sweat."
+    description: "Built wth novel methods, s3lim analyzes billions of objects in minutes using constant memory. It's engineered to scale to the world's largest S3 buckets without breaking a sweat."
   - title: "Serverless Efficiency"
     description: "Running entirely on AWS Lambda, s3lim provides a cost-effective, on-demand analysis engine that only runs when you need it. No servers to manage, no idle costs."
 ---
