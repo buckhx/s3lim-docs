@@ -74,7 +74,7 @@
             <div class="space-y-4 text-center">
                 <label for="object-count" class="block text-sm font-bold text-slate-400 uppercase tracking-widest">Number of Objects (Millions)</label>
                 <div class="relative max-w-md mx-auto">
-                    <input type="text" id="object-count" value="100" 
+                    <input type="text" id="object-count" value="1000" 
                         class="w-full text-4xl font-black text-center py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:ring-0 transition-colors">
                     <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none">
                         <span class="text-slate-400 font-bold uppercase text-xs tracking-tighter">M Objects</span>
@@ -96,11 +96,11 @@
                             <span class="font-mono font-bold" id="cost-inventory">$0.00</span>
                         </li>
                         <li class="flex justify-between text-sm">
-                            <span class="text-slate-500">Inventory Storage (CSV)</span>
+                            <span class="text-slate-500">Inventory Storage</span>
                             <span class="font-mono font-bold" id="cost-storage-inv">$0.00</span>
                         </li>
                         <li class="flex justify-between text-sm">
-                            <span class="text-slate-500">Lambda Execution (3GB)</span>
+                            <span class="text-slate-500">Lambda Execution</span>
                             <span class="font-mono font-bold" id="cost-lambda">$0.00</span>
                         </li>
                         <li class="flex justify-between text-sm">
@@ -108,12 +108,12 @@
                             <span class="font-mono font-bold" id="cost-cw">$3.10</span>
                         </li>
                         <li class="flex justify-between text-sm">
-                            <span class="text-slate-500">Data Egress</span>
-                            <span class="font-mono font-bold text-green-500">$0.00</span>
-                        </li>
-                        <li class="flex justify-between text-sm">
                             <span class="text-slate-500">s3lim Core</span>
                             <span class="font-mono font-bold" id="cost-s3lim-core">$0.00</span>
+                        </li>
+                        <li class="flex justify-between text-sm">
+                            <span class="text-slate-500">Data Egress</span>
+                            <span class="font-mono font-bold text-green-500">$0.00</span>
                         </li>
                         <li class="flex justify-between pt-4 border-t border-slate-50">
                             <span class="font-bold">Total Cost</span>
