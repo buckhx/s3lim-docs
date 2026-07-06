@@ -20,6 +20,7 @@ The `s3lim` Lambda function is configured primarily through environment variable
 | `MIN_PREFIX_DEPTH` | `1` | Minimum depth to start prefix aggregation. |
 | `DELIMITER` | `/` | The character used to separate prefix levels. |
 | `SMALL_FILE_THRESHOLD_KB` | `128` | Objects smaller than this threshold (in KB) are counted by the Small File aggregator. |
+| `CUSTOM_PREFIXES` | - | Comma-separated list of explicit custom prefixes to track (e.g., `data/import/,temp/`). |
 
 ## Performance & Scaling
 
@@ -67,3 +68,12 @@ Required to publish the analyzed metrics.
 | `INVENTORY_DESTINATION` | - | S3 URI where inventories are delivered. Required for scheduled scans. |
 | `S3LIM_ENABLE_XRAY` | `false` | Enable AWS X-Ray tracing for deep observability. |
 | `DIAGNOSTICS_DEST` | - | Optional S3 URI to upload CPU/Mem profiles for troubleshooting. |
+
+## Custom Prefix Tracking
+
+Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically retains only the most active prefixes using sketching algorithms), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
+
+To configure custom prefixes, pass them as a comma-separated list:
+- **CLI**: Use the `--custom-prefix` flag (e.g., `--custom-prefix data/import/,temp/`).
+- **Lambda**: Set the `CUSTOM_PREFIXES` environment variable (e.g., `CUSTOM_PREFIXES="data/import/,temp/"`).
+- **SAM Template**: Specify the `CustomPrefixes` template parameter during deployment.

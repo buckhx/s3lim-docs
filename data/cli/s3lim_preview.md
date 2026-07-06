@@ -1,32 +1,29 @@
-## s3lim analyze
+## s3lim preview
 
-Analyze an S3 inventory file or manifest.json
+Rapidly analyze a subset of objects using S3 ListObjectsV2
 
 ```
-s3lim analyze [path] [flags]
+s3lim preview [bucket] [flags]
 ```
 
 ### Options
 
 ```
-      --batch-size int             Batch size for columnar decoding (default 1024)
-  -c, --concurrency int            Bounded parallelism for processing manifest files (default 4)
-      --cpuprofile file            write cpu profile to file
+      --batch-size int             Batch size for processing (default 1024)
       --cw-enabled                 Enable CloudWatch Metrics reporter
       --cw-namespace string        CloudWatch Metrics namespace (default "s3lim")
       --cw-stats strings           List of statistics to emit to CloudWatch (default [object-count,bytes,duplicates,audit])
       --cw-top-k int               Number of items per statistic to report to CloudWatch (default 5)
       --delimiter string           Path separator for prefix aggregation (default "/")
       --format string              Output format (table, json, or cloudwatch) (default "table")
-  -h, --help                       help for analyze
-  -f, --input-format string        Inventory file format (csv, parquet, or orc) (default "csv")
+  -h, --help                       help for preview
       --k-buffer int               Percent of buffer for internal topk tracking (0-100) (default 20)
+      --max-objects int            Maximum number of objects to analyze in preview mode (default 1000000)
       --max-prefix-depth int       Maximum depth for recursive prefix aggregation (default 10)
-      --memprofile file            write memory profile to file
       --min-prefix-depth int       Minimum depth for recursive prefix aggregation (default 1)
+      --preview-tag string         Tag to append to bucket name for preview outputs (default "PREVIEW")
       --small-file-threshold int   Size threshold in KB to define a small file (default 128)
       --topk int                   Number of top prefixes to report (default 100)
-      --trace file                 write runtime trace to file
 ```
 
 ### Options inherited from parent commands
