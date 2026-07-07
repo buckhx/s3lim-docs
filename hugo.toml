@@ -2,6 +2,8 @@ baseURL = 'https://slimstorage.io/'
 languageCode = 'en-us'
 title = 's3lim'
 theme = 's3lim-minimal'
+relativeURLs = true
+canonifyURLs = false
 
 [params]
   description = 'High-performance S3 inventory analysis'
