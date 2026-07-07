@@ -1,4 +1,4 @@
-baseURL = 'https://s3lim.com/'
+baseURL = 'https://slimstorage.io/'
 languageCode = 'en-us'
 title = 's3lim'
 theme = 's3lim-minimal'
