@@ -2,75 +2,7 @@
 <div class="container">
     <div class="flex flex-col md:flex-row gap-16 py-8">
         {{ if not .Params.hide_sidebar }}
-        <aside class="w-full md:w-64 flex-shrink-0">
-            <nav class="sticky top-32 space-y-8">
-                {{ if eq .Section "about" }}
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">About</h4>
-                    <ul class="list-none p-0 m-0 space-y-1">
-                        {{ with .Site.GetPage "/about/_index.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Our Story</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/about/alternatives.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Alternatives</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/about/glossary.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Glossary</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/about/faq.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">FAQ</a></li>
-                        {{ end }}
-                    </ul>
-                </div>
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">S3 Optimization</h4>
-                    <ul class="list-none p-0 m-0 space-y-1">
-                        {{ with .Site.GetPage "/about/optimization/_index.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Overview</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/about/optimization/small-file-trap.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Small File Trap</a></li>
-                        {{ end }}
-                    </ul>
-                </div>
-                {{ else }}
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Getting Started</h4>
-                    <ul class="list-none p-0 m-0 space-y-1">
-                        {{ with .Site.GetPage "/docs/getting-started/autopilot.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Autopilot</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/docs/getting-started/standard.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Standard</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/docs/getting-started/self-serve.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Self-Serve</a></li>
-                        {{ end }}
-                    </ul>
-                </div>
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
-                    <ul class="list-none p-0 m-0 space-y-1">
-                        {{ with .Site.GetPage "/docs/reference/configuration.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Configuration</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/docs/reference/triggers.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Triggers</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/docs/reference/deployment.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Deployment</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/docs/reference/readonly.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Read-Only</a></li>
-                        {{ end }}
-                        {{ with .Site.GetPage "/docs/reference/metrics.md" }}
-                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Metrics</a></li>
-                        {{ end }}
-                    </ul>
-                </div>
-                {{ end }}
-            </nav>
-        </aside>
+        {{ partial "sidebar.html" . }}
         {{ end }}
         <article class="prose prose-slate max-w-none flex-grow {{ if .Params.hide_sidebar }}max-w-4xl mx-auto text-center{{ end }}">
             {{ .Content }}

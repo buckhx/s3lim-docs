@@ -49,11 +49,10 @@ To add a new documentation page:
    ```
 
 ### Updating the Navigation Sidebar
-The documentation sidebar is explicitly structured for a premium, clean design. When adding a new page, it will not appear in the sidebar automatically. You must add it to the sidebar layouts.
+The documentation sidebar is explicitly structured for a premium, clean design. When adding a new page, it will not appear in the sidebar automatically. You must add it to the consolidated sidebar partial template.
 
-Add your new page to the sidebar list in both:
-* `themes/s3lim-minimal/layouts/_default/list.html`
-* `themes/s3lim-minimal/layouts/_default/single.html`
+Add your new page to the sidebar list in:
+* `themes/s3lim-minimal/layouts/partials/sidebar.html`
 
 Use the `{{ with .Site.GetPage ... }}` helper to dynamically resolve the page and manage active page highlighting. For example:
 
