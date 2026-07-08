@@ -18,14 +18,14 @@ s3lim analyzes S3 Inventory reports to surface hidden cost-saving opportunities 
 ## Documentation Map
 
 ### Getting Started
-- [Autopilot Setup](https://slimstorage.io/getting-started/autopilot/) - Quickest way to deploy s3lim via one-click SAM templates.
-- [Standard Deployment](https://slimstorage.io/getting-started/standard/) - Manual integration for existing S3 inventories.
-- [CLI Usage](https://slimstorage.io/getting-started/self-serve/) - Running s3lim locally on your machine.
+- [Autopilot Setup](https://slimstorage.io/docs/getting-started/autopilot/) - Quickest way to deploy s3lim via one-click SAM templates.
+- [Standard Deployment](https://slimstorage.io/docs/getting-started/standard/) - Manual integration for existing S3 inventories.
+- [CLI Usage](https://slimstorage.io/docs/getting-started/self-serve/) - Running s3lim locally on your machine.
 
 ### Core Concepts & Optimization
 - [The Small File Trap](https://slimstorage.io/about/optimization/small-file-trap/) - Detailed guide on how small objects inflate your S3 bill.
-- [Available Metrics](https://slimstorage.io/metrics/overview/) - Reference for all data points surfaced by the s3lim engine.
-- [Configuration Guide](https://slimstorage.io/configuration/) - Technical reference for Lambda environment variables and tuning.
+- [Available Metrics](https://slimstorage.io/docs/reference/metrics/) - Reference for all data points surfaced by the s3lim engine.
+- [Configuration Guide](https://slimstorage.io/docs/reference/configuration/) - Technical reference for Lambda environment variables and tuning.
 
 ### Company & Support
 - [Our Story](https://slimstorage.io/about/) - The mission behind s3lim and our open-core philosophy.

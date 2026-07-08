@@ -7,35 +7,64 @@
                 <div class="space-y-3">
                     <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">About</h4>
                     <ul class="list-none p-0 m-0 space-y-1">
-                        <li><a href="{{ "about/" | relURL }}" class="sidebar-link">Our Story</a></li>
-                        <li><a href="{{ "about/alternatives/" | relURL }}" class="sidebar-link">Alternatives</a></li>
-                        <li><a href="{{ "about/glossary/" | relURL }}" class="sidebar-link">Glossary</a></li>
-                        <li><a href="{{ "about/faq/" | relURL }}" class="sidebar-link">FAQ</a></li>
+                        {{ with .Site.GetPage "/about/_index.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Our Story</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/about/alternatives.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Alternatives</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/about/glossary.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Glossary</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/about/faq.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">FAQ</a></li>
+                        {{ end }}
                     </ul>
                 </div>
                 <div class="space-y-3">
                     <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">S3 Optimization</h4>
                     <ul class="list-none p-0 m-0 space-y-1">
-                        <li><a href="{{ "about/optimization/" | relURL }}" class="sidebar-link">Overview</a></li>
-                        <li><a href="{{ "about/optimization/small-file-trap/" | relURL }}" class="sidebar-link">Small File Trap</a></li>
+                        {{ with .Site.GetPage "/about/optimization/_index.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Overview</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/about/optimization/small-file-trap.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Small File Trap</a></li>
+                        {{ end }}
                     </ul>
                 </div>
                 {{ else }}
                 <div class="space-y-3">
                     <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Getting Started</h4>
                     <ul class="list-none p-0 m-0 space-y-1">
-                        <li><a href="{{ "getting-started/autopilot/" | relURL }}" class="sidebar-link">Autopilot</a></li>
-                        <li><a href="{{ "getting-started/standard/" | relURL }}" class="sidebar-link">Standard</a></li>
-                        <li><a href="{{ "getting-started/self-serve/" | relURL }}" class="sidebar-link">Self-Serve</a></li>
+                        {{ with .Site.GetPage "/docs/getting-started/autopilot.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Autopilot</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/docs/getting-started/standard.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Standard</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/docs/getting-started/self-serve.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Self-Serve</a></li>
+                        {{ end }}
                     </ul>
                 </div>
                 <div class="space-y-3">
                     <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
                     <ul class="list-none p-0 m-0 space-y-1">
-                        <li><a href="{{ "configuration/" | relURL }}" class="sidebar-link">Configuration</a></li>
-                        <li><a href="{{ "configuration/triggers/" | relURL }}" class="sidebar-link">Triggers</a></li>
-                        <li><a href="{{ "deployment/autopilot/" | relURL }}" class="sidebar-link">Deployment</a></li>
-                        <li><a href="{{ "metrics/overview/" | relURL }}" class="sidebar-link">Metrics</a></li>
+                        {{ with .Site.GetPage "/docs/reference/configuration.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Configuration</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/docs/reference/triggers.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Triggers</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/docs/reference/deployment.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Deployment</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/docs/reference/readonly.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Read-Only</a></li>
+                        {{ end }}
+                        {{ with .Site.GetPage "/docs/reference/metrics.md" }}
+                        <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Metrics</a></li>
+                        {{ end }}
                     </ul>
                 </div>
                 {{ end }}
