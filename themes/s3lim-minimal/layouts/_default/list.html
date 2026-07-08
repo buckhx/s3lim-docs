@@ -4,14 +4,6 @@
         {{ partial "sidebar.html" . }}
         <article class="prose prose-slate max-w-none flex-grow">
             {{ .Content }}
-            <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {{ range .Pages }}
-                <a href="{{ .RelPermalink }}" class="block p-6 rounded-xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 no-underline group">
-                    <h3 class="m-0 text-lg group-hover:text-blue-600 transition-colors">{{ .Title }}</h3>
-                    <p class="m-0 mt-2 text-sm text-slate-500">{{ .Description | default .Summary }}</p>
-                </a>
-                {{ end }}
-            </div>
         </article>
     </div>
 </div>

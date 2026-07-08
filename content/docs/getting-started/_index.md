@@ -9,9 +9,9 @@ description: "Select the best deployment mode to start analyzing S3 inventory re
 
 To help you get started, we offer three main deployment modes:
 
-1. **Autopilot Mode**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
-2. **Standard Mode**: Best if you already have S3 Inventory reports configured and delivered to a bucket, and you want `s3lim` to analyze them using automated, scoped IAM role generation.
-3. **Self-Serve Mode (BYO-IAM)**: Designed for strict enterprise environments. It deploys only the analysis Lambda, allowing you to attach pre-created, manually audited IAM execution roles.
+1. **[Autopilot Mode]({{< relref "autopilot.md" >}})**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
+2. **[Standard Mode]({{< relref "standard.md" >}})**: Best if you already have S3 Inventory reports configured and delivered to a bucket, and you want `s3lim` to analyze them using automated, scoped IAM role generation.
+3. **[Self-Serve Mode (BYO-IAM)]({{< relref "self-serve.md" >}})**: Designed for strict enterprise environments. It deploys only the analysis Lambda, allowing you to attach pre-created, manually audited IAM execution roles.
 
 ---
 
