@@ -49,7 +49,11 @@
             </ul>
         </div>
         <div class="space-y-3">
+            {{ with .Site.GetPage "/docs/reference/_index.md" }}
+            <h4 class="text-xs font-bold uppercase tracking-widest"><a href="{{ .RelPermalink }}" class="hover:text-blue-600 transition-colors {{ if eq $.RelPermalink .RelPermalink }}text-blue-600{{ else }}text-slate-400{{ end }}">Technical Reference</a></h4>
+            {{ else }}
             <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
+            {{ end }}
             <ul class="list-none p-0 m-0 space-y-1">
                 {{ with .Site.GetPage "/docs/reference/configuration.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Configuration</a></li>
