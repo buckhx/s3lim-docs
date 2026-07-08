@@ -15,23 +15,10 @@ To help you get started, we offer three main deployment modes:
 
 ---
 
-## Deployment Decision Matrix
-
-Use the matrix below to select the right guide for your environment:
-
-| Feature / Detail | [Autopilot]({{< relref "autopilot.md" >}}) | [Standard]({{< relref "standard.md" >}}) | [Self-Serve]({{< relref "self-serve.md" >}}) |
-| :--- | :--- | :--- | :--- |
-| **Setup Speed** | ⚡ Easiest (One-Click) | 🚀 Quick | ⚙️ Manual Configuration |
-| **S3 Inventory Config** | Configured automatically | Uses existing setup | Uses existing setup |
-| **IAM Execution Roles** | Managed & created | Managed & created | **Bring Your Own (BYO-IAM)** |
-| **Target Environment** | Sandboxes, Dev, Single Teams | Standard Production | Strict Security / Enterprises |
-| **Permissions Required** | Full Administrator / SAM | Managed SAM Roles | Pre-audited custom IAM role |
-| **KMS / VPC Networking** | Default configurations | Default configurations | Full custom control |
-
----
-
 ## Choosing a Mode
 
 * **Choose Autopilot** if you want to optimize a bucket quickly without reading S3 Inventory specs.
 * **Choose Standard** if S3 Inventory is already running on your buckets and you want a standard, managed Lambda setup.
 * **Choose Self-Serve** if your security team requires manual approval and auditing of all IAM roles before they are deployed to production.
+
+**NOTE:** Always deploy `s3lim` in the **same AWS Region** as the S3 bucket with the inventory file to avoid cross-region data transfer fees and potential timeout issues.

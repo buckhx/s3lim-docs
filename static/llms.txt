@@ -18,14 +18,17 @@ s3lim analyzes S3 Inventory reports to surface hidden cost-saving opportunities 
 ## Documentation Map
 
 ### Getting Started
+- [Onboarding Overview](https://slimstorage.io/docs/getting-started/) - High-level comparison and decision matrix for selecting a deployment mode.
 - [Autopilot Setup](https://slimstorage.io/docs/getting-started/autopilot/) - Quickest way to deploy s3lim via one-click SAM templates.
-- [Standard Deployment](https://slimstorage.io/docs/getting-started/standard/) - Manual integration for existing S3 inventories.
-- [CLI Usage](https://slimstorage.io/docs/getting-started/self-serve/) - Running s3lim locally on your machine.
+- [Standard Deployment](https://slimstorage.io/docs/getting-started/standard/) - Step-by-step walkthrough for existing S3 inventories.
+- [Self-Serve Deployment](https://slimstorage.io/docs/getting-started/self-serve/) - Step-by-step walkthrough for deploying with custom/pre-audited IAM roles.
 
 ### Core Concepts & Optimization
 - [The Small File Trap](https://slimstorage.io/about/optimization/small-file-trap/) - Detailed guide on how small objects inflate your S3 bill.
-- [Available Metrics](https://slimstorage.io/docs/reference/metrics/) - Reference for all data points surfaced by the s3lim engine.
+- [Available Metrics](https://slimstorage.io/docs/reference/metrics/) - Reference for all CloudWatch data points surfaced by the s3lim engine.
 - [Configuration Guide](https://slimstorage.io/docs/reference/configuration/) - Technical reference for Lambda environment variables and tuning.
+- [Deployment Specifications](https://slimstorage.io/docs/reference/deployment/) - Technical parameters, resources created, and IAM requirements for all templates.
+- [Analysis Triggers](https://slimstorage.io/docs/reference/triggers/) - Documentation on real-time event notifications, cron schedules, and SQS redrives.
 
 ### Company & Support
 - [Our Story](https://slimstorage.io/about/) - The mission behind s3lim and our open-core philosophy.

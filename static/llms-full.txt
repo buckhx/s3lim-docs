@@ -1,0 +1,657 @@
+# s3lim Consolidated Documentation (Full Text)
+
+> This file contains the complete consolidated documentation for s3lim. Exposing this at /llms-full.txt allows LLMs to easily ingest the entire context in a single request.
+
+---
+
+## Document: Simple, Volume-Based Pricing
+URL: https://slimstorage.io/
+Description: s3lim is billed directly through your AWS account. Tiered pricing is available at specific volumes. No extra procurement, no hidden fees.
+
+
+
+---
+
+## Document: About s3lim
+URL: https://slimstorage.io/about/
+Description: The story behind s3lim and our mission to optimize S3 storage.
+
+# Our Story
+
+s3lim is designed to help engineers and DevOps teams regain control of their S3 storage costs. By providing high-performance inventory analysis and clear metrics, we make it easy to uncover hidden costs, identify duplicate objects, and optimize storage classes without the overhead of heavy, complex tools.
+
+## The Challenge
+
+Object Storage is a transformative technology and has created incredible value, but left unchecked can generate significant cost and performance issues. It's easy to let buckets grow unchecked because storage is cheap... until it's not. That's where s3lim comes in. Traditional Object Storage Observability is at a high level with aggregations at coarse granularity and there is little insight available into the contents of large buckets due to their scale. Indexing and reporting on every object would be prohibitly expensive for providers so they offer more targetted tools such Storage Lens Advanced Scopes or GCP Storage Intelligence. s3lim uses novel technology to process massive inventory files in resource constrained environments by leveraging probabilistic structures for aggregation. This leads to a tradeoff in accuracy where the exact counts may have some error margin, but captures overall trends and hotspots effectively. 
+
+## Our Values
+
+Our values are oriented around value creation, efficiency and performance and we lookto bring those with transparency and efficiency to object storage. We believe that understanding your storage should be fast, secure, and straightforward.
+
+---
+
+## Document: s3lim vs. Alternatives
+URL: https://slimstorage.io/about/alternatives/
+Description: How s3lim compares to AWS Storage Lens, S3 Inventory, and Amazon Athena for storage observability.
+
+# Comparing S3 Observability Tools
+
+When managing S3 at scale, choosing the right tool depends on your requirements for speed, cost, and depth of insight. Below is a high-level comparison of the most common methods for S3 inventory analysis.
+
+## Why use s3lim?
+
+### 1. Deep Prefix Visibility
+Storage Lens Advanced only provides metrics at the bucket level, for a few top-level prefixes or for manually configured scopes. **s3lim** recursively your entire directory structure and aggregates "hotspots" which bubble up even if they're buried ten levels deep. In Storage Lens you have to know what to look for, s3lim will find it for you.
+
+### 2. Targeted Remediations
+While raw S3 Inventory or Athena allow you to query data, you have to write the logic yourself an know what to look for such as **Small File Traps** or **Duplicate Objects**. **s3lim** has these aggregators built-in, providing specialized insights out of the box.
+
+### 3. No Mixed Incentives
+The main goal of s3lim is to provide customers value by reducing their storage costs. Cloud providers must balance customer savings with their bottom line and is likely why clear cost reduction strategies such as Duplicate Detection are not first class citizens in their ecosystems.
+
+---
+
+## Document: Frequently Asked Questions
+URL: https://slimstorage.io/about/faq/
+Description: Answers to common questions about s3lim.
+
+# FAQ
+
+Have a question about s3lim? Check below for answers to common technical and security inquiries.
+
+---
+
+## Document: S3 Optimization Glossary
+URL: https://slimstorage.io/about/glossary/
+Description: A comprehensive guide to key terms and concepts in S3 cost optimization.
+
+# S3 Optimization Glossary
+
+Understanding these key terms is essential for effective storage cost management and observability. Each term represents a core concept that `s3lim` is designed to detect and measure.
+
+---
+
+## Document: S3 Cost Optimization
+URL: https://slimstorage.io/about/optimization/
+Description: Strategies and patterns for reducing your AWS S3 bill using s3lim.
+
+# S3 Cost Optimization
+
+AWS S3 is incredibly powerful, but its pricing model can be deceptive. While storage is cheap, request costs and architectural patterns can lead to unexpected "bill shocks."
+
+In this section, we explore common S3 cost pitfalls and how to use `s3lim` to identify and fix them.
+
+## Optimization Guides
+
+- **[The Small File Trap](/about/optimization/small-file-trap/)**: Why millions of tiny files are costing you more in requests than storage.
+- **Duplicate Object Detection** (Coming Soon): Finding and removing redundant data.
+- **Lifecycle Drift** (Coming Soon): Identifying objects that should have been transitioned to cheaper storage.
+
+---
+
+## Document: The Small File Trap
+URL: https://slimstorage.io/about/optimization/small-file-trap/
+Description: How small files can inflate your S3 costs and how to detect them with s3lim.
+
+# The Small File Trap
+
+One of the most common causes of inflated S3 bills is the "Small File Trap." This occurs when an application stores millions of small objects (typically under 128 KB) rather than aggregating them into larger files.
+
+## Why Small Files Are Expensive
+
+There are three main reasons why small files drive up your AWS bill:
+
+### 1. Request Costs Overpower Storage Costs
+S3 Standard storage costs approximately **$0.023 per GB**. However, a PUT request costs **$0.005 per 1,000 requests**.
+- If you store **one 1 GB file**, you pay $0.023/month for storage and a negligible amount for the request.
+- If you store **one million 1 KB files** (totaling 1 GB), you still pay $0.023/month for storage, but you pay **$5.00** just to upload them.
+
+### 2. Minimum Storage Charges
+Storage classes like **S3 Standard-IA** and **S3 One Zone-IA** have a minimum object size of **128 KB**. If you store a 10 KB file in Standard-IA, you are billed for 128 KB of storage. This can increase your storage costs by over 10x for very small files.
+
+### 3. Metadata Overhead
+Every object in S3 has index metadata. Managing millions of small objects increases the time and cost of running S3 Inventory reports and Lifecycle transitions.
+
+## Detecting the Trap with s3lim
+
+`s3lim` makes it easy to identify if your buckets are suffering from the small file trap. By analyzing your inventory, `s3lim` provides histograms showing size distribution and prefix-level density reports.
+
+---
+
+## Document: Getting Started
+URL: https://slimstorage.io/docs/getting-started/
+Description: Select the best deployment mode to start analyzing S3 inventory reports and optimizing your AWS S3 storage costs.
+
+# Getting Started with s3lim
+
+`s3lim` is designed to be highly modular, allowing you to choose the deployment model that best aligns with your team's AWS permissions, security constraints, and existing infrastructure.
+
+To help you get started, we offer three main deployment modes:
+
+1. **[Autopilot Mode](autopilot.md)**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
+2. **[Standard Mode](standard.md)**: Best if you already have S3 Inventory reports configured and delivered to a bucket, and you want `s3lim` to analyze them using automated, scoped IAM role generation.
+3. **[Self-Serve Mode (BYO-IAM)](self-serve.md)**: Designed for strict enterprise environments. It deploys only the analysis Lambda, allowing you to attach pre-created, manually audited IAM execution roles.
+
+---
+
+## Choosing a Mode
+
+* **Choose Autopilot** if you want to optimize a bucket quickly without reading S3 Inventory specs.
+* **Choose Standard** if S3 Inventory is already running on your buckets and you want a standard, managed Lambda setup.
+* **Choose Self-Serve** if your security team requires manual approval and auditing of all IAM roles before they are deployed to production.
+
+**NOTE:** Always deploy `s3lim` in the **same AWS Region** as the S3 bucket with the inventory file to avoid cross-region data transfer fees and potential timeout issues.
+
+---
+
+## Document: Quickstart (Autopilot)
+URL: https://slimstorage.io/docs/getting-started/autopilot/
+
+# Quickstart (Autopilot)
+
+This guide is for users who want to get up and running with `s3lim` as quickly as possible using the **Autopilot** deployment mode.
+This deployment method is fully managed via a CloudFormation Stack which will generate the required resources including a new bucket for the S3 Inventory Report.
+
+## Prerequisites
+- An AWS account with permissions to deploy Lambda and CloudFormation.
+- One or more S3 buckets you wish to analyze.
+
+## Deployment Steps
+1. Navigate to the [s3lim-autopilot](https://serverlessrepo.aws.amazon.com/applications) on the AWS Serverless Application Repository.
+2. Enter your `SourceBucketName`.
+* See [deployment](docs/reference/deployment.md#autopilot-mode-spec) for values to override
+3. Click **Deploy**.
+
+## What Happens Next?
+`s3lim` will automatically:
+1. Configure an S3 Inventory report on your source bucket.
+2. Create a destination bucket for inventory delivery.
+3. Set up an S3 Event Notification to trigger analysis when new reports arrive.
+4. Create a CloudWatch dashboard for analysis.
+5. Generate PREVIEW metrics on the first 1M objects within 5 minutes
+* PREVIEW metrics will be prefixed with "PREVIEW"
+
+**Note:** It can take up to 48 hours for AWS to deliver the first S3 Inventory report. Your dashboard will have preview until then.
+
+See [configuration](docs/reference/configuration.md) to configure the lambdas behavior
+
+To decommission s3lim, simply delete the CloudFormation stack
+
+---
+
+## Document: Self-Serve Deployment
+URL: https://slimstorage.io/docs/getting-started/self-serve/
+
+# Self-Serve Mode (BYO-IAM) Walkthrough
+
+This guide is for teams who require granular control over IAM roles, KMS encryption, and VPC networking. 
+
+In Self-Serve Mode, the SAM template only deploys the analysis Lambda function, allowing you to attach a pre-created, manually audited IAM execution role.
+
+## Use Case
+Ideal for **strict enterprise environments** where security compliance requires manual review and approval of all IAM policies before deployment.
+
+## Prerequisites
+* An AWS account with permissions to deploy CloudFormation and create IAM roles.
+* A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.
+* A pre-created IAM role for the Lambda function. For policy templates, see the [Self-Serve IAM Requirements](docs/reference/deployment.md#read-only-mode-spec-self-serve).
+
+## Deployment Steps
+
+1. **Create the IAM Role**: Establish an IAM Role for the Lambda function containing the required permissions. You can copy the exact S3 and CloudWatch/SQS policies from the [Self-Serve IAM Specification](docs/reference/deployment.md#read-only-mode-spec-self-serve).
+2. **Launch Read-Only Stack**: Navigate to the [s3lim-readonly](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository.
+3. **Configure Stack Parameters**:
+   * Enter `InventoryDestination` (e.g., `s3://my-inventory-bucket/inventory/`).
+   * Enter `LambdaRoleArn` (the ARN of the IAM role you created in Step 1).
+   * For other options, see the [Deployment Specifications](docs/reference/deployment.md#read-only-mode-spec-self-serve).
+4. **Deploy**: Click **Deploy** to start provisioning.
+5. **Add Trigger**: Manually add an S3 Event Trigger to the destination bucket targeting the `s3lim` Lambda function to execute scans on new manifest deliveries.
+
+## Verification
+Once a new S3 Inventory report is delivered, verify execution by inspecting the CloudWatch logs for the Lambda function.
+
+---
+
+## Document: Standard Mode
+URL: https://slimstorage.io/docs/getting-started/standard/
+
+# Standard Mode Walkthrough
+
+This guide is for users who **already have S3 Inventory reports** being configured and delivered to a destination bucket, and want `s3lim` to analyze them using automated, scoped IAM role generation.
+
+## Use Case
+Ideal for users who want to analyze pre-existing inventory pipelines with a simple, managed deployment. The SAM template automatically creates the analysis Lambda function and scope-limited IAM execution roles so you don't have to configure policies manually.
+
+## Prerequisites
+* An AWS account with permissions to deploy Lambda, IAM Roles, and CloudFormation.
+* A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.
+* The S3 URI where your existing inventory manifests are delivered (e.g., `s3://my-inventory-bucket/inventory/`).
+
+## Deployment Steps
+
+1. **Get the Destination Path**: Locate the S3 bucket and prefix path where your source bucket delivers its inventory manifests.
+2. **Launch Standard Stack**: Navigate to the [s3lim-standard](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository.
+3. **Configure Stack Parameters**:
+   * Enter `InventoryDestination` (e.g., `s3://my-inventory-bucket/inventory/`).
+   * Enter `SourceBucketName` (optional, required if you want to run previews using S3 ListObjectsV2 API).
+   * For other options, see the [Deployment Specifications](docs/reference/deployment.md#standard-mode-spec).
+4. **Deploy**: Click **Deploy** to start provisioning.
+
+## Configure Analysis Trigger
+Because Standard Mode operates on pre-existing inventories, by default it sets up a **daily scheduled trigger (cron)** to scan the destination bucket for new manifests.
+
+If you want real-time analysis immediately upon report delivery:
+1. Copy the `AnalyzeFunctionArn` from the CloudFormation stack outputs.
+2. Navigate to your S3 Inventory destination bucket in the AWS Console.
+3. Go to the **Properties** tab and scroll to **Event notifications**.
+4. Click **Create event notification** and configure:
+   * **Prefix**: The folder path of your inventory reports (e.g., `inventory/`).
+   * **Suffix**: `manifest.json`.
+   * **Event types**: `All object create events` (`s3:ObjectCreated:*`).
+   * **Destination**: Lambda Function (select your `s3lim` function).
+
+## Verification
+Once a new S3 Inventory report is delivered, the Lambda will automatically execute. You can view the output analysis and metrics in your AWS CloudWatch dashboard.
+
+---
+
+## Document: Technical Reference
+URL: https://slimstorage.io/docs/reference/
+Description: Explore the configuration settings, deployment specifications, triggers, and CloudWatch metrics produced by the s3lim engine.
+
+# Technical Reference
+
+This section contains technical specifications, environment variable details, deployment models, and metrics references for the `s3lim` analysis engine.
+
+To help you configure and audit your deployments, we provide the following reference guides:
+
+1. **[Configuration Guide](configuration.md)**: Detailed documentation of all environment variables, execution thresholds, and configuration settings for the Lambda function.
+2. **[Analysis Triggers](triggers.md)**: Documentation of all invocation triggers supported by the `s3lim` Lambda, including S3 Event Notifications, Scheduled CloudWatch Events (cron), manual payloads, and SQS DLQ redrives.
+3. **[Deployment Specs](deployment.md)**: AWS SAM template parameters, outputs, and IAM requirements for the Autopilot and Standard deployment stacks.
+4. **[Available Metrics](metrics.md)**: Reference of all CloudWatch custom metrics, dimensions, and namespaces generated by the core analysis engine.
+
+---
+
+## Quick Reference Summary
+
+Use the guides below depending on your immediate need:
+
+* **Need to change Lambda behaviors or thresholds?** Check out the [Configuration Guide](configuration.md).
+* **Setting up S3 trigger rules or automated cron schedules?** Read the [Analysis Triggers](triggers.md).
+* **Auditing IAM roles or cloud formation parameters?** View the [Deployment Specs](deployment.md).
+* **Building a custom CloudWatch dashboard?** Browse the [Available Metrics](metrics.md).
+
+---
+
+## Document: Configuration
+URL: https://slimstorage.io/docs/reference/configuration/
+Description: Detailed reference for s3lim Lambda environment variables and tuning parameters.
+
+# Lambda Configuration
+
+The `s3lim` Lambda function is configured primarily through environment variables. These settings allow you to tune the analysis depth, performance, and reporting behavior.
+
+## Core Analysis Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TOP_K` | `100` | The number of "heavy hitter" prefixes or objects to track per aggregator. |
+| `MAX_PREFIX_DEPTH` | `10` | Maximum depth for recursive prefix aggregation (e.g., `/a/b/c/` is depth 3). |
+| `MIN_PREFIX_DEPTH` | `1` | Minimum depth to start prefix aggregation. |
+| `DELIMITER` | `/` | The character used to separate prefix levels. |
+| `SMALL_FILE_THRESHOLD_KB` | `128` | Objects smaller than this threshold (in KB) are counted by the Small File aggregator. |
+| `CUSTOM_PREFIXES` | - | Comma-separated list of explicit custom prefixes to track (e.g., `data/import/,temp/`). |
+
+## Performance & Scaling
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CONCURRENCY` | *Auto* | Number of concurrent workers. Defaults to the number of vCPUs available (derived from Lambda memory). |
+| `BATCH_SIZE` | `1024` | Number of objects to process in a single batch before updating sketches. |
+| `K_BUFFER` | `20` | Percentage of extra capacity for internal Top-K sketches to improve accuracy. |
+
+## Metrics & Reporting
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CW_METRICS_ENABLED` | `true` | Whether to publish custom CloudWatch metrics. |
+| `CW_NAMESPACE` | `s3lim` | The CloudWatch namespace for published metrics. |
+| `CW_TOP_K` | `5` | The number of top prefixes to publish as individual CloudWatch metrics. |
+| `CW_STATS` | `object-count,bytes,duplicates,audit` | Comma-separated list of statistic categories to publish. |
+| `OUTPUT_FORMAT` | `cloudwatch` | Primary output format (`cloudwatch`, `json`, or `console`). |
+
+## Resource Requirements
+
+For processing large inventory files (billions of objects), the following settings are recommended:
+
+- **Memory**: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go's GC and the Parquet/ORC parsers benefit from a larger heap.
+- **Timeout**: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.
+- **Architecture**: `arm64` (Graviton). Optimized for price/performance.
+
+## IAM Permissions
+
+The Lambda function requires the following minimum permissions:
+
+### 1. S3 Read Access
+Required to read the inventory manifest and the data files (CSV, Parquet, or ORC).
+- `s3:GetObject` on `arn:aws:s3:::<InventoryBucket>/<Prefix>/*`
+- `s3:ListBucket` on `arn:aws:s3:::<InventoryBucket>`
+
+### 2. CloudWatch Metrics
+Required to publish the analyzed metrics.
+- `cloudwatch:PutMetricData`
+
+## Advanced Diagnostics
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INVENTORY_DESTINATION` | - | S3 URI where inventories are delivered. Required for scheduled scans. |
+| `S3LIM_ENABLE_XRAY` | `false` | Enable AWS X-Ray tracing for deep observability. |
+| `DIAGNOSTICS_DEST` | - | Optional S3 URI to upload CPU/Mem profiles for troubleshooting. |
+
+## Custom Prefix Tracking
+
+Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically retains only the most active prefixes using sketching algorithms), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
+
+To configure custom prefixes, pass them as a comma-separated list:
+- **CLI**: Use the `--custom-prefix` flag (e.g., `--custom-prefix data/import/,temp/`).
+- **Lambda**: Set the `CUSTOM_PREFIXES` environment variable (e.g., `CUSTOM_PREFIXES="data/import/,temp/"`).
+- **SAM Template**: Specify the `CustomPrefixes` template parameter during deployment.
+
+---
+
+## Document: Deployment Specifications
+URL: https://slimstorage.io/docs/reference/deployment/
+Description: Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment models.
+
+# Deployment Specifications
+
+`s3lim` is deployed using AWS Serverless Application Model (SAM) templates. Depending on your environment, you will use one of three main template configurations: **Autopilot**, **Standard**, or **Read-Only** (used in Self-Serve).
+
+---
+
+## Autopilot Mode Spec
+Template: `sam-template-autopilot.yaml`
+
+Automatically configures the S3 Inventory report on your source bucket and provisions the analysis engine.
+
+### Parameters
+| Name | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `SourceBucketName` | String | **Required** | The name of the S3 bucket to analyze. |
+| `InventoryDestination` | String | *(Generated)* | The S3 URI where S3 Inventory reports are delivered. Defaults to a new bucket named `<StackName>-inventory`. |
+| `InventoryFormat` | String | `Parquet` | Format of inventory files (`CSV`, `ORC`, or `Parquet`). Parquet is recommended for speed. |
+| `SourcePrefixFilter` | String | - | Optional: Filter inventory to only analyze files under this prefix. |
+| `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
+| `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
+
+### Resources Created
+* **S3 Bucket**: For inventory reports (if not using pre-existing bucket).
+* **Lambda Function**: Core `s3lim` analysis processor.
+* **SQS Queue**: Dead Letter Queue (DLQ) for analysis failure handling.
+* **IAM Roles**: Execution roles with scoped read/write permissions for source and inventory buckets.
+* **Custom Resource**: Script that auto-registers inventory configuration on your source bucket.
+
+### Outputs
+* `InventoryDestinationURI`: Location where S3 Inventory reports are stored.
+* `AnalyzeFunctionArn`: ARN of the processor Lambda function.
+
+---
+
+## Standard Mode Spec
+Template: `sam-template-standard.yaml`
+
+Deploys `s3lim` to analyze existing S3 Inventory reports using automatically generated, scoped IAM permissions.
+
+### Parameters
+| Name | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `InventoryDestination` | String | **Required** | The S3 URI where existing inventories are delivered (e.g., `s3://my-bucket/inventory/`). |
+| `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
+| `SourceBucketName` | String | - | Optional: The name of the source S3 bucket. Required if you want to run previews via `ListObjectsV2`. |
+| `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
+
+### Resources Created
+* **Lambda Function**: Core `s3lim` analysis processor.
+* **SQS Queue**: Dead Letter Queue (DLQ) for analysis failure handling.
+* **IAM Roles**: Scoped execution role with read permissions to your existing inventory destination bucket and CloudWatch write permissions.
+
+### Outputs
+* `AnalyzeFunctionArn`: ARN of the processor Lambda function.
+
+---
+
+## Read-Only Mode Spec (Self-Serve)
+Template: `sam-template-readonly.yaml`
+
+For strict enterprise environments. Deploys only the analysis Lambda and triggers, requiring you to attach a pre-created (BYO-IAM) execution role.
+
+### Parameters
+| Name | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `InventoryDestination` | String | **Required** | The S3 URI where existing inventories are delivered. |
+| `LambdaRoleArn` | String | **Required** | The ARN of your pre-created, manually audited IAM execution role. |
+| `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
+| `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track. |
+
+### IAM Requirements
+Your pre-created IAM role must possess the following minimum permissions:
+
+#### S3 Policy
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": ["s3:GetObject", "s3:ListBucket"],
+            "Resource": [
+                "arn:aws:s3:::your-inventory-bucket",
+                "arn:aws:s3:::your-inventory-bucket/*"
+            ]
+        }
+    ]
+}
+```
+
+#### CloudWatch & SQS Policy
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:PutMetricData",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sqs:SendMessage",
+                "sqs:ReceiveMessage",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes"
+            ],
+            "Resource": "arn:aws:sqs:*:*:s3lim-*"
+        }
+    ]
+}
+```
+
+### Outputs
+* `AnalyzeFunctionArn`: ARN of the processor Lambda function.
+
+---
+
+## Cross-Region Considerations
+
+When deploying `s3lim` in Standard or Self-Serve modes, you may encounter cross-region architectures (e.g., the Lambda is deployed in `us-east-1` but analyzes S3 buckets in `us-west-2`). Keep the following in mind:
+
+* **Data Transfer Costs**: `s3lim` operates in-place, but if the Lambda function and the S3 Inventory destination bucket reside in different regions, downloading the inventory reports will incur standard **AWS Data Transfer Out (egress)** costs. For large buckets with gigabytes of inventory reports, this can result in substantial data transfer charges.
+* **Execution Timeout**: Cross-region S3 downloads suffer from higher latency. If you are analyzing a massive bucket with billions of keys, the extra latency from cross-region transfers may cause the Lambda execution to exceed its 15-minute (900-second) timeout limit.
+* **KMS Encryption**: If your S3 Inventory destination bucket is encrypted using a Customer Managed Key (CMK) via KMS, the Lambda execution role must be granted cross-region decrypt permissions (`kms:Decrypt`) on the KMS key.
+* **CloudWatch Namespace**: `s3lim` publishes metrics to the region in which the Lambda is running. If a Lambda in `us-east-1` analyzes a bucket in `us-west-2`, the custom metrics will appear in the `us-east-1` CloudWatch dashboard and namespace.
+
+> [!IMPORTANT]
+> **Best Practice**: Always deploy the `s3lim` stack in the **same region** as the S3 Inventory destination bucket to eliminate data transfer fees, minimize latency, and prevent execution timeouts.
+
+---
+
+## Multi-Bucket Analysis
+
+If you want to use a single `s3lim` Lambda instance to process inventory reports from multiple S3 buckets:
+
+### Using the Multi-Bucket Template (`sam-template-multibucket.yaml`)
+For Standard Mode deployments, use the multi-bucket template. It supports:
+* `InventoryDestination`: The primary S3 URI for your main inventory destination.
+* `AdditionalInventoryBuckets`: A list of additional S3 inventory buckets (e.g., `bucket2, bucket3`) to grant read access to.
+
+### Using Self-Serve Mode (BYO-IAM)
+If you deploy in Self-Serve Mode and manage your own IAM execution role, you must explicitly expand the Lambda's S3 policy permissions to grant access to all inventory buckets:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": ["s3:GetObject", "s3:ListBucket"],
+            "Resource": [
+                "arn:aws:s3:::primary-inventory-bucket",
+                "arn:aws:s3:::primary-inventory-bucket/*",
+                "arn:aws:s3:::secondary-inventory-bucket",
+                "arn:aws:s3:::secondary-inventory-bucket/*"
+            ]
+        }
+    ]
+}
+```
+
+---
+
+## Document: Available Metrics
+URL: https://slimstorage.io/docs/reference/metrics/
+Description: Reference guide for all CloudWatch metrics and dimensions produced by the s3lim analysis engine.
+
+# Available CloudWatch Metrics
+
+`s3lim` surfaces storage insights through two primary mechanisms in AWS CloudWatch: **Direct Metrics** and **Log-Based Metrics**. These metrics are automatically displayed in the CloudWatch Dashboard provided by the deployment templates.
+
+## Metric Types & Naming
+
+### Rollup vs. Direct Metrics
+- **Rollup Metrics** (default): Aggregate data recursively across prefix levels. For example, a rollup metric for the `/data/` prefix includes all objects in `/data/logs/` and `/data/temp/`. These are essential for high-level cost deconstruction.
+- **Direct Metrics**: Only include objects located exactly within that specific prefix level. These are useful for surgical analysis of a single folder's contents.
+
+### Metric Dimensions
+Most metrics are partitioned by:
+- `Bucket`: The name of the S3 bucket being analyzed.
+- `Prefix`: The specific folder path (for prefix-based metrics).
+
+---
+
+## Storage Distribution
+
+These metrics help you understand how your storage is distributed across your bucket's hierarchy.
+
+- **`TotalSize`**: The aggregate size of all objects under a prefix (Rollup).
+- **`DirectSize`**: The size of objects located specifically in this prefix.
+- **`ObjectCount`**: The total count of objects under a prefix.
+- **`SumAgeSeconds`**: The cumulative age of all objects in seconds. Used to identify "cold" data that hasn't been accessed or modified in a long time.
+
+## Cost Optimization
+
+Metrics designed specifically to identify recoverable spend and suboptimal storage configurations.
+
+- **`DuplicatePercent`**: The percentage of total storage occupied by redundant data (files with identical ETags).
+- **`DuplicateObjectSize`**: Identifies the specific largest redundant files across the bucket.
+- **`ITCandidateBytes`**: Storage that meets the requirements for Intelligent Tiering but is currently in a more expensive tier (e.g., Standard).
+- **`SmallFileTrapCount`**: Identifies files that are too small to be cost-effectively moved to colder tiers (IA/Glacier) due to per-object overhead.
+
+## Metadata Insights
+
+Deep-dive metrics into object metadata that often hides significant costs.
+
+- **`GhostVersionSize`**: Size occupied by non-current object versions.
+- **`DeleteMarkerCount`**: The number of expired object delete markers occupying metadata space.
+- **`MultipartUploadSize`**: The total size of incomplete multipart uploads that are still taking up space and costing money.
+- **`ZeroByteCount`**: The count of empty (0 byte) objects that may indicate application bugs or failed processing.
+- **`SmallFileCount`**: The number of objects smaller than the `SMALL_FILE_THRESHOLD_KB` (default 128KB).
+
+## Analysis Audit
+
+Operational metrics for the `s3lim` analysis engine itself.
+
+- **`RowsProcessed`**: The total number of object rows successfully scanned during the run.
+- **`TotalBytes`**: The cumulative size of the inventory data processed.
+- **`ErrorCount`**: The number of inventory rows that failed to parse correctly.
+
+---
+
+## Document: Triggers
+URL: https://slimstorage.io/docs/reference/triggers/
+
+# Analysis Triggers
+
+`s3lim` can be triggered in multiple ways depending on your automation needs. The Lambda function is designed to handle S3 events, scheduled events, and manual JSON payloads.
+
+## 1. Event Notifications (S3)
+This is the recommended method for **real-time analysis**. Whenever a new `manifest.json` is created by S3 Inventory, the Lambda is triggered immediately.
+
+- **Setup**: Add an "S3 Event Notification" to your inventory destination bucket.
+- **Filter**: 
+    - Prefix: (e.g., `inventory/`)
+    - Suffix: `manifest.json`
+- **Event Type**: `s3:ObjectCreated:*`
+
+## 2. Scheduled Scans (Cron)
+If you prefer to run analysis on a fixed schedule (e.g., once per day), you can use an EventBridge (CloudWatch Events) rule.
+
+- **Behavior**: When triggered via a schedule, `s3lim` scans the `INVENTORY_DESTINATION` S3 path to find the most recent `manifest.json` for all buckets it has discovered.
+- **Config**: Ensure the `INVENTORY_DESTINATION` environment variable is set.
+
+## 3. Manual Trigger
+You can manually invoke the Lambda function via the AWS Console or CLI for ad-hoc analysis.
+
+- **Payload**: Provide a simple JSON string containing the S3 URI of the `manifest.json`.
+- **Example**:
+  ```json
+  "s3://my-inventory-bucket/inventory/2026-06-12T00-00Z/manifest.json"
+  ```
+- **Alternative Payload**:
+  ```json
+  {
+    "path": "s3://my-inventory-bucket/inventory/2026-06-12T00-00Z/manifest.json"
+  }
+  ```
+
+## 4. DLQ Redrive (SQS)
+`s3lim` includes a built-in mechanism for reprocessing failed inventories.
+
+- **Trigger**: An SQS event source mapping from the `ProcessingDLQ`.
+- **Action**: This trigger is **disabled by default**. To re-process failed runs, enable the trigger in the Lambda "Triggers" tab, wait for the queue to drain, and then disable it again.
+
+---
+
+## Document: Get Early Access
+URL: https://slimstorage.io/early-access/
+Description: Join the s3lim early access program and start optimizing your S3 storage.
+
+# Get Early Access
+
+Thank you for your interest in s3lim! Please fill out the form below to join our early access program. We'll reach out as soon as a slot becomes available for your AWS account.
+
+<div class="notion-embed mt-8 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
+    <iframe src="https://buckhx.notion.site/ebd//37ee38f67ed9803a8af7fe3e9a97f636" width="100%" height="800" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<p class="text-sm text-slate-400 mt-8">
+    Your data is handled according to our privacy policy. We only use your information to coordinate early access and provide project updates.
+</p>
+
+---
+

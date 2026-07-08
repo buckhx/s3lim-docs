@@ -15,7 +15,7 @@ This deployment method is fully managed via a CloudFormation Stack which will ge
 ## Deployment Steps
 1. Navigate to the [s3lim-autopilot](https://serverlessrepo.aws.amazon.com/applications) on the AWS Serverless Application Repository.
 2. Enter your `SourceBucketName`.
-* See [deployment]({{< relref "docs/reference/deployment.md#autopilot-deployment" >}}) for values to override
+* See [deployment]({{< relref "docs/reference/deployment.md#autopilot-mode-spec" >}}) for values to override
 3. Click **Deploy**.
 
 ## What Happens Next?

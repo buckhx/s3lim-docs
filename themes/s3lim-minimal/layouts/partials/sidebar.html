@@ -58,11 +58,11 @@
                 {{ with .Site.GetPage "/docs/reference/configuration.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Configuration</a></li>
                 {{ end }}
-                {{ with .Site.GetPage "/docs/reference/triggers.md" }}
-                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Triggers</a></li>
-                {{ end }}
                 {{ with .Site.GetPage "/docs/reference/deployment.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Deployment</a></li>
+                {{ end }}
+                {{ with .Site.GetPage "/docs/reference/triggers.md" }}
+                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Triggers</a></li>
                 {{ end }}
                 {{ with .Site.GetPage "/docs/reference/metrics.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Metrics</a></li>

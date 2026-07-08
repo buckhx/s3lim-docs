@@ -1,48 +1,32 @@
 ---
 title: "Self-Serve Deployment"
-weight: 2
+weight: 3
 ---
 
-# Self-Serve Deployment (BYO-IAM)
+# Self-Serve Mode (BYO-IAM) Walkthrough
 
-This guide is for teams who require granular control over IAM roles, KMS encryption, and VPC networking.
-The SAM template will only manage the s3lim lambda and all other resources will need to be created.
+This guide is for teams who require granular control over IAM roles, KMS encryption, and VPC networking. 
 
-## Architecture Overview
-The Self-Serve deployment uses the `readonly` template, which creates no IAM roles. You must provide a pre-existing IAM role ARN for the Lambda function.
+In Self-Serve Mode, the SAM template only deploys the analysis Lambda function, allowing you to attach a pre-created, manually audited IAM execution role.
+
+## Use Case
+Ideal for **strict enterprise environments** where security compliance requires manual review and approval of all IAM policies before deployment.
 
 ## Prerequisites
-* Existing S3 Inventory Report Bucket Destination
-* IAM Role 
-
-## IAM Requirements
-Your Lambda execution role must have the following permissions:
-
-### S3 Permissions
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": ["s3:GetObject", "s3:ListBucket"],
-            "Resource": [
-                "arn:aws:s3:::your-inventory-bucket",
-                "arn:aws:s3:::your-inventory-bucket/*"
-            ]
-        }
-    ]
-}
-```
-
-### CloudWatch Permissions
-- `cloudwatch:PutMetricData` (Namespace: `s3lim`)
-- `logs:CreateLogStream`
-- `logs:PutLogEvents`
+* An AWS account with permissions to deploy CloudFormation and create IAM roles.
+* A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.
+* A pre-created IAM role for the Lambda function. For policy templates, see the [Self-Serve IAM Requirements]({{< relref "docs/reference/deployment.md#read-only-mode-spec-self-serve" >}}).
 
 ## Deployment Steps
-1. Create the IAM role with the permissions above.
-2. Deploy the `s3lim-readonly` stack via SAM or CloudFormation.
-3. Provide the `LambdaRoleArn` as a parameter.
-4. Manually configure your S3 Inventory to deliver to your chosen bucket.
-5. Add an S3 Event Notification to trigger the `s3lim` Lambda ARN.
+
+1. **Create the IAM Role**: Establish an IAM Role for the Lambda function containing the required permissions. You can copy the exact S3 and CloudWatch/SQS policies from the [Self-Serve IAM Specification]({{< relref "docs/reference/deployment.md#read-only-mode-spec-self-serve" >}}).
+2. **Launch Read-Only Stack**: Navigate to the [s3lim-readonly](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository.
+3. **Configure Stack Parameters**:
+   * Enter `InventoryDestination` (e.g., `s3://my-inventory-bucket/inventory/`).
+   * Enter `LambdaRoleArn` (the ARN of the IAM role you created in Step 1).
+   * For other options, see the [Deployment Specifications]({{< relref "docs/reference/deployment.md#read-only-mode-spec-self-serve" >}}).
+4. **Deploy**: Click **Deploy** to start provisioning.
+5. **Add Trigger**: Manually add an S3 Event Trigger to the destination bucket targeting the `s3lim` Lambda function to execute scans on new manifest deliveries.
+
+## Verification
+Once a new S3 Inventory report is delivered, verify execution by inspecting the CloudWatch logs for the Lambda function.
