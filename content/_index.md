@@ -49,19 +49,36 @@ pricing:
   description: "s3lim is billed directly through your AWS account. Tiered pricing is available at specific volumes. No extra procurement, no hidden fees."
   plans:
     - title: "Core Analysis"
-      price: "TBD"
-      unit: "per million objects"
+      price: "$0.015"
+      unit: "per million objects scanned"
       features:
-        - "Full Bucket Scan"
-        - "Standard Aggregators"
+        - "Full S3 Inventory Scan"
+        - "Top-K Prefix Rollups"
         - "In-Account Processing"
-        - "AWS Console Integration"
+        - "CloudWatch Metrics & Dashboards"
     - title: "Custom Insights"
-      price: "+TBD"
-      unit: "per million objects"
+      price: "+$0.005"
+      unit: "per custom prefix tracked"
       features:
         - "Custom Prefix Rollups"
         - "Advanced Filtering"
         - "Multi-Level Aggregation"
         - "Dedicated Reporting"
+
+# roadmap
+roadmap:
+  enable: true
+  title: "On the Horizon"
+  subtitle: "S3 Performance & Security Auditing"
+  description: "We are actively building stateless, in-account analysis engines for S3 Server Access Logs to provide real-time performance troubleshooting and active threat detection."
+  features:
+    - icon: "⚡"
+      title: "Latency Diagnostics"
+      content: "Identify slow S3 operations and surface p95/p99 turnaround latency hotspots mapped directly to prefixes."
+    - icon: "🕵️"
+      title: "Shadow Access Audit"
+      content: "Detect requests coming from external AWS accounts, public IPs, or unexpected IAM principals."
+    - icon: "🚨"
+      title: "Bulk Egress & Ransomware Alerts"
+      content: "Get notified of sudden exfiltration volume spikes or mass delete operations per client IP in near-real-time."
 ---

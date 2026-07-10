@@ -59,9 +59,11 @@
             {{ end }}
         </div>
         <div class="pt-8 text-center">
-            <p class="text-sm text-slate-400">All billing is handled via AWS Marketplace. No credit card required to start.</p>
+            <p class="text-sm text-slate-400 font-bold">All billing is handled via AWS Marketplace. No credit card required to start.</p>
+            <p class="text-sm text-slate-400">* Rates shown represent anticipated pricing.</p>
         </div>
     </section>
+
 
     <section class="space-y-12 py-12 border-t border-slate-100 bg-slate-50/50 -mx-6 px-6 md:-mx-12 md:px-12">
         <div class="text-center space-y-4 max-w-2xl mx-auto">
@@ -79,6 +81,14 @@
                     <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none">
                         <span class="text-slate-400 font-bold uppercase text-xs tracking-tighter">M Objects</span>
                     </div>
+                </div>
+            </div>
+
+            <div class="space-y-2 text-center pt-2">
+                <span class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Scan Frequency</span>
+                <div class="inline-flex rounded-xl p-1 bg-slate-50 border border-slate-100 max-w-xs mx-auto">
+                    <button type="button" id="freq-daily" class="px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">Daily</button>
+                    <button type="button" id="freq-weekly" class="px-6 py-2 rounded-lg text-sm font-bold bg-white text-slate-900 shadow-sm border border-slate-100 transition-colors">Weekly</button>
                 </div>
             </div>
 
@@ -161,21 +171,42 @@
             return val.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
+        let scanFrequency = 'weekly'; // default to weekly
+
+        const btnDaily = document.getElementById('freq-daily');
+        const btnWeekly = document.getElementById('freq-weekly');
+
+        btnDaily.addEventListener('click', () => {
+            scanFrequency = 'daily';
+            btnDaily.className = 'px-6 py-2 rounded-lg text-sm font-bold bg-white text-slate-900 shadow-sm border border-slate-100 transition-colors';
+            btnWeekly.className = 'px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors';
+            calculate();
+        });
+
+        btnWeekly.addEventListener('click', () => {
+            scanFrequency = 'weekly';
+            btnWeekly.className = 'px-6 py-2 rounded-lg text-sm font-bold bg-white text-slate-900 shadow-sm border border-slate-100 transition-colors';
+            btnDaily.className = 'px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors';
+            calculate();
+        });
+
         function calculate() {
             const rawValue = input.value.replace(/,/g, '');
             const m = parseFloat(rawValue) || 0; // millions of objects
             const n = m * 1000000;
 
+            const runsPerMonth = scanFrequency === 'daily' ? 30 : 4;
+
             // Costs (US-East-1)
-            const costInvGen = m * 0.0025;
-            const costInvStore = m * 0.14 * 0.023; // ~140MB per 1M objects
+            const costInvGen = m * 0.0025 * runsPerMonth;
+            const costInvStore = m * 0.05 * 0.023 * runsPerMonth; // ~50MB (0.05 GB) per 1M objects, keeping reports for runs duration
             
-            // Lambda: 300s (5m) per 1M objects @ 3072MB (3GB)
-            const costLambda = m * 300 * 3 * 0.0000166667; 
+            // Lambda: 3.6s per 1M objects @ 10240MB (10GB) Graviton2 ($0.0000133334/GB-s), scaled by runs
+            const costLambda = m * (3.6 * 10 * 0.0000133334) * runsPerMonth; 
             
             const costCW = 3.10; // Fixed monthly for metrics + small logging
             
-            const costS3limCore = m * 0.20;
+            const costS3limCore = m * 0.015 * runsPerMonth;
 
             const totalCost = costInvGen + costInvStore + costLambda + costCW + costS3limCore;
 
@@ -211,5 +242,26 @@
         input.value = formatCommas(input.value);
         calculate();
     </script>
+
+    {{ if .Params.roadmap.enable }}
+    <section class="space-y-12 py-12 border-t border-slate-100">
+        <div class="text-center space-y-4 max-w-2xl mx-auto">
+            <h2 class="text-4xl font-black tracking-tight">{{ .Params.roadmap.title }}</h2>
+            <h4 class="text-blue-600 font-bold tracking-widest text-xs uppercase">{{ .Params.roadmap.subtitle }}</h4>
+            <p class="text-slate-500 leading-relaxed">{{ .Params.roadmap.description }}</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-12 text-left max-w-5xl mx-auto">
+            {{ range .Params.roadmap.features }}
+            <div class="space-y-4 group">
+                <div class="flex items-center gap-4 md:flex-col md:items-start md:gap-4">
+                    <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">{{ .icon }}</div>
+                    <h3 class="text-xl font-black tracking-tight">{{ .title }}</h3>
+                </div>
+                <p class="text-slate-500 leading-relaxed">{{ .content }}</p>
+            </div>
+            {{ end }}
+        </div>
+    </section>
+    {{ end }}
     </div>
     {{ end }}
