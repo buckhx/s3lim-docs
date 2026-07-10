@@ -19,7 +19,7 @@ comparison_table:
     storage_lens: "Zero (AWS Internal)"
     athena: "Zero (AWS Internal)"
   - feature: "Cost"
-    s3lim: "$0.20 / 1M objects "
+    s3lim: "$0.015 / 1M objects scanned"
     storage_lens: "$0.20 / 1M / Month"
     athena: "$5.00 / TB scanned"
 ---
