@@ -7,12 +7,20 @@
   "operatingSystem": "AWS Lambda, Linux, macOS, Windows",
   "applicationCategory": "DevOpsApplication, StorageOptimization",
   "description": "High-performance S3 inventory analysis for cost optimization and observability.",
-  "offers": {
-    "@type": "Offer",
-    "price": "0.015",
-    "priceCurrency": "USD",
-    "description": "per million objects scanned"
-  },
+  "offers": [
+    {
+      "@type": "Offer",
+      "price": "0.015",
+      "priceCurrency": "USD",
+      "description": "Core Analysis per million S3 objects scanned"
+    },
+    {
+      "@type": "Offer",
+      "price": "0.005",
+      "priceCurrency": "USD",
+      "description": "Custom Insights per custom prefix tracked"
+    }
+  ],
   "requirements": "Amazon S3 Inventory"
 }
 </script>

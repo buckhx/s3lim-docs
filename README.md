@@ -64,3 +64,6 @@ Use the `{{ with .Site.GetPage ... }}` helper to dynamically resolve the page an
 
 ## Deployment
 The documentation is automatically published to GitHub Pages when changes are pushed to the `main` branch of the `s3lim-docs` repository (the remote for this submodule).
+
+## Documentation Drift
+Non-generated documentation can drift and needs to be audited, especially pricing and metering details
