@@ -144,12 +144,14 @@ When deploying `s3lim` in Standard or Self-Serve modes, you may encounter cross-
 ## Multi-Region StackSet Spec
 Template: `sam-template-stackset.yaml`
 
-Deploys `s3lim` data planes across multiple AWS regions and accounts using CloudFormation StackSets. S3 Inventory reports are region-locked. Deploying a StackSet ensures each target region runs a local `s3lim` Lambda instance, avoiding cross-region egress charges and timeouts.
+Deploys `s3lim` data planes across multiple AWS regions and accounts using CloudFormation StackSets. S3 Inventory reports are region-locked. Deploying a StackSet ensures each target region runs a local `s3lim` Lambda instance, avoiding cross-region egress charges and timeouts. StackSets also support multi-account environments and integration with AWS Organizations for centralized governance.
 
 ### Prerequisites
 To deploy StackSets using the `SELF_MANAGED` permission model, the following IAM roles must exist in the deploying account:
 - `AWSCloudFormationStackSetAdministrationRole`
 - `AWSCloudFormationStackSetExecutionRole` (must trust the administration role)
+
+For detailed instructions on setting up these roles, refer to the official [AWS CloudFormation StackSets Prerequisites Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html).
 
 ### Parameters
 | Name | Type | Default | Description |
