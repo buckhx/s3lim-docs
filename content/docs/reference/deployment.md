@@ -170,3 +170,39 @@ If you deploy in Self-Serve Mode and manage your own IAM execution role, you mus
     ]
 }
 ```
+
+---
+
+## Multi-Region StackSet Spec
+Template: `sam-template-stackset.yaml`
+
+Deploys `s3lim` data planes across multiple AWS regions and accounts using CloudFormation StackSets. S3 Inventory reports are region-locked. Deploying a StackSet ensures each target region runs a local `s3lim` Lambda instance, avoiding cross-region egress charges and timeouts.
+
+### Prerequisites
+To deploy StackSets using the `SELF_MANAGED` permission model, the following IAM roles must exist in the deploying account:
+- `AWSCloudFormationStackSetAdministrationRole`
+- `AWSCloudFormationStackSetExecutionRole` (must trust the administration role)
+
+### Parameters
+| Name | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `MarketplaceCustomerID` | String | **Required** | The resolved customer identifier associated with the buyer's subscription. |
+| `TemplateBucket` | String | `slimstorage-production` | The S3 bucket where templates are stored. |
+| `AppVersion` | String | `0.1.0` | The version of the s3lim templates to deploy. |
+| `BaseMethod` | String | `autopilot` | The base deployment template method (`autopilot`, `standard`, `readonly`). |
+| `AdministrationRoleARN` | String | - | Optional: Custom administration role ARN. |
+| `ExecutionRoleName` | String | `AWSCloudFormationStackSetExecutionRole` | Name of the IAM execution role in target regions. |
+| `InventoryDestination` | String | - | Default S3 URI where inventories are delivered (can be overridden per stack instance). |
+| `SourceBucketName` | String | - | Default name of the S3 bucket to analyze (for Autopilot). |
+
+### Deploying Stack Instances and Parameter Overrides
+Deploying the coordinator template only creates the StackSet container. You must define where to deploy stack instances. Because S3 buckets are region-locked, you should override `InventoryDestination` and `SourceBucketName` for each target region:
+
+```bash
+aws cloudformation create-stack-instances \
+  --stack-set-name s3lim-processor-multiregion \
+  --accounts 111122223333 \
+  --regions us-west-2 \
+  --parameter-overrides ParameterKey=InventoryDestination,ParameterValue=s3://my-inventory-bucket-us-west-2/
+```
+
