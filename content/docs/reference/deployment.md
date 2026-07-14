@@ -141,38 +141,6 @@ When deploying `s3lim` in Standard or Self-Serve modes, you may encounter cross-
 
 ---
 
-## Multi-Bucket Analysis
-
-If you want to use a single `s3lim` Lambda instance to process inventory reports from multiple S3 buckets:
-
-### Using the Multi-Bucket Template (`sam-template-multibucket.yaml`)
-For Standard Mode deployments, use the multi-bucket template. It supports:
-* `InventoryDestination`: The primary S3 URI for your main inventory destination.
-* `AdditionalInventoryBuckets`: A list of additional S3 inventory buckets (e.g., `bucket2, bucket3`) to grant read access to.
-
-### Using Self-Serve Mode (BYO-IAM)
-If you deploy in Self-Serve Mode and manage your own IAM execution role, you must explicitly expand the Lambda's S3 policy permissions to grant access to all inventory buckets:
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": ["s3:GetObject", "s3:ListBucket"],
-            "Resource": [
-                "arn:aws:s3:::primary-inventory-bucket",
-                "arn:aws:s3:::primary-inventory-bucket/*",
-                "arn:aws:s3:::secondary-inventory-bucket",
-                "arn:aws:s3:::secondary-inventory-bucket/*"
-            ]
-        }
-    ]
-}
-```
-
----
-
 ## Multi-Region StackSet Spec
 Template: `sam-template-stackset.yaml`
 
