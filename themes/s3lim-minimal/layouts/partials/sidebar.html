@@ -46,6 +46,9 @@
                 {{ with .Site.GetPage "/docs/getting-started/self-serve.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Self-Serve</a></li>
                 {{ end }}
+                {{ with .Site.GetPage "/docs/getting-started/multi-region.md" }}
+                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Multi-Region</a></li>
+                {{ end }}
             </ul>
         </div>
         <div class="space-y-3">
