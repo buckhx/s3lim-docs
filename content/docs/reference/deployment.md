@@ -157,8 +157,7 @@ For detailed instructions on setting up these roles, refer to the official [AWS 
 | Name | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `MarketplaceCustomerID` | String | **Required** | The resolved customer identifier associated with the buyer's subscription. |
-| `TemplateBucket` | String | `slimstorage-production` | The S3 bucket where templates are stored. |
-| `AppVersion` | String | `0.1.0` | The version of the s3lim templates to deploy. |
+| `AppVersion` | String | `latest` | The version of the s3lim templates to deploy. |
 | `BaseMethod` | String | `autopilot` | The base deployment template method (`autopilot`, `standard`, `readonly`). |
 | `AdministrationRoleARN` | String | - | Optional: Custom administration role ARN. |
 | `ExecutionRoleName` | String | `AWSCloudFormationStackSetExecutionRole` | Name of the IAM execution role in target regions. |

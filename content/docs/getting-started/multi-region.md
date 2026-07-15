@@ -23,6 +23,17 @@ Using AWS CloudFormation StackSets allows you to create a centralized coordinato
   
   For detailed guidelines, see the official [AWS CloudFormation StackSets Prerequisites Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html).
 
+  If you are running a single-account multi-region deployment for testing, you can use our consolidated [StackSet Prerequisites Helper Template](https://s3lim-test.s3.amazonaws.com/s3lim-helpers/aws/sam-template-stackset-prereqs.yaml) to provision both roles in your account:
+
+  ```bash
+  aws cloudformation create-stack \
+    --stack-name s3lim-stackset-prereqs \
+    --template-url https://s3lim-test.s3.amazonaws.com/s3lim-helpers/aws/sam-template-stackset-prereqs.yaml \
+    --capabilities CAPABILITY_NAMED_IAM
+  ```
+
+
+
 ## Deployment Steps
 
 1. **Deploy StackSet Coordinator**: Launch the coordinator template:
