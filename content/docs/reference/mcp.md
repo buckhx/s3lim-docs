@@ -69,6 +69,7 @@ This tool gives the LLM and the user an **executive summary of the primary cost 
 - Deleting expired **delete markers** (improving S3 `LIST` latency and metadata size).
 - Fine-tuning versioning policies to eliminate **ghost versions** (reclaiming storage).
 - Cleaning up aborted or incomplete **multipart uploads**.
+- Identifying redundant **duplicate files** (ETag duplication).
 
 ---
 
@@ -115,7 +116,9 @@ Retrieves detailed S3 storage metrics, small file density, delete markers, ghost
         "ghost_versions_count": { "type": "integer" },
         "zero_byte_count": { "type": "integer" },
         "stale_cache_size": { "type": "integer" },
-        "stale_cache_count": { "type": "integer" }
+        "stale_cache_count": { "type": "integer" },
+        "duplicate_count": { "type": "integer" },
+        "duplicate_size": { "type": "integer" }
       }
     },
     "message": { "type": "string" }
@@ -140,7 +143,7 @@ Lists and ranks the top-K hot prefixes in the bucket sorted by a specific waste 
   "properties": {
     "metric": {
       "type": "string",
-      "description": "The sorting metric: 'size', 'objects', 'small_files', 'delete_markers', 'ghost_versions', or 'multipart_uploads'."
+      "description": "The sorting metric: 'size', 'objects', 'small_files', 'delete_markers', 'ghost_versions', 'multipart_uploads', or 'duplicates'."
     },
     "limit": {
       "type": "integer",
