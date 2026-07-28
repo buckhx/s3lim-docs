@@ -53,9 +53,18 @@ To connect any MCP client to the `s3lim` server, you must interface with the dep
      --output text
    ```
 4. **Authentication**:
-   Requests to the gateway must be signed with AWS IAM credentials (SigV4).
-   * For **local CLI clients**, you can use the standard AWS CLI wrapper (`aws bedrock-agentcore-control invoke-gateway`) to handle session token exchange automatically.
-   * For **web or cloud-based clients**, configure the gateway endpoint with OAuth2 or API key credentials via API Gateway.
+    Requests to the gateway must be signed with AWS IAM credentials (SigV4).
+    * For **local CLI testing**, you can sign requests with `curl --aws-sigv4` by exporting credentials using the AWS CLI:
+      ```bash
+      eval $(aws configure export-credentials --format env)
+      curl -X POST "https://<YOUR_GATEWAY_ID>.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp" \
+        --aws-sigv4 "aws:amz:us-east-1:bedrock-agentcore" \
+        --user "$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY" \
+        -H "x-amz-security-token: $AWS_SESSION_TOKEN" \
+        -H "Content-Type: application/json" \
+        -d '{"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}'
+      ```
+    * For **web or cloud-based clients**, configure the gateway endpoint with OAuth2 or API key credentials via API Gateway.
 
 ---
 
@@ -72,19 +81,16 @@ Amazon Q Developer supports MCP natively across the IDE extensions (Visual Studi
 
 **CLI Setup**:
 1. Open `~/.q/config.json` (or `~/.config/q/config.json`).
-2. Add the gateway definition:
+2. Add the gateway definition using the official `mcp-proxy-for-aws` tool:
 ```json
 {
   "mcpServers": {
     "s3lim": {
-      "command": "aws",
+      "command": "uvx",
       "args": [
-        "bedrock-agentcore-control",
-        "invoke-gateway",
-        "--gateway-id",
-        "<YOUR_GATEWAY_ID>",
-        "--payload",
-        "file:///dev/stdin"
+        "mcp-proxy-for-aws",
+        "--url",
+        "https://<YOUR_GATEWAY_ID>.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp"
       ]
     }
   }
@@ -96,19 +102,16 @@ Anthropic's Claude Desktop and Claude Code support local command-based MCP proce
 
 **Claude Desktop Setup**:
 1. Open the configuration file at `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows).
-2. Add the AWS CLI subprocess bridge:
+2. Add the official AWS MCP Proxy bridge to handle SigV4 signing:
 ```json
 {
   "mcpServers": {
     "s3lim-mcp": {
-      "command": "aws",
+      "command": "uvx",
       "args": [
-        "bedrock-agentcore-control",
-        "invoke-gateway",
-        "--gateway-id",
-        "<YOUR_GATEWAY_ID>",
-        "--payload",
-        "file:///dev/stdin"
+        "mcp-proxy-for-aws",
+        "--url",
+        "https://<YOUR_GATEWAY_ID>.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp"
       ]
     }
   }
@@ -131,19 +134,16 @@ Antigravity supports connecting to external MCP servers to equip its autonomous 
 
 **Antigravity CLI Setup**:
 1. Open your local Antigravity settings file at `~/.gemini/antigravity-cli/settings.json`.
-2. Add the `s3lim` gateway under the `mcpServers` block:
+2. Add the `s3lim` gateway under the `mcpServers` block using the official AWS MCP Proxy:
 ```json
 {
   "mcpServers": {
     "s3lim-mcp": {
-      "command": "aws",
+      "command": "uvx",
       "args": [
-        "bedrock-agentcore-control",
-        "invoke-gateway",
-        "--gateway-id",
-        "<YOUR_GATEWAY_ID>",
-        "--payload",
-        "file:///dev/stdin"
+        "mcp-proxy-for-aws",
+        "--url",
+        "https://<YOUR_GATEWAY_ID>.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp"
       ]
     }
   }
