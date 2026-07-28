@@ -241,3 +241,95 @@ Recommended Actions:
 2. Add a bucket-wide lifecycle rule to clean up expired delete markers automatically.
 3. Consolidate your data ingestion pipeline to merge small files in "analytics/" into larger objects to reduce S3 request fees.
 ```
+
+---
+
+## 🛠️ Client Integration & Installation (Beta)
+
+> [!WARNING]
+> MCP Client integration with `s3lim` is currently in **Beta**. Client support varies depending on the protocol version and authentication mechanism of each host application.
+
+### Generic Integration Instructions
+To connect any MCP client to the `s3lim` server, you must interface with the deployed **Amazon Bedrock AgentCore Gateway**.
+
+1. **Obtain Gateway Details**:
+   Run the helper script from the root of your workspace:
+   ```bash
+   python3 scripts/test-mcp-gateway.py
+   ```
+   This returns your unique **Gateway ID** (e.g. `s3limmcpanalyzer-wgapdlxn0w`) and **Gateway URL** (e.g. `https://s3limmcpanalyzer-wgapdlxn0w.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp`).
+2. **Authentication**:
+   Requests to the gateway must be signed with AWS IAM credentials (SigV4).
+   * For **local CLI clients**, you can use the standard AWS CLI wrapper (`aws bedrock-agentcore invoke-gateway`) to handle session token exchange automatically.
+   * For **web or cloud-based clients**, configure the gateway endpoint with OAuth2 or API key credentials via API Gateway.
+
+---
+
+### Popular Client Setup
+
+#### 1. Amazon Q Developer
+Amazon Q Developer supports MCP natively across the IDE extensions (Visual Studio Code, JetBrains) and the CLI.
+
+* **IDE Extensions**:
+  1. Open the Amazon Q extension settings and locate the **MCP Servers** panel.
+  2. Click **Add Server** and select **HTTP/SSE**.
+  3. Enter your **Gateway URL** as the endpoint.
+  4. Under Authentication, select **AWS IAM (SigV4)**.
+* **CLI (Terminal)**:
+  1. Open `~/.q/config.json` (or `~/.config/q/config.json`).
+  2. Add the gateway definition:
+     ```json
+     "mcpServers": {
+       "s3lim": {
+         "command": "aws",
+         "args": ["bedrock-agentcore", "invoke-gateway", "--gateway-id", "<YOUR_GATEWAY_ID>", "--payload", "$PAYLOAD"]
+       }
+     }
+     ```
+
+#### 2. Claude Desktop & Claude Code
+Anthropic's Claude Desktop and Claude Code support local command-based MCP processes.
+
+* **Claude Desktop**:
+  1. Open the configuration file at `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows).
+  2. Add the AWS CLI subprocess bridge:
+     ```json
+     {
+       "mcpServers": {
+         "s3lim-mcp": {
+           "command": "aws",
+           "args": [
+             "bedrock-agentcore",
+             "invoke-gateway",
+             "--gateway-id",
+             "<YOUR_GATEWAY_ID>",
+             "--payload",
+             "{\"jsonrpc\":\"2.0\",\"id\":\"claude-session\",\"method\":\"tools/list\",\"params\":{}}"
+           ]
+         }
+       }
+     }
+     ```
+  3. Restart the Claude Desktop app.
+
+#### 3. ChatGPT / Codex (Custom GPT Actions)
+ChatGPT / Codex supports extending models through **GPT Actions** utilizing standard OpenAPI HTTP requests.
+
+1. Create a new **Custom GPT** in ChatGPT.
+2. Go to **Configure** -> **Create New Action**.
+3. Under **Schema**, paste the OpenAPI JSON schema for `s3lim`'s query endpoints.
+4. Set the **Server URL** to your **Gateway URL**.
+5. Set authentication to **API Key** or **OAuth** if routing through an IAM-authenticated API Gateway proxy.
+
+#### 4. Gemini (Google AI Studio & Vertex AI)
+Gemini models support tool calling and external API extensions.
+
+* **Google AI Studio**:
+  1. Under the Model Settings, locate the **Tools** section.
+  2. Add a new **Custom Tool** by providing the JSON schema of `s3lim`'s tools.
+  3. Configure the HTTP endpoint target to point to your **Gateway URL**.
+* **Vertex AI Extensions**:
+  1. Navigate to the Vertex AI console and click **Extensions**.
+  2. Click **Import Extension**.
+  3. Upload the `s3lim` OpenAPI specification file and set the base URL to your **Gateway URL**.
+  4. Choose your preferred authentication method (e.g. API Key or OAuth).
