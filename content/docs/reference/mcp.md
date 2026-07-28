@@ -24,6 +24,145 @@ By exposing S3 inventory scan metrics through MCP, AI assistants (such as **Amaz
 
 ---
 
+## 🛠️ Client Integration & Installation (Beta)
+
+> [!WARNING]
+> MCP Client integration with `s3lim` is currently in **Beta**. Client support varies depending on the protocol version and authentication mechanism of each host application.
+
+### Generic Integration Instructions
+To connect any MCP client to the `s3lim` server, you must interface with the deployed **Amazon Bedrock AgentCore Gateway**.
+
+1. **Discover the Gateway ID**:
+   List all deployed gateways to find the ID of the `s3limmcpanalyzer` gateway:
+   ```bash
+   aws bedrock-agentcore-control list-gateways
+   ```
+2. **Retrieve the Gateway URL**:
+   Get the details and the `gatewayUrl` endpoint for your specific gateway ID:
+   ```bash
+   aws bedrock-agentcore-control get-gateway \
+     --gateway-identifier <YOUR_GATEWAY_ID>
+   ```
+3. **Discover the Backend Lambda Function** (for direct test invocations):
+   Query CloudFormation to find the physical name of the `AnalyzeFunction` backend:
+   ```bash
+   aws cloudformation describe-stack-resource \
+     --stack-name <YOUR_STACK_NAME> \
+     --logical-resource-id AnalyzeFunction \
+     --query 'StackResourceDetail.PhysicalResourceId' \
+     --output text
+   ```
+4. **Authentication**:
+   Requests to the gateway must be signed with AWS IAM credentials (SigV4).
+   * For **local CLI clients**, you can use the standard AWS CLI wrapper (`aws bedrock-agentcore-control invoke-gateway`) to handle session token exchange automatically.
+   * For **web or cloud-based clients**, configure the gateway endpoint with OAuth2 or API key credentials via API Gateway.
+
+---
+
+### Popular Client Setup
+
+#### 1. Amazon Q Developer
+Amazon Q Developer supports MCP natively across the IDE extensions (Visual Studio Code, JetBrains) and the CLI.
+
+**IDE Extensions Setup**:
+1. Open the Amazon Q extension settings and locate the **MCP Servers** panel.
+2. Click **Add Server** and select **HTTP/SSE**.
+3. Enter your **Gateway URL** as the endpoint.
+4. Under Authentication, select **AWS IAM (SigV4)**.
+
+**CLI Setup**:
+1. Open `~/.q/config.json` (or `~/.config/q/config.json`).
+2. Add the gateway definition:
+```json
+{
+  "mcpServers": {
+    "s3lim": {
+      "command": "aws",
+      "args": [
+        "bedrock-agentcore-control",
+        "invoke-gateway",
+        "--gateway-id",
+        "<YOUR_GATEWAY_ID>",
+        "--payload",
+        "file:///dev/stdin"
+      ]
+    }
+  }
+}
+```
+
+#### 2. Claude Desktop & Claude Code
+Anthropic's Claude Desktop and Claude Code support local command-based MCP processes.
+
+**Claude Desktop Setup**:
+1. Open the configuration file at `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows).
+2. Add the AWS CLI subprocess bridge:
+```json
+{
+  "mcpServers": {
+    "s3lim-mcp": {
+      "command": "aws",
+      "args": [
+        "bedrock-agentcore-control",
+        "invoke-gateway",
+        "--gateway-id",
+        "<YOUR_GATEWAY_ID>",
+        "--payload",
+        "file:///dev/stdin"
+      ]
+    }
+  }
+}
+```
+3. Restart the Claude Desktop app.
+
+#### 3. ChatGPT / Codex (Custom GPT Actions)
+ChatGPT / Codex supports extending models through **GPT Actions** utilizing standard OpenAPI HTTP requests.
+
+**Custom GPT Action Setup**:
+1. Create a new **Custom GPT** in ChatGPT.
+2. Go to **Configure** -> **Create New Action**.
+3. Under **Schema**, paste the OpenAPI JSON schema for `s3lim`'s query endpoints.
+4. Set the **Server URL** to your **Gateway URL**.
+5. Set authentication to **API Key** or **OAuth** if routing through an IAM-authenticated API Gateway proxy.
+
+#### 4. Antigravity (Google AI Studio, Vertex AI, & Antigravity Extensions)
+Antigravity supports connecting to external MCP servers to equip its autonomous coding agents with custom tools.
+
+**Antigravity CLI Setup**:
+1. Open your local Antigravity settings file at `~/.gemini/antigravity-cli/settings.json`.
+2. Add the `s3lim` gateway under the `mcpServers` block:
+```json
+{
+  "mcpServers": {
+    "s3lim-mcp": {
+      "command": "aws",
+      "args": [
+        "bedrock-agentcore-control",
+        "invoke-gateway",
+        "--gateway-id",
+        "<YOUR_GATEWAY_ID>",
+        "--payload",
+        "file:///dev/stdin"
+      ]
+    }
+  }
+}
+```
+3. Restart your Antigravity session. The tools will automatically be registered and available for agent execution.
+
+**Google AI Studio Setup**:
+1. In Google AI Studio, locate the **Tools** section in the right sidebar settings.
+2. Click **Add Tool** -> **Custom OpenAPI Tool**.
+3. Provide the JSON schema or OpenAPI spec of `s3lim`'s tools and point the target base URL to your **Gateway URL**.
+
+**Vertex AI Extensions Setup**:
+1. In the Google Cloud Console, navigate to the **Vertex AI Extensions** page.
+2. Click **Import Extension** and upload the `s3lim` OpenAPI specification file.
+3. Set the API target base URL to your **Gateway URL** and configure the desired authentication type (OAuth2 or API key proxy).
+
+---
+
 ## Tool Reference & Customer Value
 
 All tools automatically generate their input and output JSON Schemas from Go structures at runtime.
@@ -143,7 +282,7 @@ Lists and ranks the top-K hot prefixes in the bucket sorted by a specific waste 
   "properties": {
     "metric": {
       "type": "string",
-      "description": "The sorting metric: 'size', 'objects', 'small_files', 'delete_markers', 'ghost_versions', 'multipart_uploads', or 'duplicates'."
+      "description": "The sorting metric (e.g., 'size', 'objects', 'small_files', etc.)"
     },
     "limit": {
       "type": "integer",
@@ -203,133 +342,51 @@ This resource provides the LLM with a **complete structured dump of the raw data
 
 Here is an example of how an AI assistant (like Amazon Q Developer) handles a user's cost optimization query using `s3lim`'s MCP server:
 
-```
-User: I need to optimize my S3 storage costs for bucket "prod-data-lake". Where should I start?
+> **User**: I need to optimize my S3 storage costs for bucket "prod-data-lake". Where should I start?
+>
+> **Agent**: Let me check the latest s3lim optimization report for "prod-data-lake".
+>
+> **Tool Call**: `list_waste_categories`
+>
+> **Response**:
+> ```json
+> {
+>   "bucket": "prod-data-lake",
+>   "total_objects": 450000,
+>   "duplicate_objects": 45000,
+>   "duplicate_percent": 10.0,
+>   "waste_categories": [
+>     { "category": "small_files", "metric_value": 312000, "unit": "count" },
+>     { "category": "delete_markers", "metric_value": 85000, "unit": "count" },
+>     { "category": "ghost_versions", "metric_value": 45000000000, "unit": "bytes" }
+>   ]
+> }
+> ```
+>
+> **Agent**: The scan results for "prod-data-lake" reveal three major cost optimization opportunities:
+> 1. **Small Files**: You have 312,000 small files (under 128KB), which account for over 69% of your total object count. This is a classic "Small File Trap" inflating your S3 GET/PUT request billing.
+> 2. **Delete Markers**: There are 85,000 expired delete markers that consume metadata space and slow down list operations.
+> 3. **Ghost Versions**: You have 45GB of non-current object versions (ghost versions) occupying space.
+>
+> Let me find the top directories contributing to the ghost version bloat.
+>
+> **Tool Call**: `list_top_prefixes` with `metric="ghost_versions"`, `limit=3`
+>
+> **Response**:
+> ```json
+> {
+>   "prefixes": [
+>     { "prefix": "analytics/temp/", "metric_value": 38000000000 },
+>     { "prefix": "exports/csv/", "metric_value": 7000000000 }
+>   ]
+> }
+> ```
+>
+> **Agent**: I found that the `analytics/temp/` prefix is the primary offender, holding 38GB of non-current versions.
+>
+> **Recommended Actions**:
+> 1. Set up an S3 Lifecycle Rule under prefix `analytics/temp/` to permanently delete non-current versions after 7 days. This will reclaim 38GB of storage.
+> 2. Add a bucket-wide lifecycle rule to clean up expired delete markers automatically.
+> 3. Consolidate your data ingestion pipeline to merge small files in `analytics/` into larger objects to reduce S3 request fees.
 
-Agent: Let me check the latest s3lim optimization report for "prod-data-lake".
-[Tool Call: list_waste_categories]
-Response: {
-  "bucket": "prod-data-lake",
-  "total_objects": 450000,
-  "duplicate_objects": 45000,
-  "duplicate_percent": 10.0,
-  "waste_categories": [
-    { "category": "small_files", "metric_value": 312000, "unit": "count" },
-    { "category": "delete_markers", "metric_value": 85000, "unit": "count" },
-    { "category": "ghost_versions", "metric_value": 45000000000, "unit": "bytes" }
-  ]
-}
 
-Agent: The scan results for "prod-data-lake" reveal three major cost optimization opportunities:
-1. Small Files: You have 312,000 small files (under 128KB), which account for over 69% of your total object count. This is a classic "Small File Trap" inflating your S3 GET/PUT request billing.
-2. Delete Markers: There are 85,000 expired delete markers that consume metadata space and slow down list operations.
-3. Ghost Versions: You have 45GB of non-current object versions (ghost versions) occupying space.
-
-Let me find the top directories contributing to the ghost version bloat.
-[Tool Call: list_top_prefixes with metric="ghost_versions", limit=3]
-Response: {
-  "prefixes": [
-    { "prefix": "analytics/temp/", "metric_value": 38000000000 },
-    { "prefix": "exports/csv/", "metric_value": 7000000000 }
-  ]
-}
-
-Agent: I found that the `analytics/temp/` prefix is the primary offender, holding 38GB of non-current versions.
-
-Recommended Actions:
-1. Set up an S3 Lifecycle Rule under prefix "analytics/temp/" to permanently delete non-current versions after 7 days. This will reclaim 38GB of storage.
-2. Add a bucket-wide lifecycle rule to clean up expired delete markers automatically.
-3. Consolidate your data ingestion pipeline to merge small files in "analytics/" into larger objects to reduce S3 request fees.
-```
-
----
-
-## 🛠️ Client Integration & Installation (Beta)
-
-> [!WARNING]
-> MCP Client integration with `s3lim` is currently in **Beta**. Client support varies depending on the protocol version and authentication mechanism of each host application.
-
-### Generic Integration Instructions
-To connect any MCP client to the `s3lim` server, you must interface with the deployed **Amazon Bedrock AgentCore Gateway**.
-
-1. **Obtain Gateway Details**:
-   Run the helper script from the root of your workspace:
-   ```bash
-   python3 scripts/test-mcp-gateway.py
-   ```
-   This returns your unique **Gateway ID** (e.g. `s3limmcpanalyzer-wgapdlxn0w`) and **Gateway URL** (e.g. `https://s3limmcpanalyzer-wgapdlxn0w.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp`).
-2. **Authentication**:
-   Requests to the gateway must be signed with AWS IAM credentials (SigV4).
-   * For **local CLI clients**, you can use the standard AWS CLI wrapper (`aws bedrock-agentcore invoke-gateway`) to handle session token exchange automatically.
-   * For **web or cloud-based clients**, configure the gateway endpoint with OAuth2 or API key credentials via API Gateway.
-
----
-
-### Popular Client Setup
-
-#### 1. Amazon Q Developer
-Amazon Q Developer supports MCP natively across the IDE extensions (Visual Studio Code, JetBrains) and the CLI.
-
-* **IDE Extensions**:
-  1. Open the Amazon Q extension settings and locate the **MCP Servers** panel.
-  2. Click **Add Server** and select **HTTP/SSE**.
-  3. Enter your **Gateway URL** as the endpoint.
-  4. Under Authentication, select **AWS IAM (SigV4)**.
-* **CLI (Terminal)**:
-  1. Open `~/.q/config.json` (or `~/.config/q/config.json`).
-  2. Add the gateway definition:
-     ```json
-     "mcpServers": {
-       "s3lim": {
-         "command": "aws",
-         "args": ["bedrock-agentcore", "invoke-gateway", "--gateway-id", "<YOUR_GATEWAY_ID>", "--payload", "$PAYLOAD"]
-       }
-     }
-     ```
-
-#### 2. Claude Desktop & Claude Code
-Anthropic's Claude Desktop and Claude Code support local command-based MCP processes.
-
-* **Claude Desktop**:
-  1. Open the configuration file at `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows).
-  2. Add the AWS CLI subprocess bridge:
-     ```json
-     {
-       "mcpServers": {
-         "s3lim-mcp": {
-           "command": "aws",
-           "args": [
-             "bedrock-agentcore",
-             "invoke-gateway",
-             "--gateway-id",
-             "<YOUR_GATEWAY_ID>",
-             "--payload",
-             "{\"jsonrpc\":\"2.0\",\"id\":\"claude-session\",\"method\":\"tools/list\",\"params\":{}}"
-           ]
-         }
-       }
-     }
-     ```
-  3. Restart the Claude Desktop app.
-
-#### 3. ChatGPT / Codex (Custom GPT Actions)
-ChatGPT / Codex supports extending models through **GPT Actions** utilizing standard OpenAPI HTTP requests.
-
-1. Create a new **Custom GPT** in ChatGPT.
-2. Go to **Configure** -> **Create New Action**.
-3. Under **Schema**, paste the OpenAPI JSON schema for `s3lim`'s query endpoints.
-4. Set the **Server URL** to your **Gateway URL**.
-5. Set authentication to **API Key** or **OAuth** if routing through an IAM-authenticated API Gateway proxy.
-
-#### 4. Gemini (Google AI Studio & Vertex AI)
-Gemini models support tool calling and external API extensions.
-
-* **Google AI Studio**:
-  1. Under the Model Settings, locate the **Tools** section.
-  2. Add a new **Custom Tool** by providing the JSON schema of `s3lim`'s tools.
-  3. Configure the HTTP endpoint target to point to your **Gateway URL**.
-* **Vertex AI Extensions**:
-  1. Navigate to the Vertex AI console and click **Extensions**.
-  2. Click **Import Extension**.
-  3. Upload the `s3lim` OpenAPI specification file and set the base URL to your **Gateway URL**.
-  4. Choose your preferred authentication method (e.g. API Key or OAuth).
