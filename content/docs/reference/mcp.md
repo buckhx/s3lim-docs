@@ -18,19 +18,23 @@ tech_metadata:
 When `EnableMCP` is set to `true`, the deployment automatically configures an **Amazon Bedrock AgentCore Gateway** proxy.
 
 ### 1. Get the Connection URL
-Retrieve the direct connection URL by running the following AWS CLI command (replace `<Region>` with your target AWS region):
+Retrieve the direct connection URL by running the following AWS CLI command:
 
 ```bash
-aws bedrock-agentcore-control list-gateways \
-  --query "items[?starts_with(name, 's3lim')].gatewayId | [0]" \
-  --output text | xargs -I {} \
-  echo "https://{}.gateway.bedrock-agentcore.<Region>.amazonaws.com/mcp"
+# One shot command to get gatewayURL
+
+aws bedrock-agentcore-control list-gateways --query "items[?starts_with(name, 's3lim')].gatewayId | [0]" \
+    --output text | xargs -I {} \
+    aws bedrock-agentcore-control get-gateway --gateway-id {} --query "gatewayUrl" --output text
+
+# URL Pattern will be
+# "https://<GatewayId>.gateway.bedrock-agentcore.<Region>.amazonaws.com/mcp"
 ```
 
 ### 2. Authentication
 All requests to the Bedrock AgentCore Gateway must be signed using **AWS IAM credentials (SigV4)** with the service name `bedrock-agentcore`.
 
-* **For local MCP clients** (Claude Desktop, VS Code, or Antigravity): Use the official `mcp-proxy-for-aws` utility. It acts as a local bridge, automatically signing requests using your local AWS CLI credentials profile.
+* **For local MCP clients** (Claude Desktop, VS Code, or Antigravity): Use the official [`mcp-proxy-for-aws`](https://github.com/aws/mcp-proxy-for-aws) utility. It acts as a local bridge, automatically signing requests using your local AWS CLI credentials profile.
 * **For cloud-based integrations**: Route the gateway through an API Gateway configured with OAuth2 or API keys. Refer to the [Amazon Bedrock API Keys documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html) for details on creating and managing keys.
 
 ---
@@ -47,16 +51,15 @@ Add the server to your local client (such as Claude Desktop, Antigravity, or Ama
       "command": "uvx",
       "args": [
         "mcp-proxy-for-aws",
-        "https://<GatewayId>.gateway.bedrock-agentcore.<Region>.amazonaws.com/mcp"
+        "$GATEWAY_URL"
       ],
-      "env": {
-        "AWS_PROFILE": "default",
-        "AWS_REGION": "<Region>"
-      }
     }
   }
 }
 ```
+
+Note: some clients will strip the PATH out of the env in mcp configs. So using the full path to uvx and adding HOME and PATH to the mcp env may be needed. An exit code 143 is a good indication that there is an issue with the path.
+
 
 ---
 
