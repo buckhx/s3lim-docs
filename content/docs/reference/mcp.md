@@ -18,24 +18,14 @@ tech_metadata:
 When `EnableMCP` is set to `true`, the deployment automatically configures an **Amazon Bedrock AgentCore Gateway** proxy.
 
 ### 1. Get the Connection URL
-1. Retrieve the `GatewayId` of your deployment.
+Retrieve the direct connection URL by running the following AWS CLI command (replace `<Region>` with your target AWS region):
 
-   To retrieve the ID using the AWS CLI, list your AgentCore gateways:
-   ```bash
-   aws bedrock-agentcore-control list-gateways --query "items[*].gatewayId" --output text
-   ```
-
-   Alternatively, if you deployed via CloudFormation, query the stack output:
-   ```bash
-   aws cloudformation describe-stacks --stack-name s3lim --query "Stacks[0].Outputs[?OutputKey=='GatewayId'].OutputValue" --output text
-   ```
-
-   You can also retrieve it via the AWS Console.
-
-2. Construct the URL using the following format:
-   ```
-   https://<GatewayId>.gateway.bedrock-agentcore.<Region>.amazonaws.com/mcp
-   ```
+```bash
+aws bedrock-agentcore-control list-gateways \
+  --query "items[?starts_with(name, 's3lim')].gatewayId | [0]" \
+  --output text | xargs -I {} \
+  echo "https://{}.gateway.bedrock-agentcore.<Region>.amazonaws.com/mcp"
+```
 
 ### 2. Authentication
 All requests to the Bedrock AgentCore Gateway must be signed using **AWS IAM credentials (SigV4)** with the service name `bedrock-agentcore`.
@@ -49,8 +39,6 @@ All requests to the Bedrock AgentCore Gateway must be signed using **AWS IAM cre
 
 Add the server to your local client (such as Claude Desktop, Antigravity, or Amazon Q CLI) by configuring the proxy bridge in your client's settings file.
 
-> [!IMPORTANT]
-> `mcp-proxy-for-aws` takes the connection URL directly as a positional argument. The `--url` parameter is not used as a flag.
 
 ```json
 {
