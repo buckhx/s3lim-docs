@@ -25,6 +25,7 @@ Automatically configures the S3 Inventory report on your source bucket and provi
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
 | `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
@@ -54,6 +55,7 @@ Deploys `s3lim` to analyze existing S3 Inventory reports using automatically gen
 | `SourceBucketName` | String | - | Optional: The name of the source S3 bucket. Required if you want to run previews via `ListObjectsV2`. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
 | `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
@@ -80,6 +82,7 @@ For strict enterprise environments. Deploys only the analysis Lambda and trigger
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track. |
 | `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 

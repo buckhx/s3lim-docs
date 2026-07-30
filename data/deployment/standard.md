@@ -9,6 +9,7 @@ s3lim (Standard) - Process existing S3 Inventory reports with managed permission
 |------|------|---------|-------------|
 | `CustomPrefixes` | String |  | Optional: Comma-separated list of explicit custom prefixes to track (e.g. 'data/import/,temp/'). |
 | `EnableMCPGateway` | String | false | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `GatewayName` | String | s3lim-mcp | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `InventoryDestination` | String | - | The S3 URI where existing inventories are delivered (e.g. s3://my-bucket/inventory/). |
 | `MarketplaceCustomerID` | String |  | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `MaxPrefixDepth` | Number | 10 | Maximum depth for recursive prefix aggregation. |
