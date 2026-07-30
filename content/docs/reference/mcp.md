@@ -67,23 +67,23 @@ Note: some clients will strip the PATH out of the env in mcp configs. So using t
 
 The `s3lim` server exposes the following tools to querying clients:
 
+> [!NOTE]
+> When invoking tools via **Amazon Bedrock AgentCore**, a static `tool_name` argument (e.g. `"list_waste_categories"`) is required in the tool's input parameters. This allows the backend Lambda function to correctly identify and route the tool request, since Bedrock AgentCore forwards parameters directly to the Lambda function without a tool-identifying JSON envelope. Standard MCP clients (like Claude Desktop or Antigravity) handle routing natively via the JSON-RPC protocol and do not require this parameter.
+
 ### 1. `list_analyzed_buckets`
 Lists all S3 buckets that have S3lim optimization reports available.
-* **Input**:
-  * `tool_name` (string, required): must match `"list_analyzed_buckets"`
+* **Input**: None (Standard MCP)
 * **Output**: `{"buckets": ["bucket-1", "bucket-2"]}`
 
 ### 2. `list_waste_categories`
 Summarizes storage waste categories (small files, duplicates, delete markers, ghost versions, multipart uploads) and estimated monthly savings for a bucket.
 * **Input**:
-  * `tool_name` (string, required): must match `"list_waste_categories"`
   * `bucket` (string, optional): S3 bucket name to query.
 * **Output**: Detailed object/duplicate counts, overall duplicate percentage, and estimated monthly savings.
 
 ### 3. `query_prefix`
 Retrieves detailed storage metrics and optimization opportunities for a specific prefix/folder path.
 * **Input**:
-  * `tool_name` (string, required): must match `"query_prefix"`
   * `prefix` (string, required): The S3 prefix path to query (e.g., `"downloads/"`).
   * `bucket` (string, optional): S3 bucket name to query.
 * **Output**: Count, size, age, duplicate, delete marker, and multipart upload statistics for the prefix.
@@ -91,7 +91,6 @@ Retrieves detailed storage metrics and optimization opportunities for a specific
 ### 4. `list_top_prefixes`
 Lists and ranks the top-K directories sorted by a specific waste or size metric.
 * **Input**:
-  * `tool_name` (string, required): must match `"list_top_prefixes"`
   * `metric` (string, required): One of `size`, `objects`, `small_files`, `delete_markers`, `ghost_versions`, `multipart_uploads`, `duplicates`.
   * `limit` (integer, optional): Maximum prefixes to return (default: 10).
   * `bucket` (string, optional): S3 bucket name to query.

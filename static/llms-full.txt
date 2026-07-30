@@ -449,6 +449,9 @@ Automatically configures the S3 Inventory report on your source bucket and provi
 | `SourcePrefixFilter` | String | - | Optional: Filter inventory to only analyze files under this prefix. |
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
+| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
+| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### Resources Created
 * **S3 Bucket**: For inventory reports (if not using pre-existing bucket).
@@ -475,6 +478,9 @@ Deploys `s3lim` to analyze existing S3 Inventory reports using automatically gen
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `SourceBucketName` | String | - | Optional: The name of the source S3 bucket. Required if you want to run previews via `ListObjectsV2`. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
+| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
+| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### Resources Created
 * **Lambda Function**: Core `s3lim` analysis processor.
@@ -498,6 +504,9 @@ For strict enterprise environments. Deploys only the analysis Lambda and trigger
 | `LambdaRoleArn` | String | **Required** | The ARN of your pre-created, manually audited IAM execution role. |
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track. |
+| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
+| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### IAM Requirements
 Your pre-created IAM role must possess the following minimum permissions:
@@ -529,7 +538,12 @@ Your pre-created IAM role must possess the following minimum permissions:
             "Action": [
                 "cloudwatch:PutMetricData",
                 "logs:CreateLogStream",
-                "logs:PutLogEvents"
+                "logs:PutLogEvents",
+                "logs:FilterLogEvents",
+                "logs:StartQuery",
+                "logs:GetQueryResults",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents"
             ],
             "Resource": "*"
         },
@@ -666,23 +680,23 @@ Note: some clients will strip the PATH out of the env in mcp configs. So using t
 
 The `s3lim` server exposes the following tools to querying clients:
 
+> [!NOTE]
+> When invoking tools via **Amazon Bedrock AgentCore**, a static `tool_name` argument (e.g. `"list_waste_categories"`) is required in the tool's input parameters. This allows the backend Lambda function to correctly identify and route the tool request, since Bedrock AgentCore forwards parameters directly to the Lambda function without a tool-identifying JSON envelope. Standard MCP clients (like Claude Desktop or Antigravity) handle routing natively via the JSON-RPC protocol and do not require this parameter.
+
 ### 1. `list_analyzed_buckets`
 Lists all S3 buckets that have S3lim optimization reports available.
-* **Input**:
-  * `tool_name` (string, required): must match `"list_analyzed_buckets"`
+* **Input**: None (Standard MCP)
 * **Output**: `{"buckets": ["bucket-1", "bucket-2"]}`
 
 ### 2. `list_waste_categories`
 Summarizes storage waste categories (small files, duplicates, delete markers, ghost versions, multipart uploads) and estimated monthly savings for a bucket.
 * **Input**:
-  * `tool_name` (string, required): must match `"list_waste_categories"`
   * `bucket` (string, optional): S3 bucket name to query.
 * **Output**: Detailed object/duplicate counts, overall duplicate percentage, and estimated monthly savings.
 
 ### 3. `query_prefix`
 Retrieves detailed storage metrics and optimization opportunities for a specific prefix/folder path.
 * **Input**:
-  * `tool_name` (string, required): must match `"query_prefix"`
   * `prefix` (string, required): The S3 prefix path to query (e.g., `"downloads/"`).
   * `bucket` (string, optional): S3 bucket name to query.
 * **Output**: Count, size, age, duplicate, delete marker, and multipart upload statistics for the prefix.
@@ -690,7 +704,6 @@ Retrieves detailed storage metrics and optimization opportunities for a specific
 ### 4. `list_top_prefixes`
 Lists and ranks the top-K directories sorted by a specific waste or size metric.
 * **Input**:
-  * `tool_name` (string, required): must match `"list_top_prefixes"`
   * `metric` (string, required): One of `size`, `objects`, `small_files`, `delete_markers`, `ghost_versions`, `multipart_uploads`, `duplicates`.
   * `limit` (integer, optional): Maximum prefixes to return (default: 10).
   * `bucket` (string, optional): S3 bucket name to query.
