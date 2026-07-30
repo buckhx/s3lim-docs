@@ -24,6 +24,9 @@ Automatically configures the S3 Inventory report on your source bucket and provi
 | `SourcePrefixFilter` | String | - | Optional: Filter inventory to only analyze files under this prefix. |
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
+| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
+| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### Resources Created
 * **S3 Bucket**: For inventory reports (if not using pre-existing bucket).
@@ -50,6 +53,9 @@ Deploys `s3lim` to analyze existing S3 Inventory reports using automatically gen
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `SourceBucketName` | String | - | Optional: The name of the source S3 bucket. Required if you want to run previews via `ListObjectsV2`. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
+| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
+| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### Resources Created
 * **Lambda Function**: Core `s3lim` analysis processor.
@@ -73,6 +79,9 @@ For strict enterprise environments. Deploys only the analysis Lambda and trigger
 | `LambdaRoleArn` | String | **Required** | The ARN of your pre-created, manually audited IAM execution role. |
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track. |
+| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
+| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### IAM Requirements
 Your pre-created IAM role must possess the following minimum permissions:
@@ -104,7 +113,12 @@ Your pre-created IAM role must possess the following minimum permissions:
             "Action": [
                 "cloudwatch:PutMetricData",
                 "logs:CreateLogStream",
-                "logs:PutLogEvents"
+                "logs:PutLogEvents",
+                "logs:FilterLogEvents",
+                "logs:StartQuery",
+                "logs:GetQueryResults",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents"
             ],
             "Resource": "*"
         },

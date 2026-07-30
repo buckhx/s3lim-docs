@@ -8,10 +8,13 @@ s3lim (Read-Only) - Process existing S3 Inventory reports.
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | `CustomPrefixes` | String |  | Optional: Comma-separated list of explicit custom prefixes to track (e.g. 'data/import/,temp/'). |
+| `EnableMCPGateway` | String | false | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
 | `InventoryDestination` | String | - | The S3 URI where existing inventories are delivered (e.g. s3://my-bucket/inventory/). |
-| `LambdaRoleArn` | String | - | ARN of an existing IAM Role for the Lambda function. The role must have: 1. 's3:GetObject' and 's3:ListBucket' on your inventory destination. 2. 'cloudwatch:PutMetricData' (Namespace: s3lim). 3. 'logs:CreateLogStream' and 'logs:PutLogEvents'. 4. 'sqs:SendMessage', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', and 'sqs:GetQueueAttributes' on the DLQ.
+| `LambdaRoleArn` | String | - | ARN of an existing IAM Role for the Lambda function. The role must have: 1. 's3:GetObject' and 's3:ListBucket' on your inventory destination. 2. 'cloudwatch:PutMetricData' (Namespace: s3lim). 3. 'logs:CreateLogStream', 'logs:PutLogEvents', 'logs:FilterLogEvents', 'logs:StartQuery', 'logs:GetQueryResults', 'logs:DescribeLogStreams', and 'logs:GetLogEvents'. 4. 'sqs:SendMessage', 'sqs:ReceiveMessage', 'sqs:DeleteMessage', and 'sqs:GetQueueAttributes' on the DLQ.
  |
+| `MarketplaceCustomerID` | String |  | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `MaxPrefixDepth` | Number | 10 | Maximum depth for recursive prefix aggregation. |
+| `SkipMarketplaceValidation` | String | false | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ## Outputs
 

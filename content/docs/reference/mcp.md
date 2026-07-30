@@ -1,5 +1,5 @@
 ---
-title: "MCP Server (Beta)"
+title: "MCP Gateway (Beta)"
 description: "Reference guide for MCP connection, authentication, and tools in s3lim."
 weight: 35
 tech_metadata:
@@ -7,7 +7,7 @@ tech_metadata:
   proficiency: "Intermediate"
 ---
 
-# MCP Server (Beta)
+# MCP Gateway (Beta)
 
 `s3lim` implements the **Model Context Protocol (MCP)**, connecting LLMs and agentic workflows to high-performance S3 storage cost optimization metrics. This allows AI assistants (like Amazon Q or Claude) to query bucket status, identify waste, and suggest remediations via Natural Language Querying (NLQ).
 

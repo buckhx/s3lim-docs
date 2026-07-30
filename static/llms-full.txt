@@ -4,9 +4,9 @@
 
 ---
 
-## Document: Simple, Volume-Based Pricing
+## Document: Bulk Egress & Ransomware Alerts
 URL: https://slimstorage.io/
-Description: s3lim is billed directly through your AWS account. Tiered pricing is available at specific volumes. No extra procurement, no hidden fees.
+Description: We are actively building stateless, in-account analysis engines for S3 Server Access Logs to provide real-time performance troubleshooting and active threat detection.
 
 
 
@@ -126,11 +126,13 @@ Description: Select the best deployment mode to start analyzing S3 inventory rep
 
 `s3lim` is designed to be highly modular, allowing you to choose the deployment model that best aligns with your team's AWS permissions, security constraints, and existing infrastructure.
 
-To help you get started, we offer three main deployment modes:
+To help you get started, we offer four main deployment modes:
 
 1. **[Autopilot Mode](autopilot.md)**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
 2. **[Standard Mode](standard.md)**: Best if you already have S3 Inventory reports configured and delivered to a bucket, and you want `s3lim` to analyze them using automated, scoped IAM role generation.
 3. **[Self-Serve Mode (BYO-IAM)](self-serve.md)**: Designed for strict enterprise environments. It deploys only the analysis Lambda, allowing you to attach pre-created, manually audited IAM execution roles.
+4. **[Multi-Region Mode (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
+5. **[MCP Gateway Setup](mcp.md)**: Guide on how to enable the Amazon Bedrock AgentCore MCP Gateway (by setting `EnableMCPGateway` to `true` during deployment) to connect AI assistants.
 
 ---
 
@@ -139,6 +141,8 @@ To help you get started, we offer three main deployment modes:
 * **Choose Autopilot** if you want to optimize a bucket quickly without reading S3 Inventory specs.
 * **Choose Standard** if S3 Inventory is already running on your buckets and you want a standard, managed Lambda setup.
 * **Choose Self-Serve** if your security team requires manual approval and auditing of all IAM roles before they are deployed to production.
+* **Choose Multi-Region (StackSets)** if you have data distributed across multiple AWS regions or accounts and want to manage a centralized analytics pipeline.
+* **Want natural language cost audits from AI agents?** Enable the [MCP Gateway Setup](mcp.md) on your stack.
 
 **NOTE:** Always deploy `s3lim` in the **same AWS Region** as the S3 bucket with the inventory file to avoid cross-region data transfer fees and potential timeout issues.
 
@@ -176,6 +180,65 @@ This deployment method is fully managed via a CloudFormation Stack which will ge
 See [configuration](docs/reference/configuration.md) to configure the lambdas behavior
 
 To decommission s3lim, simply delete the CloudFormation stack
+
+---
+
+## Document: Multi-Region Mode
+URL: https://slimstorage.io/docs/getting-started/multi-region/
+
+# Multi-Region Mode Walkthrough
+
+This guide is for users who want to deploy and manage `s3lim` data plane analysis engines across multiple AWS regions and accounts simultaneously.
+
+## Use Case
+Since S3 Inventory reports are region-locked (reports must reside in the same region as the source S3 bucket), customers with multi-region architectures need regional deployment of the analysis engine. 
+
+Using AWS CloudFormation StackSets allows you to create a centralized coordinator stack in an administrator account/region, which automatically rolls out the regional `s3lim` stacks to all target regions and accounts. This eliminates cross-region data egress charges and Lambda timeout issues.
+
+> [!NOTE]
+> AWS CloudFormation StackSets natively support multi-account deployments and integration with AWS Organizations. This enables centralized governance and automatic rolling deployment of `s3lim` to any new AWS accounts or OUs added to your organization.
+
+## Prerequisites
+* An AWS account with permissions to deploy CloudFormation StackSets, IAM Roles, and Lambda functions.
+* **IAM Prerequisites (StackSet Administration & Execution Roles)**: The following roles must exist in the accounts you are targeting:
+  - `AWSCloudFormationStackSetAdministrationRole` (in the admin account)
+  - `AWSCloudFormationStackSetExecutionRole` (in target accounts/regions, trusting the admin role)
+  
+  For detailed guidelines, see the official [AWS CloudFormation StackSets Prerequisites Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html).
+
+  If you are running a single-account multi-region deployment for testing, you can use our consolidated [StackSet Prerequisites Helper Template](https://s3lim-test.s3.amazonaws.com/s3lim-helpers/aws/sam-template-stackset-prereqs.yaml) to provision both roles in your account:
+
+  ```bash
+  aws cloudformation create-stack \
+    --stack-name s3lim-stackset-prereqs \
+    --template-url https://s3lim-test.s3.amazonaws.com/s3lim-helpers/aws/sam-template-stackset-prereqs.yaml \
+    --capabilities CAPABILITY_NAMED_IAM
+  ```
+
+
+
+## Deployment Steps
+
+1. **Deploy StackSet Coordinator**: Launch the coordinator template:
+   * **URL**: [s3lim-stackset](https://serverlessrepo.aws.amazon.com/applications) on the AWS Serverless Application Repository or deploy the local `sam-template-stackset.yaml` wrapper.
+   * Provide template parameters:
+     - `MarketplaceCustomerID`: The subscriber ID associated with your subscription.
+     - `BaseMethod`: The regional base deployment mode (`autopilot`, `standard`, or `readonly`) to deploy per target instance.
+2. **Deploy Stack Instances**: Use the AWS Console or the AWS CLI to deploy stack instances to your target accounts and regions.
+3. **Parameter Overrides**: Override S3 bucket parameter settings (e.g. `InventoryDestination` and `SourceBucketName`) to configure the unique regional S3 buckets for each instance:
+
+```bash
+aws cloudformation create-stack-instances \
+  --stack-set-name s3lim-processor-multiregion \
+  --accounts 111122223333 \
+  --regions us-east-1 us-west-2 \
+  --parameter-overrides \
+    ParameterKey=InventoryDestination,ParameterValue=s3://my-inventory-bucket-us-east-1/ \
+    ParameterKey=SourceBucketName,ParameterValue=my-source-bucket-us-east-1
+```
+
+## Verification
+Once S3 Inventory reports are delivered to any of your regional destination buckets, the corresponding regional Lambda function will run and publish local metrics and insights. You can manage and delete target region deployments centrally by managing the StackSet instances.
 
 ---
 
@@ -269,6 +332,7 @@ To help you configure and audit your deployments, we provide the following refer
 2. **[Analysis Triggers](triggers.md)**: Documentation of all invocation triggers supported by the `s3lim` Lambda, including S3 Event Notifications, Scheduled CloudWatch Events (cron), manual payloads, and SQS DLQ redrives.
 3. **[Deployment Specs](deployment.md)**: AWS SAM template parameters, outputs, and IAM requirements for the Autopilot and Standard deployment stacks.
 4. **[Available Metrics](metrics.md)**: Reference of all CloudWatch custom metrics, dimensions, and namespaces generated by the core analysis engine.
+5. **[MCP Gateway (Beta)](mcp.md)**: Reference guide for connection, authentication, and tool specifications for the Model Context Protocol (MCP) gateway to integrate AI assistants.
 
 ---
 
@@ -280,6 +344,7 @@ Use the guides below depending on your immediate need:
 * **Setting up S3 trigger rules or automated cron schedules?** Read the [Analysis Triggers](triggers.md).
 * **Auditing IAM roles or cloud formation parameters?** View the [Deployment Specs](deployment.md).
 * **Building a custom CloudWatch dashboard?** Browse the [Available Metrics](metrics.md).
+* **Connecting Claude or Amazon Q to s3lim?** Check the [MCP Gateway](mcp.md) connection details.
 
 ---
 
@@ -501,35 +566,141 @@ When deploying `s3lim` in Standard or Self-Serve modes, you may encounter cross-
 
 ---
 
-## Multi-Bucket Analysis
+## Multi-Region StackSet Spec
+Template: `sam-template-stackset.yaml`
 
-If you want to use a single `s3lim` Lambda instance to process inventory reports from multiple S3 buckets:
+Deploys `s3lim` data planes across multiple AWS regions and accounts using CloudFormation StackSets. S3 Inventory reports are region-locked. Deploying a StackSet ensures each target region runs a local `s3lim` Lambda instance, avoiding cross-region egress charges and timeouts. StackSets also support multi-account environments and integration with AWS Organizations for centralized governance.
 
-### Using the Multi-Bucket Template (`sam-template-multibucket.yaml`)
-For Standard Mode deployments, use the multi-bucket template. It supports:
-* `InventoryDestination`: The primary S3 URI for your main inventory destination.
-* `AdditionalInventoryBuckets`: A list of additional S3 inventory buckets (e.g., `bucket2, bucket3`) to grant read access to.
+### Prerequisites
+To deploy StackSets using the `SELF_MANAGED` permission model, the following IAM roles must exist in the deploying account:
+- `AWSCloudFormationStackSetAdministrationRole`
+- `AWSCloudFormationStackSetExecutionRole` (must trust the administration role)
 
-### Using Self-Serve Mode (BYO-IAM)
-If you deploy in Self-Serve Mode and manage your own IAM execution role, you must explicitly expand the Lambda's S3 policy permissions to grant access to all inventory buckets:
+For detailed instructions on setting up these roles, refer to the official [AWS CloudFormation StackSets Prerequisites Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html).
+
+### Parameters
+| Name | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `MarketplaceCustomerID` | String | **Required** | The resolved customer identifier associated with the buyer's subscription. |
+| `AppVersion` | String | `latest` | The version of the s3lim templates to deploy. |
+| `BaseMethod` | String | `autopilot` | The base deployment template method (`autopilot`, `standard`, `readonly`). |
+| `AdministrationRoleARN` | String | - | Optional: Custom administration role ARN. |
+| `ExecutionRoleName` | String | `AWSCloudFormationStackSetExecutionRole` | Name of the IAM execution role in target regions. |
+| `InventoryDestination` | String | - | Default S3 URI where inventories are delivered (can be overridden per stack instance). |
+| `SourceBucketName` | String | - | Default name of the S3 bucket to analyze (for Autopilot). |
+
+### Deploying Stack Instances and Parameter Overrides
+Deploying the coordinator template only creates the StackSet container. You must define where to deploy stack instances. Because S3 buckets are region-locked, you should override `InventoryDestination` and `SourceBucketName` for each target region:
+
+```bash
+aws cloudformation create-stack-instances \
+  --stack-set-name s3lim-processor-multiregion \
+  --accounts 111122223333 \
+  --regions us-west-2 \
+  --parameter-overrides ParameterKey=InventoryDestination,ParameterValue=s3://my-inventory-bucket-us-west-2/
+```
+
+---
+
+## Document: MCP Gateway (Beta)
+URL: https://slimstorage.io/docs/reference/mcp/
+Description: Reference guide for MCP connection, authentication, and tools in s3lim.
+
+# MCP Gateway (Beta)
+
+`s3lim` implements the **Model Context Protocol (MCP)**, connecting LLMs and agentic workflows to high-performance S3 storage cost optimization metrics. This allows AI assistants (like Amazon Q or Claude) to query bucket status, identify waste, and suggest remediations via Natural Language Querying (NLQ).
+
+---
+
+## Connection & Authentication
+
+When `EnableMCPGateway` is set to `true`, the deployment automatically configures an **Amazon Bedrock AgentCore Gateway** proxy.
+
+### 1. Get the Connection URL
+Retrieve the direct connection URL by running the following AWS CLI command:
+
+```bash
+# One shot command to get gatewayURL
+
+aws bedrock-agentcore-control list-gateways --query "items[?starts_with(name, 's3lim')].gatewayId | [0]" \
+    --output text | xargs -I {} \
+    aws bedrock-agentcore-control get-gateway --gateway-id {} --query "gatewayUrl" --output text
+
+# URL Pattern will be
+# "https://<GatewayId>.gateway.bedrock-agentcore.<Region>.amazonaws.com/mcp"
+```
+
+### 2. Authentication
+All requests to the Bedrock AgentCore Gateway must be signed using **AWS IAM credentials (SigV4)** with the service name `bedrock-agentcore`.
+
+* **For local MCP clients** (Claude Desktop, VS Code, or Antigravity): Use the official [`mcp-proxy-for-aws`](https://github.com/aws/mcp-proxy-for-aws) utility. It acts as a local bridge, automatically signing requests using your local AWS CLI credentials profile.
+* **For cloud-based integrations**: Route the gateway through an API Gateway configured with OAuth2 or API keys. Refer to the [Amazon Bedrock API Keys documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html) for details on creating and managing keys.
+
+---
+
+## Client Configuration
+
+Add the server to your local client (such as Claude Desktop, Antigravity, or Amazon Q CLI) by configuring the proxy bridge in your client's settings file.
+
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": ["s3:GetObject", "s3:ListBucket"],
-            "Resource": [
-                "arn:aws:s3:::primary-inventory-bucket",
-                "arn:aws:s3:::primary-inventory-bucket/*",
-                "arn:aws:s3:::secondary-inventory-bucket",
-                "arn:aws:s3:::secondary-inventory-bucket/*"
-            ]
-        }
-    ]
+  "mcpServers": {
+    "s3lim-mcp": {
+      "command": "uvx",
+      "args": [
+        "mcp-proxy-for-aws",
+        "$GATEWAY_URL"
+      ],
+    }
+  }
 }
 ```
+
+Note: some clients will strip the PATH out of the env in mcp configs. So using the full path to uvx and adding HOME and PATH to the mcp env may be needed. An exit code 143 is a good indication that there is an issue with the path.
+
+
+---
+
+## MCP Tools Reference
+
+The `s3lim` server exposes the following tools to querying clients:
+
+### 1. `list_analyzed_buckets`
+Lists all S3 buckets that have S3lim optimization reports available.
+* **Input**:
+  * `tool_name` (string, required): must match `"list_analyzed_buckets"`
+* **Output**: `{"buckets": ["bucket-1", "bucket-2"]}`
+
+### 2. `list_waste_categories`
+Summarizes storage waste categories (small files, duplicates, delete markers, ghost versions, multipart uploads) and estimated monthly savings for a bucket.
+* **Input**:
+  * `tool_name` (string, required): must match `"list_waste_categories"`
+  * `bucket` (string, optional): S3 bucket name to query.
+* **Output**: Detailed object/duplicate counts, overall duplicate percentage, and estimated monthly savings.
+
+### 3. `query_prefix`
+Retrieves detailed storage metrics and optimization opportunities for a specific prefix/folder path.
+* **Input**:
+  * `tool_name` (string, required): must match `"query_prefix"`
+  * `prefix` (string, required): The S3 prefix path to query (e.g., `"downloads/"`).
+  * `bucket` (string, optional): S3 bucket name to query.
+* **Output**: Count, size, age, duplicate, delete marker, and multipart upload statistics for the prefix.
+
+### 4. `list_top_prefixes`
+Lists and ranks the top-K directories sorted by a specific waste or size metric.
+* **Input**:
+  * `tool_name` (string, required): must match `"list_top_prefixes"`
+  * `metric` (string, required): One of `size`, `objects`, `small_files`, `delete_markers`, `ghost_versions`, `multipart_uploads`, `duplicates`.
+  * `limit` (integer, optional): Maximum prefixes to return (default: 10).
+  * `bucket` (string, optional): S3 bucket name to query.
+* **Output**: Ranked list of directories and their metric values.
+
+---
+
+## Resources Reference
+
+* **`s3lim://reports/latest`**: Exposes the complete aggregated analysis report parsed from the latest `s3lim` execution in structured `application/json` format.
 
 ---
 
