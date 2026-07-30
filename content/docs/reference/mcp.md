@@ -15,7 +15,7 @@ tech_metadata:
 
 ## Connection & Authentication
 
-When `EnableMCP` is set to `true`, the deployment automatically configures an **Amazon Bedrock AgentCore Gateway** proxy.
+When `EnableMCPGateway` is set to `true`, the deployment automatically configures an **Amazon Bedrock AgentCore Gateway** proxy.
 
 ### 1. Get the Connection URL
 Retrieve the direct connection URL by running the following AWS CLI command:
