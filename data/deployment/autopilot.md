@@ -8,7 +8,7 @@ s3lim (Autopilot) - Automatically configure and analyze S3 inventory.
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | `CustomPrefixes` | String |  | Optional: Comma-separated list of explicit custom prefixes to track (e.g. 'data/import/,temp/'). |
-| `EnableMCPGateway` | String | false | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `EnableMCPGateway` | String | false | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `GatewayName` | String | s3lim-mcp | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `InventoryDestination` | String |  | Optional: The S3 URI where inventories will be delivered (e.g. s3://my-bucket/inventory/). If not provided, a bucket will be generated. |
 | `InventoryFormat` | String | Parquet | The format of the inventory files. |
@@ -22,6 +22,6 @@ s3lim (Autopilot) - Automatically configure and analyze S3 inventory.
 
 | Name | Description |
 |------|-------------|
-| `AnalyzeFunctionArn` | Lambda function ARN |
+| `CoreFunctionArn` | Lambda function ARN |
 | `InventoryDestinationURI` | S3 URI where inventories are delivered |
 

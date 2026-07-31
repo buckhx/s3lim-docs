@@ -29,7 +29,7 @@ Ideal for users who want to analyze pre-existing inventory pipelines with a simp
 Because Standard Mode operates on pre-existing inventories, by default it sets up a **daily scheduled trigger (cron)** to scan the destination bucket for new manifests.
 
 If you want real-time analysis immediately upon report delivery:
-1. Copy the `AnalyzeFunctionArn` from the CloudFormation stack outputs.
+1. Copy the `CoreFunctionArn` from the CloudFormation stack outputs.
 2. Navigate to your S3 Inventory destination bucket in the AWS Console.
 3. Go to the **Properties** tab and scroll to **Event notifications**.
 4. Click **Create event notification** and configure:

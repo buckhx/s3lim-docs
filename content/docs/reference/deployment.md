@@ -24,7 +24,7 @@ Automatically configures the S3 Inventory report on your source bucket and provi
 | `SourcePrefixFilter` | String | - | Optional: Filter inventory to only analyze files under this prefix. |
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
-| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
@@ -38,7 +38,7 @@ Automatically configures the S3 Inventory report on your source bucket and provi
 
 ### Outputs
 * `InventoryDestinationURI`: Location where S3 Inventory reports are stored.
-* `AnalyzeFunctionArn`: ARN of the processor Lambda function.
+* `CoreFunctionArn`: ARN of the processor Lambda function.
 
 ---
 
@@ -54,7 +54,7 @@ Deploys `s3lim` to analyze existing S3 Inventory reports using automatically gen
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `SourceBucketName` | String | - | Optional: The name of the source S3 bucket. Required if you want to run previews via `ListObjectsV2`. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
-| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
@@ -65,7 +65,7 @@ Deploys `s3lim` to analyze existing S3 Inventory reports using automatically gen
 * **IAM Roles**: Scoped execution role with read permissions to your existing inventory destination bucket and CloudWatch write permissions.
 
 ### Outputs
-* `AnalyzeFunctionArn`: ARN of the processor Lambda function.
+* `CoreFunctionArn`: ARN of the processor Lambda function.
 
 ---
 
@@ -81,7 +81,7 @@ For strict enterprise environments. Deploys only the analysis Lambda and trigger
 | `LambdaRoleArn` | String | **Required** | The ARN of your pre-created, manually audited IAM execution role. |
 | `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track. |
-| `EnableMCPGateway` | String | `false` | Expose the AnalyzeFunction via an HTTP Function URL and enable MCP integrations. |
+| `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
@@ -140,7 +140,7 @@ Your pre-created IAM role must possess the following minimum permissions:
 ```
 
 ### Outputs
-* `AnalyzeFunctionArn`: ARN of the processor Lambda function.
+* `CoreFunctionArn`: ARN of the processor Lambda function.
 
 ---
 
