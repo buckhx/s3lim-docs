@@ -13,7 +13,6 @@ s3lim (Standard) - Process existing S3 Inventory reports with managed permission
 | `InventoryDestination` | String | - | The S3 URI where existing inventories are delivered (e.g. s3://my-bucket/inventory/). |
 | `MarketplaceCustomerID` | String |  | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `MaxPrefixDepth` | Number | 10 | Maximum depth for recursive prefix aggregation. |
-| `SkipMarketplaceValidation` | String | false | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 | `SourceBucketName` | String |  | Optional: The name of the source S3 bucket. Required if you want to run previews via ListObjectsV2. |
 
 ## Outputs

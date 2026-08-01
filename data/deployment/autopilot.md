@@ -14,7 +14,6 @@ s3lim (Autopilot) - Automatically configure and analyze S3 inventory.
 | `InventoryFormat` | String | Parquet | The format of the inventory files. |
 | `MarketplaceCustomerID` | String |  | Optional: The resolved customer identifier associated with the buyer's subscription. |
 | `MaxPrefixDepth` | Number | 10 | Maximum depth for recursive prefix aggregation. |
-| `SkipMarketplaceValidation` | String | false | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 | `SourceBucketName` | String | - | The name of the existing S3 bucket to create an inventory for. |
 | `SourcePrefixFilter` | String |  | Optional: The prefix of the objects in the source bucket to include in the inventory. Leave empty for the entire bucket. |
 

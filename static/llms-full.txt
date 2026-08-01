@@ -452,7 +452,6 @@ Automatically configures the S3 Inventory report on your source bucket and provi
 | `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
-| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### Resources Created
 * **S3 Bucket**: For inventory reports (if not using pre-existing bucket).
@@ -482,7 +481,6 @@ Deploys `s3lim` to analyze existing S3 Inventory reports using automatically gen
 | `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
-| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### Resources Created
 * **Lambda Function**: Core `s3lim` analysis processor.
@@ -509,7 +507,6 @@ For strict enterprise environments. Deploys only the analysis Lambda and trigger
 | `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
-| `SkipMarketplaceValidation` | String | `false` | Optional: Skip validating AWS Marketplace customer entitlement (useful for development/testing). |
 
 ### IAM Requirements
 Your pre-created IAM role must possess the following minimum permissions:
