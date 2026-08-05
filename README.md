@@ -8,6 +8,8 @@ This directory contains the source code for the `s3lim` documentation site, buil
   - `docs/getting-started/`: Flat list of onboarding and deployment setup guides.
   - `docs/reference/`: Flat list of technical reference documentation (configuration, deployment models, metrics).
   - `about/`: Core concepts, optimization guides (such as the Small File Trap), FAQ, and glossary.
+  - `contact.md`: Straightforward contact page for support and billing queries.
+  - `privacy.md`: Public-facing privacy policy describing our zero-egress data architecture.
 - `data/`: Auto-generated specification files.
 - `themes/`: Theme layouts and assets (specifically the custom `s3lim-minimal` theme).
 

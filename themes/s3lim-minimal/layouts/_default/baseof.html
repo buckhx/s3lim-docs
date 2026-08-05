@@ -74,7 +74,11 @@
                 <img src="{{ "favicon.svg" | relURL }}" class="w-6 h-6 grayscale opacity-50" alt="Logo">
                 <span class="font-bold text-slate-300 uppercase tracking-widest">s3lim</span>
             </div>
-            <p>&copy; {{ now.Format "2006" }} Slim Storage Solutions LLC. Licensed under BUSL 1.1.</p>
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <a href="{{ "contact/" | relURL }}" class="hover:underline">Contact</a>
+                <a href="{{ "privacy/" | relURL }}" class="hover:underline">Privacy Policy</a>
+                <p class="m-0">&copy; {{ now.Format "2006" }} Slim Storage Solutions LLC. Licensed under BUSL 1.1.</p>
+            </div>
         </div>
     </footer>
 </body>
