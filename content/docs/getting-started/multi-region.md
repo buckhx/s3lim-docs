@@ -13,7 +13,7 @@ Since S3 Inventory reports are region-locked (reports must reside in the same re
 Using AWS CloudFormation StackSets allows you to create a centralized coordinator stack in an administrator account/region, which automatically rolls out the regional `s3lim` stacks to all target regions and accounts. This eliminates cross-region data egress charges and Lambda timeout issues.
 
 > [!NOTE]
-> AWS CloudFormation StackSets natively support multi-account deployments and integration with AWS Organizations. This enables centralized governance and automatic rolling deployment of `s3lim` to any new AWS accounts or OUs added to your organization.
+> AWS CloudFormation StackSets natively support multi-account deployments and integration with AWS Organizations. This enables centralized governance and automatic rolling deployment of `s3lim` to any new AWS accounts or OUs added to your organization. Each regional `s3lim` deployment automatically processes inventory reports from **all source buckets** in that region delivering to the regional destination bucket.
 
 ## Prerequisites
 * An AWS account with permissions to deploy CloudFormation StackSets, IAM Roles, and Lambda functions.

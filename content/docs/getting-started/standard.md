@@ -10,6 +10,9 @@ This guide is for users who **already have S3 Inventory reports** being configur
 ## Use Case
 Ideal for users who want to analyze pre-existing inventory pipelines with a simple, managed deployment. The SAM template automatically creates the analysis Lambda function and scope-limited IAM execution roles so you don't have to configure policies manually.
 
+> [!TIP]
+> **Default Multi-Bucket Support**: A single `s3lim` deployment automatically analyzes **all source S3 buckets** that deliver inventory reports to the specified `InventoryDestination` S3 path or bucket. You do not need separate deployments for each source bucket as long as their inventory manifests land in the target destination bucket.
+
 ## Prerequisites
 * An AWS account with permissions to deploy Lambda, IAM Roles, and CloudFormation.
 * A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.

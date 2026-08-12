@@ -8,6 +8,9 @@ weight: 10
 
 `s3lim` is deployed using AWS Serverless Application Model (SAM) templates. Depending on your environment, you will use one of three main template configurations: **Autopilot**, **Standard**, or **Read-Only** (used in Self-Serve).
 
+> [!NOTE]
+> **Multi-Bucket Analysis Support**: Except for Autopilot (which auto-registers inventory configuration for a single primary source bucket), all `s3lim` deployments (**Standard**, **Self-Serve**, and **Multi-Region StackSets**) analyze **all source S3 buckets** by default whenever inventory manifests are delivered to the configured `InventoryDestination` bucket or path. Multiple source buckets can share a single destination bucket/prefix without requiring separate `s3lim` stack deployments.
+
 ---
 
 ## Autopilot Mode Spec

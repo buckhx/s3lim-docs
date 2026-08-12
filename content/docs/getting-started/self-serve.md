@@ -12,6 +12,9 @@ In Self-Serve Mode, the SAM template only deploys the analysis Lambda function, 
 ## Use Case
 Ideal for **strict enterprise environments** where security compliance requires manual review and approval of all IAM policies before deployment.
 
+> [!TIP]
+> **Default Multi-Bucket Support**: A single `s3lim` deployment automatically analyzes **all source S3 buckets** that deliver inventory reports to the specified `InventoryDestination` S3 path or bucket. You do not need separate deployments for each source bucket as long as their inventory manifests land in the target destination bucket.
+
 ## Prerequisites
 * An AWS account with permissions to deploy CloudFormation and create IAM roles.
 * A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.
