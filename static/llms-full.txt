@@ -118,6 +118,27 @@ Every object in S3 has index metadata. Managing millions of small objects increa
 
 ---
 
+## Document: Contact Us
+URL: https://slimstorage.io/contact/
+Description: Contact the s3lim team for support, billing, or technical inquiries.
+
+<div class="text-left max-w-3xl mx-auto py-8">
+
+# Contact Us
+*Get in touch with the s3lim team.*
+
+For technical support, billing inquiries, or installation help with s3lim, please reach out to us directly:
+
+## Customer & Technical Support
+* **Email:** [support@slimstorage.io](mailto:support@slimstorage.io)
+* **Response Time:** Within 24 business hours (Monday - Friday, 9:00 AM - 5:00 PM EST)
+
+If you are a subscriber via the AWS Marketplace, please include your AWS Account ID and Subscription ID in your email so we can expedite your support request.
+
+</div>
+
+---
+
 ## Document: Getting Started
 URL: https://slimstorage.io/docs/getting-started/
 Description: Select the best deployment mode to start analyzing S3 inventory reports and optimizing your AWS S3 storage costs.
@@ -126,21 +147,19 @@ Description: Select the best deployment mode to start analyzing S3 inventory rep
 
 `s3lim` is designed to be highly modular, allowing you to choose the deployment model that best aligns with your team's AWS permissions, security constraints, and existing infrastructure.
 
-To help you get started, we offer four main deployment modes:
+To help you get started, we offer three main deployment modes:
 
 1. **[Autopilot Mode](autopilot.md)**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
-2. **[Standard Mode](standard.md)**: Best if you already have S3 Inventory reports configured and delivered to a bucket, and you want `s3lim` to analyze them using automated, scoped IAM role generation.
-3. **[Self-Serve Mode (BYO-IAM)](self-serve.md)**: Designed for strict enterprise environments. It deploys only the analysis Lambda, allowing you to attach pre-created, manually audited IAM execution roles.
-4. **[Multi-Region Mode (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
-5. **[MCP Gateway Setup](mcp.md)**: Guide on how to enable the Amazon Bedrock AgentCore MCP Gateway (by setting `EnableMCPGateway` to `true` during deployment) to connect AI assistants.
+2. **[Standard Mode](standard.md)**: Best if you already have S3 Inventory reports configured. Supports both **Managed IAM** (automated least-privilege roles) and **BYO-IAM** (pre-audited customer execution roles).
+3. **[Multi-Region Mode (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
+4. **[MCP Gateway Setup](mcp.md)**: Guide on how to enable the Amazon Bedrock AgentCore MCP Gateway (by setting `EnableMCPGateway` to `true` during deployment) to connect AI assistants.
 
 ---
 
 ## Choosing a Mode
 
 * **Choose Autopilot** if you want to optimize a bucket quickly without reading S3 Inventory specs.
-* **Choose Standard** if S3 Inventory is already running on your buckets and you want a standard, managed Lambda setup.
-* **Choose Self-Serve** if your security team requires manual approval and auditing of all IAM roles before they are deployed to production.
+* **Choose Standard** if S3 Inventory is already running on your buckets. Use default settings for managed IAM, or provide `LambdaRoleArn` if your security team requires pre-audited BYO-IAM roles.
 * **Choose Multi-Region (StackSets)** if you have data distributed across multiple AWS regions or accounts and want to manage a centralized analytics pipeline.
 * **Want natural language cost audits from AI agents?** Enable the [MCP Gateway Setup](mcp.md) on your stack.
 
@@ -161,9 +180,9 @@ This deployment method is fully managed via a CloudFormation Stack which will ge
 - One or more S3 buckets you wish to analyze.
 
 ## Deployment Steps
-1. Navigate to the [s3lim-autopilot](https://serverlessrepo.aws.amazon.com/applications) on the AWS Serverless Application Repository.
+1. Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/sam-template.yaml`).
 2. Enter your `SourceBucketName`.
-* See [deployment](docs/reference/deployment.md#autopilot-mode-spec) for values to override
+* See [deployment specifications](docs/reference/deployment.md#unified-data-plane-spec) for values to override
 3. Click **Deploy**.
 
 ## What Happens Next?
@@ -242,66 +261,291 @@ Once S3 Inventory reports are delivered to any of your regional destination buck
 
 ---
 
-## Document: Self-Serve Deployment
-URL: https://slimstorage.io/docs/getting-started/self-serve/
-
-# Self-Serve Mode (BYO-IAM) Walkthrough
-
-This guide is for teams who require granular control over IAM roles, KMS encryption, and VPC networking. 
-
-In Self-Serve Mode, the SAM template only deploys the analysis Lambda function, allowing you to attach a pre-created, manually audited IAM execution role.
-
-## Use Case
-Ideal for **strict enterprise environments** where security compliance requires manual review and approval of all IAM policies before deployment.
-
-## Prerequisites
-* An AWS account with permissions to deploy CloudFormation and create IAM roles.
-* A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.
-* A pre-created IAM role for the Lambda function. For policy templates, see the [Self-Serve IAM Requirements](docs/reference/deployment.md#read-only-mode-spec-self-serve).
-
-## Deployment Steps
-
-1. **Create the IAM Role**: Establish an IAM Role for the Lambda function containing the required permissions. You can copy the exact S3 and CloudWatch/SQS policies from the [Self-Serve IAM Specification](docs/reference/deployment.md#read-only-mode-spec-self-serve).
-2. **Launch Read-Only Stack**: Navigate to the [s3lim-readonly](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository.
-3. **Configure Stack Parameters**:
-   * Enter `InventoryDestination` (e.g., `s3://my-inventory-bucket/inventory/`).
-   * Enter `LambdaRoleArn` (the ARN of the IAM role you created in Step 1).
-   * For other options, see the [Deployment Specifications](docs/reference/deployment.md#read-only-mode-spec-self-serve).
-4. **Deploy**: Click **Deploy** to start provisioning.
-5. **Add Trigger**: Manually add an S3 Event Trigger to the destination bucket targeting the `s3lim` Lambda function to execute scans on new manifest deliveries.
-
-## Verification
-Once a new S3 Inventory report is delivered, verify execution by inspecting the CloudWatch logs for the Lambda function.
-
----
-
-## Document: Standard Mode
+## Document: Standard Deployment
 URL: https://slimstorage.io/docs/getting-started/standard/
 
 # Standard Mode Walkthrough
 
-This guide is for users who **already have S3 Inventory reports** being configured and delivered to a destination bucket, and want `s3lim` to analyze them using automated, scoped IAM role generation.
+This guide is for users who **already have S3 Inventory reports** configured and delivered to a destination bucket, and want `s3lim` to analyze them.
 
 ## Use Case
-Ideal for users who want to analyze pre-existing inventory pipelines with a simple, managed deployment. The SAM template automatically creates the analysis Lambda function and scope-limited IAM execution roles so you don't have to configure policies manually.
+Ideal for analyzing pre-existing inventory pipelines. `s3lim` supports two IAM permission options:
+- **Managed IAM (Default)**: Automatically provisions least-privilege IAM execution roles so you don't have to configure policies manually.
+- **Bring-Your-Own-IAM (BYO-IAM)**: For strict enterprise compliance environments where IAM policies must be pre-audited, you can supply your own execution role via `LambdaRoleArn`.
 
 ## Prerequisites
-* An AWS account with permissions to deploy Lambda, IAM Roles, and CloudFormation.
+* An AWS account with permissions to deploy Lambda and CloudFormation (and IAM roles if using Managed IAM).
 * A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.
 * The S3 URI where your existing inventory manifests are delivered (e.g., `s3://my-inventory-bucket/inventory/`).
+* *(BYO-IAM only)*: A pre-created IAM role ARN (`LambdaRoleArn`) configured with the permissions outlined in [BYO-IAM Permissions](#byo-iam-role-permissions-lambdarolearn) below.
 
 ## Deployment Steps
 
-1. **Get the Destination Path**: Locate the S3 bucket and prefix path where your source bucket delivers its inventory manifests.
-2. **Launch Standard Stack**: Navigate to the [s3lim-standard](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository.
+1. **Locate Inventory Destination**: Note the S3 bucket and prefix path where inventory manifests are delivered (e.g. `s3://my-inventory-bucket/inventory/`).
+2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/sam-template.yaml`).
 3. **Configure Stack Parameters**:
-   * Enter `InventoryDestination` (e.g., `s3://my-inventory-bucket/inventory/`).
-   * Enter `SourceBucketName` (optional, required if you want to run previews using S3 ListObjectsV2 API).
-   * For other options, see the [Deployment Specifications](docs/reference/deployment.md#standard-mode-spec).
+   * **`InventoryDestination`**: Enter your inventory reports S3 URI.
+   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM mode, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
+   * **`SourceBucketName`** *(optional)*: Required only if you want to run previews using S3 ListObjectsV2 API.
+   * For other options, see the [Deployment Specifications](docs/reference/deployment.md#unified-data-plane-spec).
 4. **Deploy**: Click **Deploy** to start provisioning.
 
+---
+
+## BYO-IAM Role Permissions (`LambdaRoleArn`)
+
+If your enterprise security policy requires using a pre-audited IAM role, create an IAM role using the policies below and supply its ARN to `LambdaRoleArn`.
+
+<div class="not-prose my-6 p-5 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-3">
+    <label for="byo-bucket-input" class="block text-xs font-bold uppercase tracking-wider text-blue-900 flex items-center gap-2">
+        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+        </svg>
+        Customize Policies: Enter Your Inventory Bucket Name
+    </label>
+    <div class="relative">
+        <input type="text" id="byo-bucket-input" oninput="updateByoPolicies()" placeholder="e.g. my-inventory-destination-bucket" 
+               class="w-full text-sm py-2.5 px-4 bg-white border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-800 shadow-sm" />
+    </div>
+    <p class="text-xs text-blue-700 m-0">Enter your bucket name (or S3 URI) above to automatically customize the resource ARNs in the policies below.</p>
+</div>
+
+### 1. Trust Relationship (Assume Role Policy)
+
+The IAM execution role must trust the AWS Lambda service.
+
+<div class="not-prose my-4 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-md">
+    <div class="flex items-center justify-between px-4 py-2.5 bg-slate-800 text-slate-200 text-xs font-mono border-b border-slate-700/80">
+        <span class="font-medium text-slate-300">trust-policy.json</span>
+        <button type="button" id="copy-trust-btn" onclick="copyCode('byo-trust-code', 'copy-trust-btn')" 
+                class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md transition-colors text-xs font-sans">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span class="btn-text">Copy</span>
+        </button>
+    </div>
+    <pre style="margin:0 !important; border:none !important; border-radius:0 !important; padding:1rem !important; background:#0f172a !important; color:#34d399 !important;" class="overflow-x-auto text-xs font-mono leading-relaxed"><code id="byo-trust-code" style="background:transparent !important; color:inherit !important; padding:0 !important;">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}</code></pre>
+</div>
+
+### 2. IAM Permissions Policy
+
+Attach this policy to the role. Resources are scoped strictly to the inventory bucket, `s3lim-*` log groups, and `s3lim-*` DLQs.
+
+<div class="not-prose my-4 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-md">
+    <div class="flex items-center justify-between px-4 py-2.5 bg-slate-800 text-slate-200 text-xs font-mono border-b border-slate-700/80">
+        <span class="font-medium text-slate-300">s3lim-execution-policy.json</span>
+        <button type="button" id="copy-policy-btn" onclick="copyCode('byo-policy-code', 'copy-policy-btn')" 
+                class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md transition-colors text-xs font-sans">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span class="btn-text">Copy</span>
+        </button>
+    </div>
+    <pre style="margin:0 !important; border:none !important; border-radius:0 !important; padding:1rem !important; background:#0f172a !important; color:#34d399 !important;" class="overflow-x-auto text-xs font-mono leading-relaxed"><code id="byo-policy-code" style="background:transparent !important; color:inherit !important; padding:0 !important;">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "S3InventoryReadAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::YOUR_INVENTORY_BUCKET",
+        "arn:aws:s3:::YOUR_INVENTORY_BUCKET/*"
+      ]
+    },
+    {
+      "Sid": "CloudWatchMetrics",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricData"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:FilterLogEvents",
+        "logs:StartQuery",
+        "logs:GetQueryResults",
+        "logs:DescribeLogStreams",
+        "logs:GetLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*"
+    },
+    {
+      "Sid": "SQSDLQAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage",
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+      ],
+      "Resource": "arn:aws:sqs:*:*:s3lim-*"
+    },
+    {
+      "Sid": "MarketplaceMetering",
+      "Effect": "Allow",
+      "Action": [
+        "aws-marketplace:BatchMeterUsage",
+        "aws-marketplace:GetEntitlements"
+      ],
+      "Resource": "*"
+    }
+  ]
+}</code></pre>
+</div>
+
+### 3. Optional KMS Key Policy
+
+If your inventory destination bucket or manifests are encrypted with SSE-KMS using a Customer Managed Key (CMK), grant decryption permissions on that specific key ARN:
+
+<div class="not-prose my-4 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-md">
+    <div class="flex items-center justify-between px-4 py-2.5 bg-slate-800 text-slate-200 text-xs font-mono border-b border-slate-700/80">
+        <span class="font-medium text-slate-300">kms-decrypt-policy.json</span>
+        <button type="button" id="copy-kms-btn" onclick="copyCode('byo-kms-code', 'copy-kms-btn')" 
+                class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md transition-colors text-xs font-sans">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span class="btn-text">Copy</span>
+        </button>
+    </div>
+    <pre style="margin:0 !important; border:none !important; border-radius:0 !important; padding:1rem !important; background:#0f172a !important; color:#34d399 !important;" class="overflow-x-auto text-xs font-mono leading-relaxed"><code id="byo-kms-code" style="background:transparent !important; color:inherit !important; padding:0 !important;">{
+  "Sid": "KmsDecryptAccess",
+  "Effect": "Allow",
+  "Action": [
+    "kms:Decrypt",
+    "kms:DescribeKey"
+  ],
+  "Resource": "arn:aws:kms:REGION:ACCOUNT_ID:key/KEY_ID"
+}</code></pre>
+</div>
+
+<script>
+function updateByoPolicies() {
+    var rawInput = document.getElementById("byo-bucket-input").value.trim();
+    // Strip s3:// prefix and trailing slashes if customer pastes full URI
+    var bucketName = rawInput.replace(/^s3:\/\//, '').replace(/\/.*$/, '').trim();
+    var bucketPlaceholder = bucketName || "YOUR_INVENTORY_BUCKET";
+    
+    var policyCodeEl = document.getElementById("byo-policy-code");
+    if (policyCodeEl) {
+        var policy = {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "S3InventoryReadAccess",
+              "Effect": "Allow",
+              "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+              ],
+              "Resource": [
+                "arn:aws:s3:::" + bucketPlaceholder,
+                "arn:aws:s3:::" + bucketPlaceholder + "/*"
+              ]
+            },
+            {
+              "Sid": "CloudWatchMetrics",
+              "Effect": "Allow",
+              "Action": [
+                "cloudwatch:PutMetricData"
+              ],
+              "Resource": "*"
+            },
+            {
+              "Sid": "CloudWatchLogs",
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:FilterLogEvents",
+                "logs:StartQuery",
+                "logs:GetQueryResults",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents"
+              ],
+              "Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*"
+            },
+            {
+              "Sid": "SQSDLQAccess",
+              "Effect": "Allow",
+              "Action": [
+                "sqs:SendMessage",
+                "sqs:ReceiveMessage",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes"
+              ],
+              "Resource": "arn:aws:sqs:*:*:s3lim-*"
+            },
+            {
+              "Sid": "MarketplaceMetering",
+              "Effect": "Allow",
+              "Action": [
+                "aws-marketplace:BatchMeterUsage",
+                "aws-marketplace:GetEntitlements"
+              ],
+              "Resource": "*"
+            }
+          ]
+        };
+        policyCodeEl.textContent = JSON.stringify(policy, null, 2);
+    }
+}
+
+function copyCode(elementId, buttonId) {
+    var el = document.getElementById(elementId);
+    if (!el) return;
+    var text = el.textContent || el.innerText;
+    navigator.clipboard.writeText(text).then(function() {
+        var btn = document.getElementById(buttonId);
+        if (btn) {
+            var textSpan = btn.querySelector('.btn-text');
+            var originalText = textSpan ? textSpan.textContent : "Copy";
+            if (textSpan) textSpan.textContent = "Copied!";
+            btn.classList.add("bg-emerald-600", "text-white");
+            btn.classList.remove("bg-slate-700");
+            setTimeout(function() {
+                if (textSpan) textSpan.textContent = originalText;
+                btn.classList.remove("bg-emerald-600");
+                btn.classList.add("bg-slate-700");
+            }, 2000);
+        }
+    });
+}
+</script>
+
+### Least-Privilege Scoping & Wildcard Rationale
+
+All permissions follow strict **least-privilege scoping** with wildcards minimized. For enterprise security audits, each wildcard (`*`) is used only where mandated by AWS IAM APIs:
+
+* **`arn:aws:s3:::<bucket>/*` (S3 Object Keys)**:
+  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions like `s3:GetObject` to read inventory manifests and data files across sub-prefixes.
+* **`cloudwatch:PutMetricData` (`Resource: "*"`)**:
+  * **Why `*` is required**: AWS CloudWatch does not support resource-level permissions (ARNs) for the `PutMetricData` API. Per AWS IAM authorization specifications, CloudWatch metric publishing requires `"Resource": "*"`.
+* **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`)**:
+  * **Why `*` is required**: AWS Marketplace Metering APIs do not support resource-level ARNs. AWS requires `"Resource": "*"` to report usage dimensions.
+* **`arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*` & `arn:aws:sqs:*:*:s3lim-*`**:
+  * **Why region/account `*` is used**: Scopes resource access strictly to `s3lim` prefixes while allowing multi-region or StackSet operation. You can optionally replace `*:*` with your explicit AWS Region and Account ID (e.g. `arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/s3lim-*`).
+
+---
+
 ## Configure Analysis Trigger
-Because Standard Mode operates on pre-existing inventories, by default it sets up a **daily scheduled trigger (cron)** to scan the destination bucket for new manifests.
+By default, `s3lim` sets up a **daily scheduled trigger (cron)** to scan the destination bucket for new manifests.
 
 If you want real-time analysis immediately upon report delivery:
 1. Copy the `CoreFunctionArn` from the CloudFormation stack outputs.
@@ -431,85 +675,54 @@ Description: Exhaustive configuration settings, template parameters, IAM permiss
 
 # Deployment Specifications
 
-`s3lim` is deployed using AWS Serverless Application Model (SAM) templates. Depending on your environment, you will use one of three main template configurations: **Autopilot**, **Standard**, or **Read-Only** (used in Self-Serve).
+`s3lim` is deployed using AWS Serverless Application Model (SAM) templates. All data plane capabilities are consolidated into a single unified template: **`sam-template.yaml`** (with multi-region orchestration supported via **`sam-template-stackset.yaml`**).
 
 ---
 
-## Autopilot Mode Spec
-Template: `sam-template-autopilot.yaml`
+## Unified Data Plane Spec
+Template: `sam-template.yaml`
 
-Automatically configures the S3 Inventory report on your source bucket and provisions the analysis engine.
+A single template supporting all deployment modes via parameters:
+* **Automated Setup Mode**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
+* **Existing Inventory Mode**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
+* **BYO-IAM Mode**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
 
 ### Parameters
 | Name | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `SourceBucketName` | String | **Required** | The name of the S3 bucket to analyze. |
-| `InventoryDestination` | String | *(Generated)* | The S3 URI where S3 Inventory reports are delivered. Defaults to a new bucket named `<StackName>-inventory`. |
-| `InventoryFormat` | String | `Parquet` | Format of inventory files (`CSV`, `ORC`, or `Parquet`). Parquet is recommended for speed. |
+| `SourceBucketName` | String | - | Optional: The name of the S3 bucket (or comma-separated list) to automatically configure inventory for. |
+| `InventoryDestination` | String | - | Optional: The S3 URI where inventory reports are delivered (e.g. `s3://my-bucket/inventory/`). If empty and `SourceBucketName` is set, a dedicated bucket is generated. |
+| `LambdaRoleArn` | String | - | Optional: ARN of an existing IAM role for Lambda execution (BYO-IAM mode). |
+| `KmsKeyArn` | String | - | Optional: KMS Key ARN used for decrypting SSE-KMS encrypted manifests and data files. |
+| `SubnetIds` | CommaDelimitedList | - | Optional: Subnet IDs if deploying inside a private VPC. |
+| `SecurityGroupIds` | CommaDelimitedList | - | Optional: Security Group IDs if deploying inside a private VPC. |
+| `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
+| `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
+| `InventoryFormat` | String | `Parquet` | Format of inventory files (`CSV`, `ORC`, or `Parquet`). |
 | `SourcePrefixFilter` | String | - | Optional: Filter inventory to only analyze files under this prefix. |
-| `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
-| `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
-| `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
-| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
+| `MarketplaceCustomerAWSAccountId` | String | - | The customer's AWS Account ID associated with the Marketplace subscription. |
+| `MarketplaceLicenseArn` | String | - | The license ARN associated with the Marketplace subscription. |
+| `EnableScheduleTrigger` | String | `true` | Enable daily scan schedule for existing inventory destinations or fallback polling. |
+| `LogRetentionInDays` | Number | `365` | Number of days to retain Lambda execution logs in CloudWatch. |
 
 ### Resources Created
-* **S3 Bucket**: For inventory reports (if not using pre-existing bucket).
-* **Lambda Function**: Core `s3lim` analysis processor.
-* **SQS Queue**: Dead Letter Queue (DLQ) for analysis failure handling.
-* **IAM Roles**: Execution roles with scoped read/write permissions for source and inventory buckets.
-* **Custom Resource**: Script that auto-registers inventory configuration on your source bucket.
+* **Lambda Function (`CoreFunction`)**: Core `s3lim` analysis processor.
+* **SQS Queue (`ProcessingDLQ`)**: Dead Letter Queue for analysis failure handling.
+* **CloudWatch LogGroup (`CoreFunctionLogGroup`)**: Retains execution logs with configurable retention.
+* **CloudWatch Alarms (`ErrorAlarm`, `DLQDepthAlarm`)**: Built-in operational monitoring for analysis failures and DLQ depth.
+* **IAM Roles & Policies** *(managed mode only)*: Least-privilege execution roles and policies for S3 read, CloudWatch metrics, SQS, and marketplace metering.
+* **Inventory Bucket & Custom Resource** *(automated setup mode only)*: Dedicated S3 destination bucket and custom resource Lambda to configure S3 inventory on source buckets.
+* **MCP Gateway Stack** *(optional)*: Bedrock AgentCore MCP Gateway integration when enabled.
 
 ### Outputs
-* `InventoryDestinationURI`: Location where S3 Inventory reports are stored.
+* `InventoryDestinationURI`: S3 URI where S3 Inventory reports are stored.
 * `CoreFunctionArn`: ARN of the processor Lambda function.
 
 ---
 
-## Standard Mode Spec
-Template: `sam-template-standard.yaml`
-
-Deploys `s3lim` to analyze existing S3 Inventory reports using automatically generated, scoped IAM permissions.
-
-### Parameters
-| Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `InventoryDestination` | String | **Required** | The S3 URI where existing inventories are delivered (e.g., `s3://my-bucket/inventory/`). |
-| `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
-| `SourceBucketName` | String | - | Optional: The name of the source S3 bucket. Required if you want to run previews via `ListObjectsV2`. |
-| `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. `data/import/,temp/`). |
-| `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
-| `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
-| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
-
-### Resources Created
-* **Lambda Function**: Core `s3lim` analysis processor.
-* **SQS Queue**: Dead Letter Queue (DLQ) for analysis failure handling.
-* **IAM Roles**: Scoped execution role with read permissions to your existing inventory destination bucket and CloudWatch write permissions.
-
-### Outputs
-* `CoreFunctionArn`: ARN of the processor Lambda function.
-
----
-
-## Read-Only Mode Spec (Self-Serve)
-Template: `sam-template-readonly.yaml`
-
-For strict enterprise environments. Deploys only the analysis Lambda and triggers, requiring you to attach a pre-created (BYO-IAM) execution role.
-
-### Parameters
-| Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `InventoryDestination` | String | **Required** | The S3 URI where existing inventories are delivered. |
-| `LambdaRoleArn` | String | **Required** | The ARN of your pre-created, manually audited IAM execution role. |
-| `MaxPrefixDepth` | Number | `10` | Maximum depth for recursive prefix aggregation. |
-| `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track. |
-| `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
-| `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
-| `MarketplaceCustomerID` | String | - | Optional: The resolved customer identifier associated with the buyer's subscription. |
-
-### IAM Requirements
-Your pre-created IAM role must possess the following minimum permissions:
+## IAM Requirements (BYO-IAM Mode)
+When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role must possess the following minimum permissions:
 
 #### S3 Policy
 ```json
@@ -528,15 +741,23 @@ Your pre-created IAM role must possess the following minimum permissions:
 }
 ```
 
-#### CloudWatch & SQS Policy
+#### CloudWatch, SQS & Marketplace Policy
 ```json
 {
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Sid": "CloudWatchMetrics",
             "Effect": "Allow",
             "Action": [
-                "cloudwatch:PutMetricData",
+                "cloudwatch:PutMetricData"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "CloudWatchLogs",
+            "Effect": "Allow",
+            "Action": [
                 "logs:CreateLogStream",
                 "logs:PutLogEvents",
                 "logs:FilterLogEvents",
@@ -545,9 +766,10 @@ Your pre-created IAM role must possess the following minimum permissions:
                 "logs:DescribeLogStreams",
                 "logs:GetLogEvents"
             ],
-            "Resource": "*"
+            "Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*"
         },
         {
+            "Sid": "SQSDLQAccess",
             "Effect": "Allow",
             "Action": [
                 "sqs:SendMessage",
@@ -556,24 +778,36 @@ Your pre-created IAM role must possess the following minimum permissions:
                 "sqs:GetQueueAttributes"
             ],
             "Resource": "arn:aws:sqs:*:*:s3lim-*"
+        },
+        {
+            "Sid": "MarketplaceMetering",
+            "Effect": "Allow",
+            "Action": [
+                "aws-marketplace:BatchMeterUsage",
+                "aws-marketplace:GetEntitlements"
+            ],
+            "Resource": "*"
         }
     ]
 }
 ```
 
-### Outputs
-* `CoreFunctionArn`: ARN of the processor Lambda function.
+#### Wildcard (`*`) Rationale in IAM Policies
+* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys.
+* **`cloudwatch:PutMetricData` (`Resource: "*"`): Required because the CloudWatch `PutMetricData` API does not support resource-level ARNs in AWS IAM.
+* **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`): Required because AWS Marketplace Metering APIs do not support resource-level ARNs in AWS IAM.
+* **`arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*` & `arn:aws:sqs:*:*:s3lim-*`**: Scopes actions strictly to `s3lim` Lambda log groups and DLQ queues across deployment regions.
 
 ---
 
 ## Cross-Region Considerations
 
-When deploying `s3lim` in Standard or Self-Serve modes, you may encounter cross-region architectures (e.g., the Lambda is deployed in `us-east-1` but analyzes S3 buckets in `us-west-2`). Keep the following in mind:
+When deploying `s3lim`, keep the following in mind:
 
-* **Data Transfer Costs**: `s3lim` operates in-place, but if the Lambda function and the S3 Inventory destination bucket reside in different regions, downloading the inventory reports will incur standard **AWS Data Transfer Out (egress)** costs. For large buckets with gigabytes of inventory reports, this can result in substantial data transfer charges.
-* **Execution Timeout**: Cross-region S3 downloads suffer from higher latency. If you are analyzing a massive bucket with billions of keys, the extra latency from cross-region transfers may cause the Lambda execution to exceed its 15-minute (900-second) timeout limit.
+* **Data Transfer Costs**: `s3lim` operates in-place, but if the Lambda function and the S3 Inventory destination bucket reside in different regions, downloading the inventory reports will incur standard **AWS Data Transfer Out (egress)** costs.
+* **Execution Timeout**: Cross-region S3 downloads suffer from higher latency. For large buckets with billions of keys, cross-region transfers may cause the Lambda execution to exceed its 15-minute (900-second) timeout limit.
 * **KMS Encryption**: If your S3 Inventory destination bucket is encrypted using a Customer Managed Key (CMK) via KMS, the Lambda execution role must be granted cross-region decrypt permissions (`kms:Decrypt`) on the KMS key.
-* **CloudWatch Namespace**: `s3lim` publishes metrics to the region in which the Lambda is running. If a Lambda in `us-east-1` analyzes a bucket in `us-west-2`, the custom metrics will appear in the `us-east-1` CloudWatch dashboard and namespace.
+* **CloudWatch Namespace**: `s3lim` publishes metrics to the region in which the Lambda is running.
 
 > [!IMPORTANT]
 > **Best Practice**: Always deploy the `s3lim` stack in the **same region** as the S3 Inventory destination bucket to eliminate data transfer fees, minimize latency, and prevent execution timeouts.
@@ -595,16 +829,19 @@ For detailed instructions on setting up these roles, refer to the official [AWS 
 ### Parameters
 | Name | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `MarketplaceCustomerID` | String | **Required** | The resolved customer identifier associated with the buyer's subscription. |
+| `MarketplaceCustomerAWSAccountId` | String | **Required** | The customer's AWS Account ID associated with the Marketplace subscription. |
+| `MarketplaceLicenseArn` | String | **Required** | The license ARN associated with the Marketplace subscription. |
 | `AppVersion` | String | `latest` | The version of the s3lim templates to deploy. |
-| `BaseMethod` | String | `autopilot` | The base deployment template method (`autopilot`, `standard`, `readonly`). |
 | `AdministrationRoleARN` | String | - | Optional: Custom administration role ARN. |
 | `ExecutionRoleName` | String | `AWSCloudFormationStackSetExecutionRole` | Name of the IAM execution role in target regions. |
 | `InventoryDestination` | String | - | Default S3 URI where inventories are delivered (can be overridden per stack instance). |
-| `SourceBucketName` | String | - | Default name of the S3 bucket to analyze (for Autopilot). |
+| `SourceBucketName` | String | - | Default name of the S3 bucket to analyze (for automated setup). |
+| `SourcePrefixFilter` | String | - | Optional: Filter inventory to only analyze files under this prefix. |
+| `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
+| `KmsKeyArn` | String | - | Optional: KMS Key ARN for encrypted inventory files. |
 
 ### Deploying Stack Instances and Parameter Overrides
-Deploying the coordinator template only creates the StackSet container. You must define where to deploy stack instances. Because S3 buckets are region-locked, you should override `InventoryDestination` and `SourceBucketName` for each target region:
+Deploying the coordinator template creates the StackSet container. You can override parameters per target region:
 
 ```bash
 aws cloudformation create-stack-instances \
@@ -836,6 +1073,95 @@ Thank you for your interest in s3lim! Please fill out the form below to join our
 <p class="text-sm text-slate-400 mt-8">
     Your data is handled according to our privacy policy. We only use your information to coordinate early access and provide project updates.
 </p>
+
+---
+
+## Document: Privacy Policy
+URL: https://slimstorage.io/privacy/
+Description: Privacy Policy for s3lim and Slim Storage Solutions LLC.
+
+<div class="text-left max-w-3xl mx-auto py-8">
+
+# Privacy Policy
+*Last Updated: August 4, 2026*
+
+At Slim Storage Solutions LLC, the creators of **s3lim**, we are committed to protecting the privacy and security of your data. This Privacy Policy describes how we collect, use, and handle information when you visit our website, subscribe to s3lim via the AWS Marketplace, or install our software.
+
+## 1. Zero-Egress Architecture (Our Core Principle)
+s3lim is designed from the ground up as an **in-account, zero-egress serverless application**. 
+
+* **In-Account Processing:** All processing of your S3 inventory files, object metadata, and bucket analytics is performed entirely within your own AWS account.
+* **No Data Transmission:** No S3 data, storage metrics, prefix structures, file lists, or configuration data ever leave your AWS environment.
+* **No Access:** We do not have access to, nor do we collect, copy, or store, your S3 bucket contents or analytical reports.
+
+## 2. Information We Collect
+While our software does not transmit your S3 data to us, we do collect limited information necessary to manage subscriptions, provide customer support, and maintain our business operations:
+
+* **Marketplace Subscriber Information:** When you subscribe to s3lim via the AWS Marketplace, AWS provides us with technical identifiers (such as your AWS Account ID and Subscription ID) to enable licensing and billing verification.
+* **Support Communications:** When you contact us for technical assistance (e.g., via support@slimstorage.io), we collect your name, email address, company name, and any information you choose to include in your inquiry.
+* **Voluntary Contact Information:** We may collect your contact information (such as your name and email address) if you voluntarily register to receive updates, newsletters, product announcements, and release notes.
+* **Website Usage:** We may collect standard web server logs and anonymous usage analytics to monitor and improve website performance.
+
+## 3. How We Use Your Information
+We use the limited information we collect strictly to:
+
+* Verify and manage your s3lim subscription and license status.
+* Respond to your support requests, inquiries, and customer service needs.
+* Publish and distribute communications, updates, and releases regarding s3lim.
+* Comply with AWS Marketplace seller terms and financial reporting obligations.
+
+## 4. Sharing Your Information
+We do not sell, trade, or share your contact or subscription information with third parties, except:
+
+* With AWS, as necessary to process transactions, manage AWS Marketplace subscriptions, and resolve billing issues.
+* As required by law, to comply with legal processes or protect the rights, property, or safety of Slim Storage Solutions LLC, our users, or the public.
+
+## 5. Data Retention
+We retain support email correspondence and Marketplace subscription identifiers only as long as necessary to fulfill the purposes outlined in this policy or to satisfy regulatory requirements.
+
+## 6. Contact Us
+If you have any questions or concerns about this Privacy Policy or our data handling practices, please contact us at:
+
+Slim Storage Solutions LLC  
+Email: [support@slimstorage.io](mailto:support@slimstorage.io)
+
+</div>
+
+---
+
+## Document: Security Policy
+URL: https://slimstorage.io/security/
+Description: Security Policy and Vulnerability Disclosure for s3lim and Slim Storage Solutions LLC.
+
+<div class="text-left max-w-3xl mx-auto py-8">
+
+# Security Policy
+*Last Updated: August 5, 2026*
+
+We are committed to ensuring the security and privacy of your data when using **s3lim**. If you believe you have discovered a security vulnerability or have concerns regarding our software's security posture, please follow our disclosure policy below.
+
+## 1. Reporting Vulnerabilities
+Please do **not** report security vulnerabilities through public GitHub issues or forums. Instead, report all findings directly to our security response team:
+
+*   **Email**: [support+security@slimstorage.io](mailto:support+security@slimstorage.io)
+
+To help us investigate and remediate the issue, please include:
+*   A clear description of the vulnerability and its potential impact.
+*   Step-by-step instructions to reproduce the issue (and any proof-of-concept scripts/logs).
+*   Details about your environment (e.g. deployment region, SAM template type, Lambda runtime parameters).
+
+## 2. Response Timeline
+*   **Acknowledgment**: We will acknowledge receipt of your report within **24 hours**.
+*   **Evaluation**: We will provide a status update and initial evaluation within **72 hours**.
+*   **Remediation**: We will coordinate the release of a security patch or mitigation guidelines and notify all registered subscribers of the fix.
+
+## 3. Zero-Egress Boundary
+s3lim is built as an **in-account, zero-egress serverless application**. 
+*   **No Data Exfiltration**: Your S3 inventory reports, file structures, analysis results, and raw object metadata are processed entirely within the boundaries of your own AWS account.
+*   **No Vendor Access**: Slim Storage Solutions LLC has no technical mechanism to access or view your S3 storage metrics.
+*   **Fulfillment Scope**: The only data transmitted to our control plane is the initial registration token and contact email submitted during subscription setup for licensing validation and billing integration.
+
+</div>
 
 ---
 
