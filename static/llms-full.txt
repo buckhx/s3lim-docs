@@ -147,19 +147,21 @@ Description: Select the best deployment mode to start analyzing S3 inventory rep
 
 `s3lim` is designed to be highly modular, allowing you to choose the deployment model that best aligns with your team's AWS permissions, security constraints, and existing infrastructure.
 
-To help you get started, we offer three main deployment modes:
+To help you get started, we offer four main deployment modes:
 
 1. **[Autopilot Mode](autopilot.md)**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
-2. **[Standard Mode](standard.md)**: Best if you already have S3 Inventory reports configured. Supports both **Managed IAM** (automated least-privilege roles) and **BYO-IAM** (pre-audited customer execution roles).
-3. **[Multi-Region Mode (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
-4. **[MCP Gateway Setup](mcp.md)**: Guide on how to enable the Amazon Bedrock AgentCore MCP Gateway (by setting `EnableMCPGateway` to `true` during deployment) to connect AI assistants.
+2. **[Standard Mode](standard.md)**: Best if you already have S3 Inventory reports configured and delivered to a bucket, and you want `s3lim` to analyze them using automated, scoped IAM role generation.
+3. **[Self-Serve Mode (BYO-IAM)](self-serve.md)**: Designed for strict enterprise environments. It deploys only the analysis Lambda, allowing you to attach pre-created, manually audited IAM execution roles.
+4. **[Multi-Region Mode (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
+5. **[MCP Gateway Setup](mcp.md)**: Guide on how to enable the Amazon Bedrock AgentCore MCP Gateway (by setting `EnableMCPGateway` to `true` during deployment) to connect AI assistants.
 
 ---
 
 ## Choosing a Mode
 
 * **Choose Autopilot** if you want to optimize a bucket quickly without reading S3 Inventory specs.
-* **Choose Standard** if S3 Inventory is already running on your buckets. Use default settings for managed IAM, or provide `LambdaRoleArn` if your security team requires pre-audited BYO-IAM roles.
+* **Choose Standard** if S3 Inventory is already running on your buckets and you want a standard, managed Lambda setup.
+* **Choose Self-Serve** if your security team requires manual approval and auditing of all IAM roles before they are deployed to production.
 * **Choose Multi-Region (StackSets)** if you have data distributed across multiple AWS regions or accounts and want to manage a centralized analytics pipeline.
 * **Want natural language cost audits from AI agents?** Enable the [MCP Gateway Setup](mcp.md) on your stack.
 
@@ -180,7 +182,7 @@ This deployment method is fully managed via a CloudFormation Stack which will ge
 - One or more S3 buckets you wish to analyze.
 
 ## Deployment Steps
-1. Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/sam-template.yaml`).
+1. Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/data-plane-template.yaml`).
 2. Enter your `SourceBucketName`.
 * See [deployment specifications](docs/reference/deployment.md#unified-data-plane-spec) for values to override
 3. Click **Deploy**.
@@ -261,6 +263,39 @@ Once S3 Inventory reports are delivered to any of your regional destination buck
 
 ---
 
+## Document: Self-Serve Deployment
+URL: https://slimstorage.io/docs/getting-started/self-serve/
+
+# Self-Serve Mode (BYO-IAM) Walkthrough
+
+This guide is for teams who require granular control over IAM roles, KMS encryption, and VPC networking. 
+
+In Self-Serve Mode, the SAM template only deploys the analysis Lambda function, allowing you to attach a pre-created, manually audited IAM execution role.
+
+## Use Case
+Ideal for **strict enterprise environments** where security compliance requires manual review and approval of all IAM policies before deployment.
+
+## Prerequisites
+* An AWS account with permissions to deploy CloudFormation and create IAM roles.
+* A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.
+* A pre-created IAM role for the Lambda function. For policy templates, see the [Self-Serve IAM Requirements](docs/reference/deployment.md#read-only-mode-spec-self-serve).
+
+## Deployment Steps
+
+1. **Create the IAM Role**: Establish an IAM Role for the Lambda function containing the required permissions. You can copy the exact S3 and CloudWatch/SQS policies from the [Self-Serve IAM Specification](docs/reference/deployment.md#read-only-mode-spec-self-serve).
+2. **Launch Read-Only Stack**: Navigate to the [s3lim-readonly](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository.
+3. **Configure Stack Parameters**:
+   * Enter `InventoryDestination` (e.g., `s3://my-inventory-bucket/inventory/`).
+   * Enter `LambdaRoleArn` (the ARN of the IAM role you created in Step 1).
+   * For other options, see the [Deployment Specifications](docs/reference/deployment.md#read-only-mode-spec-self-serve).
+4. **Deploy**: Click **Deploy** to start provisioning.
+5. **Add Trigger**: Manually add an S3 Event Trigger to the destination bucket targeting the `s3lim` Lambda function to execute scans on new manifest deliveries.
+
+## Verification
+Once a new S3 Inventory report is delivered, verify execution by inspecting the CloudWatch logs for the Lambda function.
+
+---
+
 ## Document: Standard Deployment
 URL: https://slimstorage.io/docs/getting-started/standard/
 
@@ -282,7 +317,7 @@ Ideal for analyzing pre-existing inventory pipelines. `s3lim` supports two IAM p
 ## Deployment Steps
 
 1. **Locate Inventory Destination**: Note the S3 bucket and prefix path where inventory manifests are delivered (e.g. `s3://my-inventory-bucket/inventory/`).
-2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/sam-template.yaml`).
+2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/data-plane-template.yaml`).
 3. **Configure Stack Parameters**:
    * **`InventoryDestination`**: Enter your inventory reports S3 URI.
    * **`LambdaRoleArn`** *(optional)*: For BYO-IAM mode, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
@@ -675,12 +710,12 @@ Description: Exhaustive configuration settings, template parameters, IAM permiss
 
 # Deployment Specifications
 
-`s3lim` is deployed using AWS Serverless Application Model (SAM) templates. All data plane capabilities are consolidated into a single unified template: **`sam-template.yaml`** (with multi-region orchestration supported via **`sam-template-stackset.yaml`**).
+`s3lim` is deployed using AWS Serverless Application Model (SAM) templates. All data plane capabilities are consolidated into a single unified template: **`data-plane-template.yaml`** (with multi-region orchestration supported via **`data-plane-stackset.yaml`**).
 
 ---
 
 ## Unified Data Plane Spec
-Template: `sam-template.yaml`
+Template: `data-plane-template.yaml`
 
 A single template supporting all deployment modes via parameters:
 * **Automated Setup Mode**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
@@ -815,7 +850,7 @@ When deploying `s3lim`, keep the following in mind:
 ---
 
 ## Multi-Region StackSet Spec
-Template: `sam-template-stackset.yaml`
+Template: `data-plane-stackset.yaml`
 
 Deploys `s3lim` data planes across multiple AWS regions and accounts using CloudFormation StackSets. S3 Inventory reports are region-locked. Deploying a StackSet ensures each target region runs a local `s3lim` Lambda instance, avoiding cross-region egress charges and timeouts. StackSets also support multi-account environments and integration with AWS Organizations for centralized governance.
 

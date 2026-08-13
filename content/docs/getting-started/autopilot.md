@@ -13,7 +13,7 @@ This deployment method is fully managed via a CloudFormation Stack which will ge
 - One or more S3 buckets you wish to analyze.
 
 ## Deployment Steps
-1. Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/sam-template.yaml`).
+1. Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/data-plane-template.yaml`).
 2. Enter your `SourceBucketName`.
 * See [deployment specifications]({{< relref "docs/reference/deployment.md#unified-data-plane-spec" >}}) for values to override
 3. Click **Deploy**.

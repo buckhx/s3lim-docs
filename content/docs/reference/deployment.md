@@ -6,12 +6,12 @@ weight: 10
 
 # Deployment Specifications
 
-`s3lim` is deployed using AWS Serverless Application Model (SAM) templates. All data plane capabilities are consolidated into a single unified template: **`sam-template.yaml`** (with multi-region orchestration supported via **`sam-template-stackset.yaml`**).
+`s3lim` is deployed using AWS Serverless Application Model (SAM) templates. All data plane capabilities are consolidated into a single unified template: **`data-plane-template.yaml`** (with multi-region orchestration supported via **`data-plane-stackset.yaml`**).
 
 ---
 
 ## Unified Data Plane Spec
-Template: `sam-template.yaml`
+Template: `data-plane-template.yaml`
 
 A single template supporting all deployment modes via parameters:
 * **Automated Setup Mode**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
@@ -146,7 +146,7 @@ When deploying `s3lim`, keep the following in mind:
 ---
 
 ## Multi-Region StackSet Spec
-Template: `sam-template-stackset.yaml`
+Template: `data-plane-stackset.yaml`
 
 Deploys `s3lim` data planes across multiple AWS regions and accounts using CloudFormation StackSets. S3 Inventory reports are region-locked. Deploying a StackSet ensures each target region runs a local `s3lim` Lambda instance, avoiding cross-region egress charges and timeouts. StackSets also support multi-account environments and integration with AWS Organizations for centralized governance.
 
@@ -181,4 +181,3 @@ aws cloudformation create-stack-instances \
   --regions us-west-2 \
   --parameter-overrides ParameterKey=InventoryDestination,ParameterValue=s3://my-inventory-bucket-us-west-2/
 ```
-

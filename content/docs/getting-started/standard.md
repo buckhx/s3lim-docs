@@ -21,7 +21,7 @@ Ideal for analyzing pre-existing inventory pipelines. `s3lim` supports two IAM p
 ## Deployment Steps
 
 1. **Locate Inventory Destination**: Note the S3 bucket and prefix path where inventory manifests are delivered (e.g. `s3://my-inventory-bucket/inventory/`).
-2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/sam-template.yaml`).
+2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/data-plane-template.yaml`).
 3. **Configure Stack Parameters**:
    * **`InventoryDestination`**: Enter your inventory reports S3 URI.
    * **`LambdaRoleArn`** *(optional)*: For BYO-IAM mode, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.

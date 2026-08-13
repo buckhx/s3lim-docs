@@ -1,4 +1,4 @@
-# s3lim Single-Template Deployment Reference
+# s3lim Data Plane Template Deployment Reference
 
 s3lim - High-performance S3 inventory analysis tool.
 
