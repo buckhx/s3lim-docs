@@ -36,6 +36,8 @@ A single template supporting all deployment modes via parameters:
 | `MarketplaceLicenseArn` | String | - | The license ARN associated with the Marketplace subscription. |
 | `EnableScheduleTrigger` | String | `true` | Enable daily scan schedule for existing inventory destinations or fallback polling. |
 | `LogRetentionInDays` | Number | `365` | Number of days to retain Lambda execution logs in CloudWatch. |
+| `ExecutionMode` | String | `Fast` | Execution engine: `Fast` for single-Lambda in-process execution (≤100M objects), `Distributed` for Step Functions fan-out (multi-billion objects). |
+| `WorkerMaxConcurrency` | Number | `100` | Maximum concurrent Worker Lambdas when `ExecutionMode` is `Distributed` (1–500). |
 
 ### Resources Created
 * **Lambda Function (`CoreFunction`)**: Core `s3lim` analysis processor.
@@ -128,6 +130,83 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 * **`cloudwatch:PutMetricData` (`Resource: "*"`): Required because the CloudWatch `PutMetricData` API does not support resource-level ARNs in AWS IAM.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`): Required because AWS Marketplace Metering APIs do not support resource-level ARNs in AWS IAM.
 * **`arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*` & `arn:aws:sqs:*:*:s3lim-*`**: Scopes actions strictly to `s3lim` Lambda log groups and DLQ queues across deployment regions.
+
+---
+
+## Execution Modes
+
+All deployments support two execution modes controlled by the `ExecutionMode` parameter.
+
+### Fast Mode (Default)
+
+`ExecutionMode: Fast` runs the full analysis in a **single Lambda invocation** — no additional infrastructure required. The Lambda streams all inventory shards sequentially in-process and publishes results directly to CloudWatch.
+
+| Attribute | Value |
+| :--- | :--- |
+| Target inventory size | ≤ 100M objects |
+| Architecture | Single `CoreFunction` Lambda |
+| Concurrency | 1 (sequential shard scan) |
+| Intermediate state | None (all in-memory) |
+| Additional AWS resources | None |
+
+#### Fast Mode Limit Protections
+
+Fast Mode includes automatic guardrails that warn before approaching limits — without aborting the scan:
+
+- **Pre-Scan Shard Warning**: Logs a `WARN` at startup if the manifest has >100 shards or >5 GB of compressed data, indicating Distributed Mode may be more appropriate.
+- **100M Object Milestone**: Logs a structured `WARN` milestone at 100,000,000 objects scanned, advising migration to Distributed Mode.
+- **Pre-Timeout Warning**: Monitors the Lambda context deadline and logs an actionable `ERROR` 90 seconds before timeout without aborting.
+- **Billing Safety**: Marketplace metering is emitted only after a successful, complete report — never on partial scans.
+
+### Distributed Mode
+
+`ExecutionMode: Distributed` routes execution through an **AWS Step Functions Distributed Map**, fanning out one Worker Lambda per inventory shard. This enables analysis of multi-billion-object inventories that would exceed Lambda's 15-minute timeout in Fast Mode.
+
+| Attribute | Value |
+| :--- | :--- |
+| Target inventory size | Multi-billion objects (1,000+ shards) |
+| Architecture | Step Functions: `Init` → `Worker × N` → `Reducer` |
+| Concurrency | 100 (configurable 1–500 via `WorkerMaxConcurrency`) |
+| Intermediate state | Gzip/Gob-encoded partial results in S3 (`.s3lim-intermediate/`) |
+| Auto-cleanup | 7-day S3 lifecycle expiration on the intermediate prefix |
+
+#### How It Works
+
+1. **Init Lambda**: Reads the inventory manifest, calculates shard assignments, and writes a job descriptor to S3.
+2. **Worker Lambdas** (fan-out): Each Worker processes a single inventory shard and serializes its partial aggregator state to `s3://<InventoryBucket>/.s3lim-intermediate/<job-id>/<shard-id>.gz`.
+3. **Reducer Lambda**: Merges all partial states, performs final Top-K sketch union, and publishes results to CloudWatch — then emits the Marketplace metering record.
+
+#### When to Use Distributed Mode
+
+Switch to `ExecutionMode: Distributed` when:
+- Your S3 bucket contains **more than 100 million objects**.
+- The inventory manifest has **more than 100 shards** or **more than 5 GB** of compressed data files.
+- Fast Mode regularly approaches or hits the **15-minute Lambda timeout**.
+
+> [!TIP]
+> You can switch modes with an in-place CloudFormation stack update — no redeployment required. The `ExecutionMode: Fast` default preserves backwards compatibility for all existing stacks.
+
+#### Additional IAM Permissions for Distributed Mode (BYO-IAM)
+
+When `ExecutionMode: Distributed` and using a BYO-IAM role (`LambdaRoleArn`), add these statements to your pre-created execution role:
+
+```json
+{
+    "Effect": "Allow",
+    "Action": ["s3:PutObject", "s3:DeleteObject", "s3:DeleteObjectVersion"],
+    "Resource": "arn:aws:s3:::<InventoryBucket>/.s3lim-intermediate/*"
+}
+```
+
+```json
+{
+    "Effect": "Allow",
+    "Action": ["states:StartExecution", "states:DescribeExecution", "states:GetExecutionHistory"],
+    "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
+}
+```
+
+Managed deployments (without `LambdaRoleArn`) provision these permissions automatically.
 
 ---
 
