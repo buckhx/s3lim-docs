@@ -64,7 +64,13 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
     "Statement": [
         {
             "Effect": "Allow",
-            "Action": ["s3:GetObject", "s3:ListBucket"],
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:DeleteObjectVersion"
+            ],
             "Resource": [
                 "arn:aws:s3:::your-inventory-bucket",
                 "arn:aws:s3:::your-inventory-bucket/*"
@@ -74,7 +80,7 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 }
 ```
 
-#### CloudWatch, SQS & Marketplace Policy
+#### CloudWatch, SQS, Step Functions & Marketplace Policy
 ```json
 {
     "Version": "2012-10-17",
@@ -113,6 +119,16 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
             "Resource": "arn:aws:sqs:*:*:s3lim-*"
         },
         {
+            "Sid": "StepFunctionsExecution",
+            "Effect": "Allow",
+            "Action": [
+                "states:StartExecution",
+                "states:DescribeExecution",
+                "states:GetExecutionHistory"
+            ],
+            "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
+        },
+        {
             "Sid": "MarketplaceMetering",
             "Effect": "Allow",
             "Action": [
@@ -126,7 +142,8 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 ```
 
 #### Wildcard (`*`) Rationale in IAM Policies
-* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys.
+* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys, as well as temporary intermediate state management (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim-intermediate/*`) when running in Distributed Mode.
+* **`arn:aws:states:*:*:stateMachine:s3lim-*`**: Scopes Step Functions state machine execution and status monitoring strictly to `s3lim` workflows for Distributed Mode.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`): Required because the CloudWatch `PutMetricData` API does not support resource-level ARNs in AWS IAM.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`): Required because AWS Marketplace Metering APIs do not support resource-level ARNs in AWS IAM.
 * **`arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*` & `arn:aws:sqs:*:*:s3lim-*`**: Scopes actions strictly to `s3lim` Lambda log groups and DLQ queues across deployment regions.

@@ -50,16 +50,21 @@ For processing large inventory files (billions of objects), the following settin
 
 ## IAM Permissions
 
-The Lambda function requires the following minimum permissions:
+The Lambda function execution role requires the following permissions:
 
-### 1. S3 Read Access
-Required to read the inventory manifest and the data files (CSV, Parquet, or ORC).
-- `s3:GetObject` on `arn:aws:s3:::<InventoryBucket>/<Prefix>/*`
-- `s3:ListBucket` on `arn:aws:s3:::<InventoryBucket>`
+### 1. S3 Bucket & Inventory Access
+- `s3:GetObject` on `arn:aws:s3:::<InventoryBucket>/*` (Read inventory manifests and data files)
+- `s3:ListBucket` on `arn:aws:s3:::<InventoryBucket>` (List manifests in destination bucket)
+- `s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` on `arn:aws:s3:::<InventoryBucket>/.s3lim-intermediate/*` (*Distributed Mode*: Intermediate state storage and cleanup)
 
-### 2. CloudWatch Metrics
-Required to publish the analyzed metrics.
-- `cloudwatch:PutMetricData`
+### 2. Step Functions Workflow (*Distributed Mode*)
+- `states:StartExecution`, `states:DescribeExecution`, `states:GetExecutionHistory` on `arn:aws:states:*:*:stateMachine:s3lim-*`
+
+### 3. Telemetry & Metering
+- `cloudwatch:PutMetricData` (Publish custom metrics to the configured namespace)
+- `logs:CreateLogStream`, `logs:PutLogEvents`, `logs:FilterLogEvents` on `/aws/lambda/s3lim-*`
+- `sqs:SendMessage`, `sqs:ReceiveMessage`, `sqs:DeleteMessage` on Dead Letter Queues
+- `aws-marketplace:BatchMeterUsage`, `aws-marketplace:GetEntitlements` (AWS Marketplace billing)
 
 ## Advanced Diagnostics
 
