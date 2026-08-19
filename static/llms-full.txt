@@ -4,7 +4,7 @@
 
 ---
 
-## Document: Bulk Egress & Ransomware Alerts
+## Document: Compliance Drift
 URL: https://slimstorage.io/
 Description: We are actively building stateless, in-account analysis engines for S3 Server Access Logs to provide real-time performance troubleshooting and active threat detection.
 
