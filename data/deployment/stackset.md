@@ -12,7 +12,7 @@ s3lim (Multi-Region StackSet) - Deploys s3lim data planes across multiple region
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. 'data/import/,temp/'). |
 | `EnableMCPGateway` | String | false | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `EnableScheduleTrigger` | String | true | Optional: Set to 'false' to disable the daily scan schedule when using direct S3 event notifications. |
-| `ExecutionMode` | String | Fast | Execution mode for inventory analysis. 'Fast' runs in a single Lambda for standard buckets (<=100M objects). 'Distributed' fans out using AWS Step Functions Distributed Map for high-scale inventories. |
+| `ExecutionMode` | String | Lite | Execution mode for inventory analysis. 'Lite' runs in a single Lambda for standard buckets (<=100M objects). 'Distributed' fans out using AWS Step Functions Distributed Map for high-scale inventories. |
 | `ExecutionRoleName` | String | AWSCloudFormationStackSetExecutionRole | Name of the IAM execution role in target accounts/regions. |
 | `GatewayName` | String | - | Optional: The name of the Bedrock AgentCore MCP Gateway (defaults to <StackName>-mcp). |
 | `InventoryDestination` | String | - | Default S3 URI where inventories are delivered (can be overridden per regional stack instance). |

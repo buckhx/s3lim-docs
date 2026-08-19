@@ -9,7 +9,7 @@ s3lim - High-performance S3 inventory analysis tool.
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. 'data/import/,temp/'). |
 | `EnableMCPGateway` | String | false | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `EnableScheduleTrigger` | String | true | Optional: Set to 'true' to enable the daily scan schedule when using existing inventory destinations or fallback polling. |
-| `ExecutionMode` | String | Fast | Execution mode for inventory analysis. 'Fast' runs in a single Lambda for standard buckets (<=100M objects). 'Distributed' fans out using AWS Step Functions Distributed Map for high-scale inventories. |
+| `ExecutionMode` | String | Lite | Execution mode for inventory analysis. 'Lite' runs in a single Lambda for standard buckets (<=100M objects). 'Distributed' fans out using AWS Step Functions Distributed Map for high-scale inventories. |
 | `GatewayName` | String | - | Optional: The name of the Bedrock AgentCore MCP Gateway (defaults to <StackName>-mcp). |
 | `InventoryDestination` | String | - | Optional: The S3 URI where inventories are delivered (e.g. s3://my-bucket/inventory/). If not provided and SourceBucketName is set, a dedicated inventory bucket will be generated. |
 | `InventoryFormat` | String | Parquet | The format of the inventory files when configuring new inventory reports. |
@@ -29,7 +29,7 @@ s3lim - High-performance S3 inventory analysis tool.
 | Name | Description |
 |------|-------------|
 | `CoreFunctionArn` | Lambda function ARN |
-| `ExecutionMode` | Selected analysis execution mode (Fast or Distributed) |
+| `ExecutionMode` | Selected analysis execution mode (Lite or Distributed) |
 | `InventoryDestinationURI` | S3 URI where inventories are delivered |
 | `StateMachineArn` | Step Functions Distributed Map state machine ARN |
 

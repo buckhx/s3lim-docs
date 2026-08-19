@@ -22,7 +22,7 @@ To help you configure and audit your deployments, we provide the following refer
 Use the guides below depending on your immediate need:
 
 * **Auditing template parameters, execution mode settings, or IAM roles?** View the [Deployment Specs]({{< relref "deployment.md" >}}).
-* **Choosing between Fast and Distributed execution?** Read the [Execution Modes Guide]({{< relref "docs/getting-started/execution-modes.md" >}}).
+* **Choosing between Lite and Distributed execution?** Read the [Execution Modes Guide]({{< relref "docs/getting-started/execution-modes.md" >}}).
 * **Need to change Lambda behaviors, envvars, or thresholds?** Check out the [Lambda Reference]({{< relref "lambda.md" >}}).
 * **Setting up S3 trigger rules or automated cron schedules?** Read the [Analysis Triggers]({{< relref "triggers.md" >}}).
 * **Building a custom CloudWatch dashboard?** Browse the [Available Metrics]({{< relref "metrics.md" >}}).

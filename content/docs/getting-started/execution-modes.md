@@ -1,6 +1,6 @@
 ---
 title: "Execution Modes"
-description: "Comparison and operational guidance for Fast Mode (single-Lambda) and Distributed Mode (AWS Step Functions Distributed Map)."
+description: "Comparison and operational guidance for Lite Mode (single-Lambda) and Distributed Mode (AWS Step Functions Distributed Map)."
 weight: 4
 ---
 
@@ -14,7 +14,7 @@ While deployment methods (such as Autopilot, Standard, and Multi-Region) define 
 
 ## Comparison Matrix
 
-| Attribute | Fast Mode *(Default)* | Distributed Mode |
+| Attribute | Lite Mode *(Default)* | Distributed Mode |
 | :--- | :--- | :--- |
 | **Target Scale** | ≤ 100 million objects | Multi-billion objects (1,000+ shards) |
 | **Architecture** | Single in-process `CoreFunction` Lambda | AWS Step Functions Distributed Map |
@@ -27,9 +27,9 @@ While deployment methods (such as Autopilot, Standard, and Multi-Region) define 
 
 ---
 
-## Fast Mode (Default)
+## Lite Mode (Default)
 
-`ExecutionMode: Fast` is optimized for speed, simplicity, and low operational overhead. It executes the entire inventory parsing, metric calculation, and CloudWatch publication within a single AWS Lambda invocation without deploying state machines or writing intermediate state to S3.
+`ExecutionMode: Lite` is optimized for low resource overhead, simplicity, and zero additional infrastructure. It executes the entire inventory parsing, metric calculation, and CloudWatch publication within a single AWS Lambda invocation without deploying state machines or writing intermediate state to S3.
 
 ```mermaid
 flowchart LR
@@ -40,7 +40,7 @@ flowchart LR
 
 ### Built-in Limit Protections
 
-Fast Mode includes safety mechanisms that continuously monitor execution metrics and emit structured alerts before limits are reached—without interrupting the scan:
+Lite Mode includes safety mechanisms that continuously monitor execution metrics and emit structured alerts before limits are reached—without interrupting the scan:
 
 1. **Pre-Scan Shard & Size Warning**:
    Before reading inventory data, the Lambda inspects the manifest metadata. If the inventory contains **>100 shards** or **>5 GB of compressed data**, a structured `WARN` log is emitted recommending migration to Distributed Mode.
@@ -111,7 +111,7 @@ When running in Distributed Mode, Step Functions spawns concurrent Worker Lambda
 
 ## When to Use Distributed Mode
 
-| Trigger Indicator | Fast Mode | Distributed Mode |
+| Trigger Indicator | Lite Mode | Distributed Mode |
 | :--- | :--- | :--- |
 | **Object Count** | < 100M objects | ≥ 100M objects |
 | **Shard Count** | 1–100 shards | > 100 shards |
@@ -119,7 +119,7 @@ When running in Distributed Mode, Step Functions spawns concurrent Worker Lambda
 | **Scan Execution Time** | < 10 minutes | Approaches 15-minute Lambda limit |
 
 > [!TIP]
-> **In-Place Migration**: You can switch an active deployment between `Fast` and `Distributed` at any time by updating the CloudFormation stack parameter `ExecutionMode`. No data or infrastructure redeployment is necessary.
+> **In-Place Migration**: You can switch an active deployment between `Lite` and `Distributed` at any time by updating the CloudFormation stack parameter `ExecutionMode`. No data or infrastructure redeployment is necessary.
 
 ---
 
@@ -164,7 +164,7 @@ When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distrib
 
 ## Performance & Metric Equivalence
 
-Both Fast Mode and Distributed Mode utilize identical analysis algorithms, guaranteeing full metric consistency:
+Both Lite Mode and Distributed Mode utilize identical analysis algorithms, guaranteeing full metric consistency:
 
-* **100% Metric Equivalence**: Distributed parallel execution yields identical counts, duplicate rates, size histograms, and top prefix rankings as single-process Fast Mode.
+* **100% Metric Equivalence**: Distributed parallel execution yields identical counts, duplicate rates, size histograms, and top prefix rankings as single-process Lite Mode.
 * **Horizontal Scalability**: On multi-shard benchmarks (e.g. ESA Sentinel-2 L1C dataset of 19.17M objects across 10 shards), Distributed Mode achieves over **3.0x speedup** on 8 workers compared to sequential execution, reducing analysis time from ~49 seconds to ~16 seconds.

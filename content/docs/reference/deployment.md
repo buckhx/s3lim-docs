@@ -36,7 +36,7 @@ A single template supporting all deployment methods via parameters:
 | `MarketplaceLicenseArn` | String | - | The license ARN associated with the Marketplace subscription. |
 | `EnableScheduleTrigger` | String | `true` | Enable daily scan schedule for existing inventory destinations or fallback polling. |
 | `LogRetentionInDays` | Number | `365` | Number of days to retain Lambda execution logs in CloudWatch. |
-| `ExecutionMode` | String | `Fast` | Execution engine: `Fast` for single-Lambda in-process execution (≤100M objects), `Distributed` for Step Functions fan-out (multi-billion objects). |
+| `ExecutionMode` | String | `Lite` | Execution engine: `Lite` for single-Lambda in-process execution (≤100M objects), `Distributed` for Step Functions fan-out (multi-billion objects). |
 | `WorkerMaxConcurrency` | Number | `100` | Maximum concurrent Worker Lambdas when `ExecutionMode` is `Distributed`. |
 
 ### Resources Created
@@ -158,8 +158,8 @@ All `s3lim` deployment templates support two operational processing engines conf
 
 | Parameter | Type | Default | Allowed Values | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `ExecutionMode` | String | `Fast` | `Fast`, `Distributed` | Selects the execution engine. `Fast` runs in a single Lambda invocation; `Distributed` provisions an AWS Step Functions Distributed Map workflow. |
-| `WorkerMaxConcurrency` | Number | `100` | Minimum `1` | Maximum number of concurrent Worker Lambda invocations when `ExecutionMode` is set to `Distributed`. (Ignored in `Fast` mode). |
+| `ExecutionMode` | String | `Lite` | `Lite`, `Distributed` | Selects the execution engine. `Lite` runs in a single Lambda invocation; `Distributed` provisions an AWS Step Functions Distributed Map workflow. |
+| `WorkerMaxConcurrency` | Number | `100` | Minimum `1` | Maximum number of concurrent Worker Lambda invocations when `ExecutionMode` is set to `Distributed`. (Ignored in `Lite` mode). |
 
 ### Concurrency Tuning & Quotas (`WorkerMaxConcurrency`)
 
@@ -172,10 +172,10 @@ When using **Distributed Mode**, `s3lim` uses an AWS Step Functions Distributed 
 
 ### Switching Modes (In-Place Updates)
 
-You can transition between `Fast` and `Distributed` mode at any time without rebuilding infrastructure or losing history:
+You can transition between `Lite` and `Distributed` mode at any time without rebuilding infrastructure or losing history:
 1. Open the CloudFormation console and select your `s3lim` stack.
 2. Click **Update** > **Use current template**.
-3. Change `ExecutionMode` to `Distributed` (or `Fast`) and adjust `WorkerMaxConcurrency` as needed.
+3. Change `ExecutionMode` to `Distributed` (or `Lite`) and adjust `WorkerMaxConcurrency` as needed.
 4. Review the change set and click **Submit**. CloudFormation will provision or tear down the Step Functions state machine and IAM resources in-place.
 
 For complete architectural comparisons, lifecycle diagrams, and performance benchmarks, see the **[Execution Modes Guide]({{< relref "docs/getting-started/execution-modes.md" >}})**.
