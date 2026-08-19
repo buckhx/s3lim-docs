@@ -81,4 +81,10 @@ roadmap:
     - icon: "🚨"
       title: "Bulk Egress & Ransomware Alerts"
       content: "Get notified of sudden exfiltration volume spikes or mass delete operations per client IP in near-real-time."
+    - icon: "🔍"
+      title: "Sensitive Data Scanner"
+      content: "Identify unencrypted PII, API tokens, and secret credential patterns across bucket prefixes with zero data egress."
+    - icon: "📋"
+      title: "Compliance Drift"
+      content: "Continuously audit storage postures against organizational retention mandates, Object Lock immutability, and encryption policies."
 ---

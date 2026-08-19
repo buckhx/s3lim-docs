@@ -3,7 +3,7 @@ title: "Standard Deployment"
 weight: 2
 ---
 
-# Standard Mode Walkthrough
+# Standard Deployment Walkthrough
 
 This guide is for users who **already have S3 Inventory reports** configured and delivered to a destination bucket, and want `s3lim` to analyze them.
 
@@ -24,7 +24,7 @@ Ideal for analyzing pre-existing inventory pipelines. `s3lim` supports two IAM p
 2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/data-plane-template.yaml`).
 3. **Configure Stack Parameters**:
    * **`InventoryDestination`**: Enter your inventory reports S3 URI.
-   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM mode, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
+   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM deployment, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
    * **`SourceBucketName`** *(optional)*: Required only if you want to run previews using S3 ListObjectsV2 API.
    * For other options, see the [Deployment Specifications]({{< relref "docs/reference/deployment.md#unified-data-plane-spec" >}}).
 4. **Deploy**: Click **Deploy** to start provisioning.
@@ -93,11 +93,14 @@ Attach this policy to the role. Resources are scoped strictly to the inventory b
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "S3InventoryReadAccess",
+      "Sid": "S3InventoryAccess",
       "Effect": "Allow",
       "Action": [
         "s3:GetObject",
-        "s3:ListBucket"
+        "s3:ListBucket",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion"
       ],
       "Resource": [
         "arn:aws:s3:::YOUR_INVENTORY_BUCKET",
@@ -136,6 +139,16 @@ Attach this policy to the role. Resources are scoped strictly to the inventory b
         "sqs:GetQueueAttributes"
       ],
       "Resource": "arn:aws:sqs:*:*:s3lim-*"
+    },
+    {
+      "Sid": "StepFunctionsExecution",
+      "Effect": "Allow",
+      "Action": [
+        "states:StartExecution",
+        "states:DescribeExecution",
+        "states:GetExecutionHistory"
+      ],
+      "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
     },
     {
       "Sid": "MarketplaceMetering",
@@ -187,11 +200,14 @@ function updateByoPolicies() {
           "Version": "2012-10-17",
           "Statement": [
             {
-              "Sid": "S3InventoryReadAccess",
+              "Sid": "S3InventoryAccess",
               "Effect": "Allow",
               "Action": [
                 "s3:GetObject",
-                "s3:ListBucket"
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:DeleteObjectVersion"
               ],
               "Resource": [
                 "arn:aws:s3:::" + bucketPlaceholder,
@@ -230,6 +246,16 @@ function updateByoPolicies() {
                 "sqs:GetQueueAttributes"
               ],
               "Resource": "arn:aws:sqs:*:*:s3lim-*"
+            },
+            {
+              "Sid": "StepFunctionsExecution",
+              "Effect": "Allow",
+              "Action": [
+                "states:StartExecution",
+                "states:DescribeExecution",
+                "states:GetExecutionHistory"
+              ],
+              "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
             },
             {
               "Sid": "MarketplaceMetering",
@@ -273,7 +299,9 @@ function copyCode(elementId, buttonId) {
 All permissions follow strict **least-privilege scoping** with wildcards minimized. For enterprise security audits, each wildcard (`*`) is used only where mandated by AWS IAM APIs:
 
 * **`arn:aws:s3:::<bucket>/*` (S3 Object Keys)**:
-  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions like `s3:GetObject` to read inventory manifests and data files across sub-prefixes.
+  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions (`s3:GetObject`) and Distributed Mode intermediate state storage (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim-intermediate/*`).
+* **`arn:aws:states:*:*:stateMachine:s3lim-*` (Step Functions Execution)**:
+  * **Why prefix is used**: Scopes state machine invocation and status inspection strictly to `s3lim` Step Functions workflows when operating in Distributed Mode.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`)**:
   * **Why `*` is required**: AWS CloudWatch does not support resource-level permissions (ARNs) for the `PutMetricData` API. Per AWS IAM authorization specifications, CloudWatch metric publishing requires `"Resource": "*"`.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`)**:

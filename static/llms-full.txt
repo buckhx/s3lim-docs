@@ -4,7 +4,7 @@
 
 ---
 
-## Document: Bulk Egress & Ransomware Alerts
+## Document: Compliance Drift
 URL: https://slimstorage.io/
 Description: We are actively building stateless, in-account analysis engines for S3 Server Access Logs to provide real-time performance troubleshooting and active threat detection.
 
@@ -22,7 +22,7 @@ s3lim is designed to help engineers and DevOps teams regain control of their S3 
 
 ## The Challenge
 
-Object Storage is a transformative technology and has created incredible value, but left unchecked can generate significant cost and performance issues. It's easy to let buckets grow unchecked because storage is cheap... until it's not. That's where s3lim comes in. Traditional Object Storage Observability is at a high level with aggregations at coarse granularity and there is little insight available into the contents of large buckets due to their scale. Indexing and reporting on every object would be prohibitly expensive for providers so they offer more targetted tools such Storage Lens Advanced Scopes or GCP Storage Intelligence. s3lim uses novel technology to process massive inventory files in resource constrained environments by leveraging probabilistic structures for aggregation. This leads to a tradeoff in accuracy where the exact counts may have some error margin, but captures overall trends and hotspots effectively. 
+Object Storage is a transformative technology and has created incredible value, but left unchecked can generate significant cost and performance issues. It's easy to let buckets grow unchecked because storage is cheap... until it's not. That's where s3lim comes in. Traditional Object Storage Observability is at a high level with aggregations at coarse granularity and there is little insight available into the contents of large buckets due to their scale. Indexing and reporting on every object would be prohibitively expensive for providers so they offer more targeted tools such as Storage Lens Advanced Scopes or GCP Storage Intelligence. s3lim uses streaming aggregation technology to process massive inventory files in resource-constrained serverless environments, capturing overall trends, cost drivers, and prefix hotspots with extreme speed and bounded memory. 
 
 ## Our Values
 
@@ -141,28 +141,28 @@ If you are a subscriber via the AWS Marketplace, please include your AWS Account
 
 ## Document: Getting Started
 URL: https://slimstorage.io/docs/getting-started/
-Description: Select the best deployment mode to start analyzing S3 inventory reports and optimizing your AWS S3 storage costs.
+Description: Select the best deployment method to start analyzing S3 inventory reports and optimizing your AWS S3 storage costs.
 
 # Getting Started with s3lim
 
-`s3lim` is designed to be highly modular, allowing you to choose the deployment model that best aligns with your team's AWS permissions, security constraints, and existing infrastructure.
+`s3lim` is designed to be highly modular, allowing you to choose the deployment method that best aligns with your team's AWS permissions, security constraints, and existing infrastructure.
 
-To help you get started, we offer four main deployment modes:
+To help you get started, we offer the following deployment methods and execution guides:
 
-1. **[Autopilot Mode](autopilot.md)**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
-2. **[Standard Mode](standard.md)**: Best if you already have S3 Inventory reports configured and delivered to a bucket, and you want `s3lim` to analyze them using automated, scoped IAM role generation.
-3. **[Self-Serve Mode (BYO-IAM)](self-serve.md)**: Designed for strict enterprise environments. It deploys only the analysis Lambda, allowing you to attach pre-created, manually audited IAM execution roles.
-4. **[Multi-Region Mode (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
+1. **[Autopilot Deployment](autopilot.md)**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
+2. **[Standard Deployment](standard.md)**: Best if you already have S3 Inventory reports configured and delivered to a bucket. Supports both automated Managed IAM and custom Bring-Your-Own-IAM (BYO-IAM) roles.
+3. **[Multi-Region Deployment (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
+4. **[Execution Modes](execution-modes.md)**: Detailed guide on choosing and sizing the runtime compute engine between Lite Mode (single-Lambda) and Distributed Mode (Step Functions Distributed Map).
 5. **[MCP Gateway Setup](mcp.md)**: Guide on how to enable the Amazon Bedrock AgentCore MCP Gateway (by setting `EnableMCPGateway` to `true` during deployment) to connect AI assistants.
 
 ---
 
-## Choosing a Mode
+## Choosing a Deployment Method
 
-* **Choose Autopilot** if you want to optimize a bucket quickly without reading S3 Inventory specs.
-* **Choose Standard** if S3 Inventory is already running on your buckets and you want a standard, managed Lambda setup.
-* **Choose Self-Serve** if your security team requires manual approval and auditing of all IAM roles before they are deployed to production.
+* **Choose Autopilot** if you want to optimize a bucket quickly without configuring S3 Inventory manually.
+* **Choose Standard** if S3 Inventory is already running on your buckets. Use Managed IAM for automated permissions or BYO-IAM if your security team requires pre-audited IAM roles.
 * **Choose Multi-Region (StackSets)** if you have data distributed across multiple AWS regions or accounts and want to manage a centralized analytics pipeline.
+* **Need to scale to billions of objects?** Read the [Execution Modes Guide](execution-modes.md) to evaluate Lite vs Distributed mode.
 * **Want natural language cost audits from AI agents?** Enable the [MCP Gateway Setup](mcp.md) on your stack.
 
 **NOTE:** Always deploy `s3lim` in the **same AWS Region** as the S3 bucket with the inventory file to avoid cross-region data transfer fees and potential timeout issues.
@@ -174,7 +174,7 @@ URL: https://slimstorage.io/docs/getting-started/autopilot/
 
 # Quickstart (Autopilot)
 
-This guide is for users who want to get up and running with `s3lim` as quickly as possible using the **Autopilot** deployment mode.
+This guide is for users who want to get up and running with `s3lim` as quickly as possible using the **Autopilot** deployment method.
 This deployment method is fully managed via a CloudFormation Stack which will generate the required resources including a new bucket for the S3 Inventory Report.
 
 ## Prerequisites
@@ -198,18 +198,189 @@ This deployment method is fully managed via a CloudFormation Stack which will ge
 
 **Note:** It can take up to 48 hours for AWS to deliver the first S3 Inventory report. Your dashboard will have preview until then.
 
-See [configuration](docs/reference/configuration.md) to configure the lambdas behavior
+See the [Lambda Reference](docs/reference/lambda.md) to configure environment variables and customize behavior.
 
 To decommission s3lim, simply delete the CloudFormation stack
 
 ---
 
-## Document: Multi-Region Mode
+## Document: Execution Modes
+URL: https://slimstorage.io/docs/getting-started/execution-modes/
+Description: Comparison and operational guidance for Lite Mode (single-Lambda) and Distributed Mode (AWS Step Functions Distributed Map).
+
+# Execution Modes
+
+While deployment methods (such as Autopilot, Standard, and Multi-Region) define *how and where* infrastructure is provisioned, **Execution Modes** define the *runtime compute engine* used to process S3 inventory reports.
+
+`s3lim` supports two operational execution modes to accommodate S3 inventories ranging from small single-bucket repositories to multi-billion object enterprise data lakes. Both modes are supported across all deployment templates (`data-plane-template.yaml` and `data-plane-stackset.yaml`) and are configured via the `ExecutionMode` parameter.
+
+---
+
+## Comparison Matrix
+
+| Attribute | Lite Mode *(Default)* | Distributed Mode |
+| :--- | :--- | :--- |
+| **Target Scale** | ≤ 100 million objects | Multi-billion objects (1,000+ shards) |
+| **Architecture** | Single in-process `CoreFunction` Lambda | AWS Step Functions Distributed Map |
+| **Execution Steps** | Direct stream scan in Lambda memory | `Init` → `Worker × N` → `Reducer` |
+| **Concurrency** | 1 (sequential shard processing) | Configurable via `WorkerMaxConcurrency` (default: 100) |
+| **Intermediate State** | None (100% in-memory) | Compressed state files in S3 (`.s3lim-intermediate/`) |
+| **Auto-Cleanup** | N/A | 7-day S3 Bucket Lifecycle Expiration rule |
+| **Timeout Boundary** | 15 minutes (single Lambda execution limit) | None (Step Functions coordinates distributed tasks) |
+| **Additional AWS Resources** | None | Step Functions State Machine, IAM execution role |
+
+---
+
+## Lite Mode (Default)
+
+`ExecutionMode: Lite` is optimized for low resource overhead, simplicity, and zero additional infrastructure. It executes the entire inventory parsing, metric calculation, and CloudWatch publication within a single AWS Lambda invocation without deploying state machines or writing intermediate state to S3.
+
+```mermaid
+flowchart LR
+    S3[S3 Inventory Manifest & Shards] --> Lambda["CoreFunction Lambda (In-Process Stream)"]
+    Lambda --> CW[CloudWatch Metrics]
+    Lambda --> MP[Marketplace Metering]
+```
+
+### Built-in Limit Protections
+
+Lite Mode includes safety mechanisms that continuously monitor execution metrics and emit structured alerts before limits are reached—without interrupting the scan:
+
+1. **Pre-Scan Shard & Size Warning**:
+   Before reading inventory data, the Lambda inspects the manifest metadata. If the inventory contains **>100 shards** or **>5 GB of compressed data**, a structured `WARN` log is emitted recommending migration to Distributed Mode.
+
+2. **100M Object Milestone**:
+   As objects are ingested, `s3lim` logs an operational milestone at **100,000,000 scanned objects**, providing visibility into throughput and memory efficiency.
+
+3. **Pre-Timeout Diagnostic Warning**:
+   The Lambda monitors its context deadline. If the scan is still running **90 seconds before the 15-minute Lambda timeout**, `s3lim` logs an actionable `ERROR` detailing the current shard progress, processed key count, and elapsed runtime.
+
+4. **Billing Safety**:
+   AWS Marketplace metering records are emitted **strictly after a 100% complete and verified scan report**. Incomplete or timed-out scans never bill the customer.
+
+---
+
+## Distributed Mode
+
+`ExecutionMode: Distributed` orchestrates analysis across an **AWS Step Functions Distributed Map**, fanning out Worker Lambdas concurrently across inventory data shards. This architecture eliminates Lambda timeout limits and scales horizontally across multi-terabyte manifests.
+
+```mermaid
+flowchart TD
+    Manifest[S3 Inventory Manifest] --> Init["1. Init Lambda (Manifest Partitioning)"]
+    Init --> Map["2. Step Functions Distributed Map (Worker Fan-Out)"]
+    subgraph Map ["Step Functions Distributed Map"]
+        W1["Worker Lambda 1 (Shard 0)"]
+        W2["Worker Lambda 2 (Shard 1)"]
+        W3["Worker Lambda N (Shard N)"]
+    end
+    W1 --> S3State["Intermediate State (S3)"]
+    W2 --> S3State
+    W3 --> S3State
+    S3State --> Reducer["3. Reducer Lambda (Result Aggregation & Reporting)"]
+    Reducer --> CW[CloudWatch Metrics]
+    Reducer --> MP[Marketplace Metering]
+```
+
+### Execution Lifecycle
+
+1. **Init Lambda**:
+   Downloads the inventory manifest (`manifest.json`), parses the list of data file shards, creates a unique job identifier (`job-id`), and returns the partitioned shard payloads.
+
+2. **Worker Lambdas (Distributed Map)**:
+   The Step Functions Distributed Map spawns concurrent Worker Lambda invocations up to the configured `WorkerMaxConcurrency`. Each Worker:
+   * Downloads and streams its assigned inventory data shard (CSV, Parquet, or ORC).
+   * Computes independent metric aggregations across all storage categories (storage classes, size histograms, top prefixes, duplicate detection, etc.).
+   * Serializes its aggregator state via Gzip-compressed binary stream.
+   * Uploads the serialized state to `s3://<InventoryBucket>/.s3lim-intermediate/<job-id>/<shard-id>.gz`.
+
+3. **Reducer Lambda**:
+   Once all Worker Lambdas complete successfully:
+   * Streams and deserializes all intermediate shard files from S3.
+   * Merges intermediate results across all shards with zero information loss.
+   * Publishes final custom metrics to Amazon CloudWatch.
+   * Emits the AWS Marketplace volume metering record.
+   * Triggers background cleanup of the intermediate S3 job directory.
+
+### Regional Lambda Concurrency Limits
+
+When running in Distributed Mode, Step Functions spawns concurrent Worker Lambdas up to `WorkerMaxConcurrency` (default: `100`). There is no arbitrary hard cap enforced on `WorkerMaxConcurrency`.
+
+> [!NOTE]
+> **Managing Regional Lambda Concurrency**:
+> AWS accounts have a default regional concurrency quota (typically 1,000 concurrent executions across all Lambda functions in the region). Setting `WorkerMaxConcurrency` ensures that `s3lim` worker fan-out does not exhaust your account's unreserved concurrency or throttle other production workloads.
+>
+> If you are analyzing multi-terabyte data lakes with thousands of shards and want higher worker concurrency (e.g. 500+), verify your account's regional concurrency limit or request a quota increase via the AWS Service Quotas console. For complete guidance on quotas, reserved concurrency, and throttling behavior, refer to the official [AWS Lambda Concurrency Documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html).
+
+---
+
+## When to Use Distributed Mode
+
+| Trigger Indicator | Lite Mode | Distributed Mode |
+| :--- | :--- | :--- |
+| **Object Count** | < 100M objects | ≥ 100M objects |
+| **Shard Count** | 1–100 shards | > 100 shards |
+| **Manifest Data Volume** | < 5 GB compressed | ≥ 5 GB compressed |
+| **Scan Execution Time** | < 10 minutes | Approaches 15-minute Lambda limit |
+
+> [!TIP]
+> **In-Place Migration**: You can switch an active deployment between `Lite` and `Distributed` at any time by updating the CloudFormation stack parameter `ExecutionMode`. No data or infrastructure redeployment is necessary.
+
+---
+
+## IAM Policy Requirements (BYO-IAM)
+
+When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distributed Mode**, ensure the role includes permissions for intermediate S3 storage and Step Functions execution in addition to standard read permissions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DistributedIntermediateStateAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion"
+      ],
+      "Resource": [
+        "arn:aws:s3:::YOUR_INVENTORY_BUCKET/.s3lim-intermediate/*"
+      ]
+    },
+    {
+      "Sid": "DistributedWorkflowExecution",
+      "Effect": "Allow",
+      "Action": [
+        "states:StartExecution",
+        "states:DescribeExecution",
+        "states:GetExecutionHistory"
+      ],
+      "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
+    }
+  ]
+}
+```
+
+*Note: For standard Managed IAM deployments (where `LambdaRoleArn` is omitted), these permissions and the Step Functions execution role are automatically provisioned with least-privilege scoping.*
+
+---
+
+## Performance & Metric Equivalence
+
+Both Lite Mode and Distributed Mode utilize identical analysis algorithms, guaranteeing full metric consistency:
+
+* **100% Metric Equivalence**: Distributed parallel execution yields identical counts, duplicate rates, size histograms, and top prefix rankings as single-process Lite Mode.
+* **Horizontal Scalability**: On multi-shard benchmarks (e.g. ESA Sentinel-2 L1C dataset of 19.17M objects across 10 shards), Distributed Mode achieves over **3.0x speedup** on 8 workers compared to sequential execution, reducing analysis time from ~49 seconds to ~16 seconds.
+
+---
+
+## Document: Multi-Region Deployment
 URL: https://slimstorage.io/docs/getting-started/multi-region/
 
-# Multi-Region Mode Walkthrough
+# Multi-Region Deployment Walkthrough
 
-This guide is for users who want to deploy and manage `s3lim` data plane analysis engines across multiple AWS regions and accounts simultaneously.
+This guide is for users who want to deploy and manage `s3lim` data plane analysis engines across multiple AWS regions and accounts simultaneously using CloudFormation StackSets.
 
 ## Use Case
 Since S3 Inventory reports are region-locked (reports must reside in the same region as the source S3 bucket), customers with multi-region architectures need regional deployment of the analysis engine. 
@@ -244,7 +415,7 @@ Using AWS CloudFormation StackSets allows you to create a centralized coordinato
    * **URL**: [s3lim-stackset](https://serverlessrepo.aws.amazon.com/applications) on the AWS Serverless Application Repository or deploy the local `sam-template-stackset.yaml` wrapper.
    * Provide template parameters:
      - `MarketplaceCustomerID`: The subscriber ID associated with your subscription.
-     - `BaseMethod`: The regional base deployment mode (`autopilot`, `standard`, or `readonly`) to deploy per target instance.
+     - `BaseMethod`: The regional base deployment method (`autopilot`, `standard`, or `readonly`) to deploy per target instance.
 2. **Deploy Stack Instances**: Use the AWS Console or the AWS CLI to deploy stack instances to your target accounts and regions.
 3. **Parameter Overrides**: Override S3 bucket parameter settings (e.g. `InventoryDestination` and `SourceBucketName`) to configure the unique regional S3 buckets for each instance:
 
@@ -263,43 +434,10 @@ Once S3 Inventory reports are delivered to any of your regional destination buck
 
 ---
 
-## Document: Self-Serve Deployment
-URL: https://slimstorage.io/docs/getting-started/self-serve/
-
-# Self-Serve Mode (BYO-IAM) Walkthrough
-
-This guide is for teams who require granular control over IAM roles, KMS encryption, and VPC networking. 
-
-In Self-Serve Mode, the SAM template only deploys the analysis Lambda function, allowing you to attach a pre-created, manually audited IAM execution role.
-
-## Use Case
-Ideal for **strict enterprise environments** where security compliance requires manual review and approval of all IAM policies before deployment.
-
-## Prerequisites
-* An AWS account with permissions to deploy CloudFormation and create IAM roles.
-* A pre-existing S3 Inventory report pipeline delivering reports to a destination S3 bucket.
-* A pre-created IAM role for the Lambda function. For policy templates, see the [Self-Serve IAM Requirements](docs/reference/deployment.md#read-only-mode-spec-self-serve).
-
-## Deployment Steps
-
-1. **Create the IAM Role**: Establish an IAM Role for the Lambda function containing the required permissions. You can copy the exact S3 and CloudWatch/SQS policies from the [Self-Serve IAM Specification](docs/reference/deployment.md#read-only-mode-spec-self-serve).
-2. **Launch Read-Only Stack**: Navigate to the [s3lim-readonly](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository.
-3. **Configure Stack Parameters**:
-   * Enter `InventoryDestination` (e.g., `s3://my-inventory-bucket/inventory/`).
-   * Enter `LambdaRoleArn` (the ARN of the IAM role you created in Step 1).
-   * For other options, see the [Deployment Specifications](docs/reference/deployment.md#read-only-mode-spec-self-serve).
-4. **Deploy**: Click **Deploy** to start provisioning.
-5. **Add Trigger**: Manually add an S3 Event Trigger to the destination bucket targeting the `s3lim` Lambda function to execute scans on new manifest deliveries.
-
-## Verification
-Once a new S3 Inventory report is delivered, verify execution by inspecting the CloudWatch logs for the Lambda function.
-
----
-
 ## Document: Standard Deployment
 URL: https://slimstorage.io/docs/getting-started/standard/
 
-# Standard Mode Walkthrough
+# Standard Deployment Walkthrough
 
 This guide is for users who **already have S3 Inventory reports** configured and delivered to a destination bucket, and want `s3lim` to analyze them.
 
@@ -320,7 +458,7 @@ Ideal for analyzing pre-existing inventory pipelines. `s3lim` supports two IAM p
 2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/data-plane-template.yaml`).
 3. **Configure Stack Parameters**:
    * **`InventoryDestination`**: Enter your inventory reports S3 URI.
-   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM mode, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
+   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM deployment, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
    * **`SourceBucketName`** *(optional)*: Required only if you want to run previews using S3 ListObjectsV2 API.
    * For other options, see the [Deployment Specifications](docs/reference/deployment.md#unified-data-plane-spec).
 4. **Deploy**: Click **Deploy** to start provisioning.
@@ -389,11 +527,14 @@ Attach this policy to the role. Resources are scoped strictly to the inventory b
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "S3InventoryReadAccess",
+      "Sid": "S3InventoryAccess",
       "Effect": "Allow",
       "Action": [
         "s3:GetObject",
-        "s3:ListBucket"
+        "s3:ListBucket",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion"
       ],
       "Resource": [
         "arn:aws:s3:::YOUR_INVENTORY_BUCKET",
@@ -432,6 +573,16 @@ Attach this policy to the role. Resources are scoped strictly to the inventory b
         "sqs:GetQueueAttributes"
       ],
       "Resource": "arn:aws:sqs:*:*:s3lim-*"
+    },
+    {
+      "Sid": "StepFunctionsExecution",
+      "Effect": "Allow",
+      "Action": [
+        "states:StartExecution",
+        "states:DescribeExecution",
+        "states:GetExecutionHistory"
+      ],
+      "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
     },
     {
       "Sid": "MarketplaceMetering",
@@ -483,11 +634,14 @@ function updateByoPolicies() {
           "Version": "2012-10-17",
           "Statement": [
             {
-              "Sid": "S3InventoryReadAccess",
+              "Sid": "S3InventoryAccess",
               "Effect": "Allow",
               "Action": [
                 "s3:GetObject",
-                "s3:ListBucket"
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:DeleteObjectVersion"
               ],
               "Resource": [
                 "arn:aws:s3:::" + bucketPlaceholder,
@@ -526,6 +680,16 @@ function updateByoPolicies() {
                 "sqs:GetQueueAttributes"
               ],
               "Resource": "arn:aws:sqs:*:*:s3lim-*"
+            },
+            {
+              "Sid": "StepFunctionsExecution",
+              "Effect": "Allow",
+              "Action": [
+                "states:StartExecution",
+                "states:DescribeExecution",
+                "states:GetExecutionHistory"
+              ],
+              "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
             },
             {
               "Sid": "MarketplaceMetering",
@@ -569,7 +733,9 @@ function copyCode(elementId, buttonId) {
 All permissions follow strict **least-privilege scoping** with wildcards minimized. For enterprise security audits, each wildcard (`*`) is used only where mandated by AWS IAM APIs:
 
 * **`arn:aws:s3:::<bucket>/*` (S3 Object Keys)**:
-  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions like `s3:GetObject` to read inventory manifests and data files across sub-prefixes.
+  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions (`s3:GetObject`) and Distributed Mode intermediate state storage (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim-intermediate/*`).
+* **`arn:aws:states:*:*:stateMachine:s3lim-*` (Step Functions Execution)**:
+  * **Why prefix is used**: Scopes state machine invocation and status inspection strictly to `s3lim` Step Functions workflows when operating in Distributed Mode.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`)**:
   * **Why `*` is required**: AWS CloudWatch does not support resource-level permissions (ARNs) for the `PutMetricData` API. Per AWS IAM authorization specifications, CloudWatch metric publishing requires `"Resource": "*"`.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`)**:
@@ -603,13 +769,13 @@ Description: Explore the configuration settings, deployment specifications, trig
 
 # Technical Reference
 
-This section contains technical specifications, environment variable details, deployment models, and metrics references for the `s3lim` analysis engine.
+This section contains technical specifications, environment variable details, deployment methods, and metrics references for the `s3lim` analysis engine.
 
 To help you configure and audit your deployments, we provide the following reference guides:
 
-1. **[Configuration Guide](configuration.md)**: Detailed documentation of all environment variables, execution thresholds, and configuration settings for the Lambda function.
-2. **[Analysis Triggers](triggers.md)**: Documentation of all invocation triggers supported by the `s3lim` Lambda, including S3 Event Notifications, Scheduled CloudWatch Events (cron), manual payloads, and SQS DLQ redrives.
-3. **[Deployment Specs](deployment.md)**: AWS SAM template parameters, outputs, and IAM requirements for the Autopilot and Standard deployment stacks.
+1. **[Deployment Specs](deployment.md)**: AWS SAM template parameters, execution mode configuration, outputs, and IAM requirements for the unified deployment stack.
+2. **[Lambda](lambda.md)**: Detailed documentation of all environment variables, execution thresholds, and configuration overrides for the Lambda function.
+3. **[Analysis Triggers](triggers.md)**: Documentation of all invocation triggers supported by the `s3lim` Lambda, including S3 Event Notifications, Scheduled CloudWatch Events (cron), manual payloads, and SQS DLQ redrives.
 4. **[Available Metrics](metrics.md)**: Reference of all CloudWatch custom metrics, dimensions, and namespaces generated by the core analysis engine.
 5. **[MCP Gateway (Beta)](mcp.md)**: Reference guide for connection, authentication, and tool specifications for the Model Context Protocol (MCP) gateway to integrate AI assistants.
 
@@ -619,94 +785,18 @@ To help you configure and audit your deployments, we provide the following refer
 
 Use the guides below depending on your immediate need:
 
-* **Need to change Lambda behaviors or thresholds?** Check out the [Configuration Guide](configuration.md).
+* **Auditing template parameters, execution mode settings, or IAM roles?** View the [Deployment Specs](deployment.md).
+* **Choosing between Lite and Distributed execution?** Read the [Execution Modes Guide](docs/getting-started/execution-modes.md).
+* **Need to change Lambda behaviors, envvars, or thresholds?** Check out the [Lambda Reference](lambda.md).
 * **Setting up S3 trigger rules or automated cron schedules?** Read the [Analysis Triggers](triggers.md).
-* **Auditing IAM roles or cloud formation parameters?** View the [Deployment Specs](deployment.md).
 * **Building a custom CloudWatch dashboard?** Browse the [Available Metrics](metrics.md).
 * **Connecting Claude or Amazon Q to s3lim?** Check the [MCP Gateway](mcp.md) connection details.
 
 ---
 
-## Document: Configuration
-URL: https://slimstorage.io/docs/reference/configuration/
-Description: Detailed reference for s3lim Lambda environment variables and tuning parameters.
-
-# Lambda Configuration
-
-The `s3lim` Lambda function is configured primarily through environment variables. These settings allow you to tune the analysis depth, performance, and reporting behavior.
-
-## Core Analysis Settings
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TOP_K` | `100` | The number of "heavy hitter" prefixes or objects to track per aggregator. |
-| `MAX_PREFIX_DEPTH` | `10` | Maximum depth for recursive prefix aggregation (e.g., `/a/b/c/` is depth 3). |
-| `MIN_PREFIX_DEPTH` | `1` | Minimum depth to start prefix aggregation. |
-| `DELIMITER` | `/` | The character used to separate prefix levels. |
-| `SMALL_FILE_THRESHOLD_KB` | `128` | Objects smaller than this threshold (in KB) are counted by the Small File aggregator. |
-| `CUSTOM_PREFIXES` | - | Comma-separated list of explicit custom prefixes to track (e.g., `data/import/,temp/`). |
-
-## Performance & Scaling
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CONCURRENCY` | *Auto* | Number of concurrent workers. Defaults to the number of vCPUs available (derived from Lambda memory). |
-| `BATCH_SIZE` | `1024` | Number of objects to process in a single batch before updating sketches. |
-| `K_BUFFER` | `20` | Percentage of extra capacity for internal Top-K sketches to improve accuracy. |
-
-## Metrics & Reporting
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CW_METRICS_ENABLED` | `true` | Whether to publish custom CloudWatch metrics. |
-| `CW_NAMESPACE` | `s3lim` | The CloudWatch namespace for published metrics. |
-| `CW_TOP_K` | `5` | The number of top prefixes to publish as individual CloudWatch metrics. |
-| `CW_STATS` | `object-count,bytes,duplicates,audit` | Comma-separated list of statistic categories to publish. |
-| `OUTPUT_FORMAT` | `cloudwatch` | Primary output format (`cloudwatch`, `json`, or `console`). |
-
-## Resource Requirements
-
-For processing large inventory files (billions of objects), the following settings are recommended:
-
-- **Memory**: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go's GC and the Parquet/ORC parsers benefit from a larger heap.
-- **Timeout**: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.
-- **Architecture**: `arm64` (Graviton). Optimized for price/performance.
-
-## IAM Permissions
-
-The Lambda function requires the following minimum permissions:
-
-### 1. S3 Read Access
-Required to read the inventory manifest and the data files (CSV, Parquet, or ORC).
-- `s3:GetObject` on `arn:aws:s3:::<InventoryBucket>/<Prefix>/*`
-- `s3:ListBucket` on `arn:aws:s3:::<InventoryBucket>`
-
-### 2. CloudWatch Metrics
-Required to publish the analyzed metrics.
-- `cloudwatch:PutMetricData`
-
-## Advanced Diagnostics
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `INVENTORY_DESTINATION` | - | S3 URI where inventories are delivered. Required for scheduled scans. |
-| `S3LIM_ENABLE_XRAY` | `false` | Enable AWS X-Ray tracing for deep observability. |
-| `DIAGNOSTICS_DEST` | - | Optional S3 URI to upload CPU/Mem profiles for troubleshooting. |
-
-## Custom Prefix Tracking
-
-Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically retains only the most active prefixes using sketching algorithms), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
-
-To configure custom prefixes, pass them as a comma-separated list:
-- **CLI**: Use the `--custom-prefix` flag (e.g., `--custom-prefix data/import/,temp/`).
-- **Lambda**: Set the `CUSTOM_PREFIXES` environment variable (e.g., `CUSTOM_PREFIXES="data/import/,temp/"`).
-- **SAM Template**: Specify the `CustomPrefixes` template parameter during deployment.
-
----
-
 ## Document: Deployment Specifications
 URL: https://slimstorage.io/docs/reference/deployment/
-Description: Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment models.
+Description: Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment methods.
 
 # Deployment Specifications
 
@@ -717,10 +807,10 @@ Description: Exhaustive configuration settings, template parameters, IAM permiss
 ## Unified Data Plane Spec
 Template: `data-plane-template.yaml`
 
-A single template supporting all deployment modes via parameters:
-* **Automated Setup Mode**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
-* **Existing Inventory Mode**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
-* **BYO-IAM Mode**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
+A single template supporting all deployment methods via parameters:
+* **Automated Setup Method**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
+* **Existing Inventory Method**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
+* **BYO-IAM Method**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
 
 ### Parameters
 | Name | Type | Default | Description |
@@ -740,6 +830,8 @@ A single template supporting all deployment modes via parameters:
 | `MarketplaceLicenseArn` | String | - | The license ARN associated with the Marketplace subscription. |
 | `EnableScheduleTrigger` | String | `true` | Enable daily scan schedule for existing inventory destinations or fallback polling. |
 | `LogRetentionInDays` | Number | `365` | Number of days to retain Lambda execution logs in CloudWatch. |
+| `ExecutionMode` | String | `Lite` | Execution engine: `Lite` for single-Lambda in-process execution (≤100M objects), `Distributed` for Step Functions fan-out (multi-billion objects). |
+| `WorkerMaxConcurrency` | Number | `100` | Maximum concurrent Worker Lambdas when `ExecutionMode` is `Distributed`. |
 
 ### Resources Created
 * **Lambda Function (`CoreFunction`)**: Core `s3lim` analysis processor.
@@ -756,7 +848,7 @@ A single template supporting all deployment modes via parameters:
 
 ---
 
-## IAM Requirements (BYO-IAM Mode)
+## IAM Requirements (BYO-IAM Method)
 When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role must possess the following minimum permissions:
 
 #### S3 Policy
@@ -766,7 +858,13 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
     "Statement": [
         {
             "Effect": "Allow",
-            "Action": ["s3:GetObject", "s3:ListBucket"],
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:DeleteObjectVersion"
+            ],
             "Resource": [
                 "arn:aws:s3:::your-inventory-bucket",
                 "arn:aws:s3:::your-inventory-bucket/*"
@@ -776,7 +874,7 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 }
 ```
 
-#### CloudWatch, SQS & Marketplace Policy
+#### CloudWatch, SQS, Step Functions & Marketplace Policy
 ```json
 {
     "Version": "2012-10-17",
@@ -815,6 +913,16 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
             "Resource": "arn:aws:sqs:*:*:s3lim-*"
         },
         {
+            "Sid": "StepFunctionsExecution",
+            "Effect": "Allow",
+            "Action": [
+                "states:StartExecution",
+                "states:DescribeExecution",
+                "states:GetExecutionHistory"
+            ],
+            "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
+        },
+        {
             "Sid": "MarketplaceMetering",
             "Effect": "Allow",
             "Action": [
@@ -828,10 +936,43 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 ```
 
 #### Wildcard (`*`) Rationale in IAM Policies
-* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys.
+* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys, as well as temporary intermediate state management (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim-intermediate/*`) when running in Distributed Mode.
+* **`arn:aws:states:*:*:stateMachine:s3lim-*`**: Scopes Step Functions state machine execution and status monitoring strictly to `s3lim` workflows for Distributed Mode.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`): Required because the CloudWatch `PutMetricData` API does not support resource-level ARNs in AWS IAM.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`): Required because AWS Marketplace Metering APIs do not support resource-level ARNs in AWS IAM.
 * **`arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*` & `arn:aws:sqs:*:*:s3lim-*`**: Scopes actions strictly to `s3lim` Lambda log groups and DLQ queues across deployment regions.
+
+---
+
+## Execution Modes Configuration
+
+All `s3lim` deployment templates support two operational processing engines configured through template parameters:
+
+### Parameters
+
+| Parameter | Type | Default | Allowed Values | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `ExecutionMode` | String | `Lite` | `Lite`, `Distributed` | Selects the execution engine. `Lite` runs in a single Lambda invocation; `Distributed` provisions an AWS Step Functions Distributed Map workflow. |
+| `WorkerMaxConcurrency` | Number | `100` | Minimum `1` | Maximum number of concurrent Worker Lambda invocations when `ExecutionMode` is set to `Distributed`. (Ignored in `Lite` mode). |
+
+### Concurrency Tuning & Quotas (`WorkerMaxConcurrency`)
+
+When using **Distributed Mode**, `s3lim` uses an AWS Step Functions Distributed Map to process inventory data shards in parallel.
+
+* **Quota Protection**: Setting `WorkerMaxConcurrency` prevents `s3lim` from consuming your entire regional AWS Lambda concurrent execution quota (default 1,000 unreserved concurrency per account/region).
+* **Throughput Optimization**: For inventories with hundreds or thousands of shards (e.g. multi-terabyte data lakes), increasing `WorkerMaxConcurrency` proportionally speeds up total analysis runtime.
+* **No Arbitrary Limits**: There is no hard-coded cap on `WorkerMaxConcurrency`. You can tune it to match your account's regional capacity or requested quota increases.
+* **AWS Quota Reference**: For complete information on managing unreserved concurrency, reserved concurrency, and requesting increases, see the official [AWS Lambda Concurrency Documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html).
+
+### Switching Modes (In-Place Updates)
+
+You can transition between `Lite` and `Distributed` mode at any time without rebuilding infrastructure or losing history:
+1. Open the CloudFormation console and select your `s3lim` stack.
+2. Click **Update** > **Use current template**.
+3. Change `ExecutionMode` to `Distributed` (or `Lite`) and adjust `WorkerMaxConcurrency` as needed.
+4. Review the change set and click **Submit**. CloudFormation will provision or tear down the Step Functions state machine and IAM resources in-place.
+
+For complete architectural comparisons, lifecycle diagrams, and performance benchmarks, see the **[Execution Modes Guide](docs/getting-started/execution-modes.md)**.
 
 ---
 
@@ -885,6 +1026,93 @@ aws cloudformation create-stack-instances \
   --regions us-west-2 \
   --parameter-overrides ParameterKey=InventoryDestination,ParameterValue=s3://my-inventory-bucket-us-west-2/
 ```
+
+---
+
+## Document: Lambda
+URL: https://slimstorage.io/docs/reference/lambda/
+Description: Detailed reference for s3lim Lambda environment variables, resource sizing, and direct configuration overrides.
+
+# Lambda
+
+The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports and publishes detailed metrics to Amazon CloudWatch.
+
+> [!NOTE]
+> **Deployment Template Defaults vs Direct Environment Overrides**:
+> Most of these configuration settings are automatically populated by the AWS SAM deployment templates (`data-plane-template.yaml` and `data-plane-stackset.yaml`) based on template parameters (such as `InventoryDestination`, `CustomPrefixes`, `EnableMCPGateway`, etc.).
+>
+> However, any of these settings can be customized or overridden directly in the Lambda function's environment variables via the AWS Lambda Console, AWS CLI, or Infrastructure-as-Code pipelines without modifying or redeploying the base application binary.
+
+## Core Analysis Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TOP_K` | `100` | The number of top prefixes or objects to track per aggregator. |
+| `MAX_PREFIX_DEPTH` | `10` | Maximum depth for recursive prefix aggregation (e.g., `/a/b/c/` is depth 3). |
+| `MIN_PREFIX_DEPTH` | `1` | Minimum depth to start prefix aggregation. |
+| `DELIMITER` | `/` | The character used to separate prefix levels. |
+| `SMALL_FILE_THRESHOLD_KB` | `128` | Objects smaller than this threshold (in KB) are counted by the Small File aggregator. |
+| `CUSTOM_PREFIXES` | - | Comma-separated list of explicit custom prefixes to track (e.g., `data/import/,temp/`). |
+
+## Performance & Scaling
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CONCURRENCY` | *Auto* | Number of concurrent workers. Defaults to the number of vCPUs available (derived from Lambda memory). |
+| `BATCH_SIZE` | `1024` | Number of objects to process in a single batch. |
+| `K_BUFFER` | `20` | Percentage of extra buffer capacity for top prefix aggregation to maximize accuracy. |
+
+## Metrics & Reporting
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CW_METRICS_ENABLED` | `true` | Whether to publish custom CloudWatch metrics. |
+| `CW_NAMESPACE` | `s3lim` | The CloudWatch namespace for published metrics. |
+| `CW_TOP_K` | `5` | The number of top prefixes to publish as individual CloudWatch metrics. |
+| `CW_STATS` | `object-count,bytes,duplicates,audit` | Comma-separated list of statistic categories to publish. |
+| `OUTPUT_FORMAT` | `cloudwatch` | Primary output format (`cloudwatch`, `json`, or `console`). |
+
+## Resource Requirements
+
+For processing large inventory files (billions of objects), the following settings are recommended:
+
+- **Memory**: 2048 MB (default). High-throughput streaming analysis ensures memory usage is bounded, but Go's GC and the Parquet/ORC parsers benefit from a larger heap.
+- **Timeout**: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.
+- **Architecture**: `arm64` (Graviton). Optimized for price/performance.
+
+## IAM Permissions
+
+The Lambda function execution role requires the following permissions:
+
+### 1. S3 Bucket & Inventory Access
+- `s3:GetObject` on `arn:aws:s3:::<InventoryBucket>/*` (Read inventory manifests and data files)
+- `s3:ListBucket` on `arn:aws:s3:::<InventoryBucket>` (List manifests in destination bucket)
+- `s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` on `arn:aws:s3:::<InventoryBucket>/.s3lim-intermediate/*` (*Distributed Mode*: Intermediate state storage and cleanup)
+
+### 2. Step Functions Workflow (*Distributed Mode*)
+- `states:StartExecution`, `states:DescribeExecution`, `states:GetExecutionHistory` on `arn:aws:states:*:*:stateMachine:s3lim-*`
+
+### 3. Telemetry & Metering
+- `cloudwatch:PutMetricData` (Publish custom metrics to the configured namespace)
+- `logs:CreateLogStream`, `logs:PutLogEvents`, `logs:FilterLogEvents` on `/aws/lambda/s3lim-*`
+- `sqs:SendMessage`, `sqs:ReceiveMessage`, `sqs:DeleteMessage` on Dead Letter Queues
+- `aws-marketplace:BatchMeterUsage`, `aws-marketplace:GetEntitlements` (AWS Marketplace billing)
+
+## Advanced Diagnostics
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INVENTORY_DESTINATION` | - | S3 URI where inventories are delivered. Required for scheduled scans. |
+| `S3LIM_ENABLE_XRAY` | `false` | Enable AWS X-Ray tracing for deep observability. |
+| `DIAGNOSTICS_DEST` | - | Optional S3 URI to upload CPU/Mem profiles for troubleshooting. |
+
+## Custom Prefix Tracking
+
+Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically tracks the highest-volume prefixes), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
+
+To configure custom prefixes, pass them as a comma-separated list:
+- **SAM Template**: Specify the `CustomPrefixes` template parameter during deployment (e.g., `CustomPrefixes="data/import/,temp/"`).
+- **Lambda Environment**: Set the `CUSTOM_PREFIXES` environment variable directly in Lambda (e.g., `CUSTOM_PREFIXES="data/import/,temp/"`).
 
 ---
 

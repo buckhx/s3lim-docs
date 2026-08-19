@@ -1,6 +1,6 @@
 ---
 title: "Deployment Specifications"
-description: "Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment models."
+description: "Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment methods."
 weight: 10
 ---
 
@@ -13,10 +13,10 @@ weight: 10
 ## Unified Data Plane Spec
 Template: `data-plane-template.yaml`
 
-A single template supporting all deployment modes via parameters:
-* **Automated Setup Mode**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
-* **Existing Inventory Mode**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
-* **BYO-IAM Mode**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
+A single template supporting all deployment methods via parameters:
+* **Automated Setup Method**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
+* **Existing Inventory Method**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
+* **BYO-IAM Method**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
 
 ### Parameters
 | Name | Type | Default | Description |
@@ -36,6 +36,8 @@ A single template supporting all deployment modes via parameters:
 | `MarketplaceLicenseArn` | String | - | The license ARN associated with the Marketplace subscription. |
 | `EnableScheduleTrigger` | String | `true` | Enable daily scan schedule for existing inventory destinations or fallback polling. |
 | `LogRetentionInDays` | Number | `365` | Number of days to retain Lambda execution logs in CloudWatch. |
+| `ExecutionMode` | String | `Lite` | Execution engine: `Lite` for single-Lambda in-process execution (≤100M objects), `Distributed` for Step Functions fan-out (multi-billion objects). |
+| `WorkerMaxConcurrency` | Number | `100` | Maximum concurrent Worker Lambdas when `ExecutionMode` is `Distributed`. |
 
 ### Resources Created
 * **Lambda Function (`CoreFunction`)**: Core `s3lim` analysis processor.
@@ -52,7 +54,7 @@ A single template supporting all deployment modes via parameters:
 
 ---
 
-## IAM Requirements (BYO-IAM Mode)
+## IAM Requirements (BYO-IAM Method)
 When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role must possess the following minimum permissions:
 
 #### S3 Policy
@@ -62,7 +64,13 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
     "Statement": [
         {
             "Effect": "Allow",
-            "Action": ["s3:GetObject", "s3:ListBucket"],
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:DeleteObjectVersion"
+            ],
             "Resource": [
                 "arn:aws:s3:::your-inventory-bucket",
                 "arn:aws:s3:::your-inventory-bucket/*"
@@ -72,7 +80,7 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 }
 ```
 
-#### CloudWatch, SQS & Marketplace Policy
+#### CloudWatch, SQS, Step Functions & Marketplace Policy
 ```json
 {
     "Version": "2012-10-17",
@@ -111,6 +119,16 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
             "Resource": "arn:aws:sqs:*:*:s3lim-*"
         },
         {
+            "Sid": "StepFunctionsExecution",
+            "Effect": "Allow",
+            "Action": [
+                "states:StartExecution",
+                "states:DescribeExecution",
+                "states:GetExecutionHistory"
+            ],
+            "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
+        },
+        {
             "Sid": "MarketplaceMetering",
             "Effect": "Allow",
             "Action": [
@@ -124,10 +142,43 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 ```
 
 #### Wildcard (`*`) Rationale in IAM Policies
-* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys.
+* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys, as well as temporary intermediate state management (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim-intermediate/*`) when running in Distributed Mode.
+* **`arn:aws:states:*:*:stateMachine:s3lim-*`**: Scopes Step Functions state machine execution and status monitoring strictly to `s3lim` workflows for Distributed Mode.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`): Required because the CloudWatch `PutMetricData` API does not support resource-level ARNs in AWS IAM.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`): Required because AWS Marketplace Metering APIs do not support resource-level ARNs in AWS IAM.
 * **`arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*` & `arn:aws:sqs:*:*:s3lim-*`**: Scopes actions strictly to `s3lim` Lambda log groups and DLQ queues across deployment regions.
+
+---
+
+## Execution Modes Configuration
+
+All `s3lim` deployment templates support two operational processing engines configured through template parameters:
+
+### Parameters
+
+| Parameter | Type | Default | Allowed Values | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `ExecutionMode` | String | `Lite` | `Lite`, `Distributed` | Selects the execution engine. `Lite` runs in a single Lambda invocation; `Distributed` provisions an AWS Step Functions Distributed Map workflow. |
+| `WorkerMaxConcurrency` | Number | `100` | Minimum `1` | Maximum number of concurrent Worker Lambda invocations when `ExecutionMode` is set to `Distributed`. (Ignored in `Lite` mode). |
+
+### Concurrency Tuning & Quotas (`WorkerMaxConcurrency`)
+
+When using **Distributed Mode**, `s3lim` uses an AWS Step Functions Distributed Map to process inventory data shards in parallel.
+
+* **Quota Protection**: Setting `WorkerMaxConcurrency` prevents `s3lim` from consuming your entire regional AWS Lambda concurrent execution quota (default 1,000 unreserved concurrency per account/region).
+* **Throughput Optimization**: For inventories with hundreds or thousands of shards (e.g. multi-terabyte data lakes), increasing `WorkerMaxConcurrency` proportionally speeds up total analysis runtime.
+* **No Arbitrary Limits**: There is no hard-coded cap on `WorkerMaxConcurrency`. You can tune it to match your account's regional capacity or requested quota increases.
+* **AWS Quota Reference**: For complete information on managing unreserved concurrency, reserved concurrency, and requesting increases, see the official [AWS Lambda Concurrency Documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html).
+
+### Switching Modes (In-Place Updates)
+
+You can transition between `Lite` and `Distributed` mode at any time without rebuilding infrastructure or losing history:
+1. Open the CloudFormation console and select your `s3lim` stack.
+2. Click **Update** > **Use current template**.
+3. Change `ExecutionMode` to `Distributed` (or `Lite`) and adjust `WorkerMaxConcurrency` as needed.
+4. Review the change set and click **Submit**. CloudFormation will provision or tear down the Step Functions state machine and IAM resources in-place.
+
+For complete architectural comparisons, lifecycle diagrams, and performance benchmarks, see the **[Execution Modes Guide]({{< relref "docs/getting-started/execution-modes.md" >}})**.
 
 ---
 

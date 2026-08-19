@@ -4,7 +4,7 @@
         {{ if not .Params.hide_sidebar }}
         {{ partial "sidebar.html" . }}
         {{ end }}
-        <article class="prose prose-slate max-w-none flex-grow {{ if .Params.hide_sidebar }}max-w-4xl mx-auto text-center{{ end }}">
+        <article class="prose prose-slate max-w-none flex-grow min-w-0 w-full {{ if .Params.hide_sidebar }}max-w-4xl mx-auto text-center{{ end }}">
             {{ .Content }}
 
             {{ if isset .Params "faq_items" }}

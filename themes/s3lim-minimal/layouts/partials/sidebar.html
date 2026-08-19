@@ -43,11 +43,11 @@
                 {{ with .Site.GetPage "/docs/getting-started/standard.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Standard</a></li>
                 {{ end }}
-                {{ with .Site.GetPage "/docs/getting-started/self-serve.md" }}
-                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Self-Serve</a></li>
-                {{ end }}
                 {{ with .Site.GetPage "/docs/getting-started/multi-region.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Multi-Region</a></li>
+                {{ end }}
+                {{ with .Site.GetPage "/docs/getting-started/execution-modes.md" }}
+                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Execution Modes</a></li>
                 {{ end }}
             </ul>
         </div>
@@ -58,11 +58,11 @@
             <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400">Technical Reference</h4>
             {{ end }}
             <ul class="list-none p-0 m-0 space-y-1">
-                {{ with .Site.GetPage "/docs/reference/configuration.md" }}
-                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Configuration</a></li>
-                {{ end }}
                 {{ with .Site.GetPage "/docs/reference/deployment.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Deployment</a></li>
+                {{ end }}
+                {{ with .Site.GetPage "/docs/reference/lambda.md" }}
+                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Lambda</a></li>
                 {{ end }}
                 {{ with .Site.GetPage "/docs/reference/triggers.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Triggers</a></li>
