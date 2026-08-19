@@ -1,6 +1,6 @@
 ---
 title: "Deployment Specifications"
-description: "Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment models."
+description: "Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment methods."
 weight: 10
 ---
 
@@ -13,10 +13,10 @@ weight: 10
 ## Unified Data Plane Spec
 Template: `data-plane-template.yaml`
 
-A single template supporting all deployment modes via parameters:
-* **Automated Setup Mode**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
-* **Existing Inventory Mode**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
-* **BYO-IAM Mode**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
+A single template supporting all deployment methods via parameters:
+* **Automated Setup Method**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
+* **Existing Inventory Method**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
+* **BYO-IAM Method**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
 
 ### Parameters
 | Name | Type | Default | Description |
@@ -54,7 +54,7 @@ A single template supporting all deployment modes via parameters:
 
 ---
 
-## IAM Requirements (BYO-IAM Mode)
+## IAM Requirements (BYO-IAM Method)
 When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role must possess the following minimum permissions:
 
 #### S3 Policy

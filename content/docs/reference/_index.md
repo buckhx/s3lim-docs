@@ -5,7 +5,7 @@ description: "Explore the configuration settings, deployment specifications, tri
 
 # Technical Reference
 
-This section contains technical specifications, environment variable details, deployment models, and metrics references for the `s3lim` analysis engine.
+This section contains technical specifications, environment variable details, deployment methods, and metrics references for the `s3lim` analysis engine.
 
 To help you configure and audit your deployments, we provide the following reference guides:
 

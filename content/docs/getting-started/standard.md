@@ -3,7 +3,7 @@ title: "Standard Deployment"
 weight: 2
 ---
 
-# Standard Mode Walkthrough
+# Standard Deployment Walkthrough
 
 This guide is for users who **already have S3 Inventory reports** configured and delivered to a destination bucket, and want `s3lim` to analyze them.
 
@@ -24,7 +24,7 @@ Ideal for analyzing pre-existing inventory pipelines. `s3lim` supports two IAM p
 2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/data-plane-template.yaml`).
 3. **Configure Stack Parameters**:
    * **`InventoryDestination`**: Enter your inventory reports S3 URI.
-   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM mode, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
+   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM deployment, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
    * **`SourceBucketName`** *(optional)*: Required only if you want to run previews using S3 ListObjectsV2 API.
    * For other options, see the [Deployment Specifications]({{< relref "docs/reference/deployment.md#unified-data-plane-spec" >}}).
 4. **Deploy**: Click **Deploy** to start provisioning.

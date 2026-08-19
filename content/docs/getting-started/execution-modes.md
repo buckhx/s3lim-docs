@@ -6,7 +6,9 @@ weight: 4
 
 # Execution Modes
 
-`s3lim` supports two distinct operational modes to accommodate S3 inventories ranging from small single-bucket repositories to multi-billion object enterprise data lakes. Both modes are packaged within the unified deployment template (`data-plane-template.yaml`) and can be selected via the `ExecutionMode` parameter.
+While deployment methods (such as Autopilot, Standard, and Multi-Region) define *how and where* infrastructure is provisioned, **Execution Modes** define the *runtime compute engine* used to process S3 inventory reports.
+
+`s3lim` supports two operational execution modes to accommodate S3 inventories ranging from small single-bucket repositories to multi-billion object enterprise data lakes. Both modes are supported across all deployment templates (`data-plane-template.yaml` and `data-plane-stackset.yaml`) and are configured via the `ExecutionMode` parameter.
 
 ---
 

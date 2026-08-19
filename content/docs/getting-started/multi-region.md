@@ -1,11 +1,11 @@
 ---
-title: "Multi-Region Mode"
+title: "Multi-Region Deployment"
 weight: 3
 ---
 
-# Multi-Region Mode Walkthrough
+# Multi-Region Deployment Walkthrough
 
-This guide is for users who want to deploy and manage `s3lim` data plane analysis engines across multiple AWS regions and accounts simultaneously.
+This guide is for users who want to deploy and manage `s3lim` data plane analysis engines across multiple AWS regions and accounts simultaneously using CloudFormation StackSets.
 
 ## Use Case
 Since S3 Inventory reports are region-locked (reports must reside in the same region as the source S3 bucket), customers with multi-region architectures need regional deployment of the analysis engine. 
@@ -40,7 +40,7 @@ Using AWS CloudFormation StackSets allows you to create a centralized coordinato
    * **URL**: [s3lim-stackset](https://serverlessrepo.aws.amazon.com/applications) on the AWS Serverless Application Repository or deploy the local `sam-template-stackset.yaml` wrapper.
    * Provide template parameters:
      - `MarketplaceCustomerID`: The subscriber ID associated with your subscription.
-     - `BaseMethod`: The regional base deployment mode (`autopilot`, `standard`, or `readonly`) to deploy per target instance.
+     - `BaseMethod`: The regional base deployment method (`autopilot`, `standard`, or `readonly`) to deploy per target instance.
 2. **Deploy Stack Instances**: Use the AWS Console or the AWS CLI to deploy stack instances to your target accounts and regions.
 3. **Parameter Overrides**: Override S3 bucket parameter settings (e.g. `InventoryDestination` and `SourceBucketName`) to configure the unique regional S3 buckets for each instance:
 

@@ -5,7 +5,7 @@ weight: 1
 
 # Quickstart (Autopilot)
 
-This guide is for users who want to get up and running with `s3lim` as quickly as possible using the **Autopilot** deployment mode.
+This guide is for users who want to get up and running with `s3lim` as quickly as possible using the **Autopilot** deployment method.
 This deployment method is fully managed via a CloudFormation Stack which will generate the required resources including a new bucket for the S3 Inventory Report.
 
 ## Prerequisites

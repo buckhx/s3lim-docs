@@ -141,23 +141,23 @@ If you are a subscriber via the AWS Marketplace, please include your AWS Account
 
 ## Document: Getting Started
 URL: https://slimstorage.io/docs/getting-started/
-Description: Select the best deployment mode to start analyzing S3 inventory reports and optimizing your AWS S3 storage costs.
+Description: Select the best deployment method to start analyzing S3 inventory reports and optimizing your AWS S3 storage costs.
 
 # Getting Started with s3lim
 
-`s3lim` is designed to be highly modular, allowing you to choose the deployment model that best aligns with your team's AWS permissions, security constraints, and existing infrastructure.
+`s3lim` is designed to be highly modular, allowing you to choose the deployment method that best aligns with your team's AWS permissions, security constraints, and existing infrastructure.
 
-To help you get started, we offer the following deployment modes:
+To help you get started, we offer the following deployment methods and execution guides:
 
-1. **[Autopilot Mode](autopilot.md)**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
-2. **[Standard Mode](standard.md)**: Best if you already have S3 Inventory reports configured and delivered to a bucket. Supports both automated Managed IAM and custom Bring-Your-Own-IAM (BYO-IAM) roles.
-3. **[Multi-Region Mode (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
-4. **[Execution Modes](execution-modes.md)**: Detailed guide on choosing and sizing between Fast Mode (single-Lambda) and Distributed Mode (Step Functions Distributed Map).
+1. **[Autopilot Deployment](autopilot.md)**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
+2. **[Standard Deployment](standard.md)**: Best if you already have S3 Inventory reports configured and delivered to a bucket. Supports both automated Managed IAM and custom Bring-Your-Own-IAM (BYO-IAM) roles.
+3. **[Multi-Region Deployment (StackSets)](multi-region.md)**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
+4. **[Execution Modes](execution-modes.md)**: Detailed guide on choosing and sizing the runtime compute engine between Fast Mode (single-Lambda) and Distributed Mode (Step Functions Distributed Map).
 5. **[MCP Gateway Setup](mcp.md)**: Guide on how to enable the Amazon Bedrock AgentCore MCP Gateway (by setting `EnableMCPGateway` to `true` during deployment) to connect AI assistants.
 
 ---
 
-## Choosing a Mode
+## Choosing a Deployment Method
 
 * **Choose Autopilot** if you want to optimize a bucket quickly without configuring S3 Inventory manually.
 * **Choose Standard** if S3 Inventory is already running on your buckets. Use Managed IAM for automated permissions or BYO-IAM if your security team requires pre-audited IAM roles.
@@ -174,7 +174,7 @@ URL: https://slimstorage.io/docs/getting-started/autopilot/
 
 # Quickstart (Autopilot)
 
-This guide is for users who want to get up and running with `s3lim` as quickly as possible using the **Autopilot** deployment mode.
+This guide is for users who want to get up and running with `s3lim` as quickly as possible using the **Autopilot** deployment method.
 This deployment method is fully managed via a CloudFormation Stack which will generate the required resources including a new bucket for the S3 Inventory Report.
 
 ## Prerequisites
@@ -210,7 +210,9 @@ Description: Comparison and operational guidance for Fast Mode (single-Lambda) a
 
 # Execution Modes
 
-`s3lim` supports two distinct operational modes to accommodate S3 inventories ranging from small single-bucket repositories to multi-billion object enterprise data lakes. Both modes are packaged within the unified deployment template (`data-plane-template.yaml`) and can be selected via the `ExecutionMode` parameter.
+While deployment methods (such as Autopilot, Standard, and Multi-Region) define *how and where* infrastructure is provisioned, **Execution Modes** define the *runtime compute engine* used to process S3 inventory reports.
+
+`s3lim` supports two operational execution modes to accommodate S3 inventories ranging from small single-bucket repositories to multi-billion object enterprise data lakes. Both modes are supported across all deployment templates (`data-plane-template.yaml` and `data-plane-stackset.yaml`) and are configured via the `ExecutionMode` parameter.
 
 ---
 
@@ -361,12 +363,12 @@ Both Fast Mode and Distributed Mode utilize identical mathematical sketch data s
 
 ---
 
-## Document: Multi-Region Mode
+## Document: Multi-Region Deployment
 URL: https://slimstorage.io/docs/getting-started/multi-region/
 
-# Multi-Region Mode Walkthrough
+# Multi-Region Deployment Walkthrough
 
-This guide is for users who want to deploy and manage `s3lim` data plane analysis engines across multiple AWS regions and accounts simultaneously.
+This guide is for users who want to deploy and manage `s3lim` data plane analysis engines across multiple AWS regions and accounts simultaneously using CloudFormation StackSets.
 
 ## Use Case
 Since S3 Inventory reports are region-locked (reports must reside in the same region as the source S3 bucket), customers with multi-region architectures need regional deployment of the analysis engine. 
@@ -401,7 +403,7 @@ Using AWS CloudFormation StackSets allows you to create a centralized coordinato
    * **URL**: [s3lim-stackset](https://serverlessrepo.aws.amazon.com/applications) on the AWS Serverless Application Repository or deploy the local `sam-template-stackset.yaml` wrapper.
    * Provide template parameters:
      - `MarketplaceCustomerID`: The subscriber ID associated with your subscription.
-     - `BaseMethod`: The regional base deployment mode (`autopilot`, `standard`, or `readonly`) to deploy per target instance.
+     - `BaseMethod`: The regional base deployment method (`autopilot`, `standard`, or `readonly`) to deploy per target instance.
 2. **Deploy Stack Instances**: Use the AWS Console or the AWS CLI to deploy stack instances to your target accounts and regions.
 3. **Parameter Overrides**: Override S3 bucket parameter settings (e.g. `InventoryDestination` and `SourceBucketName`) to configure the unique regional S3 buckets for each instance:
 
@@ -423,7 +425,7 @@ Once S3 Inventory reports are delivered to any of your regional destination buck
 ## Document: Standard Deployment
 URL: https://slimstorage.io/docs/getting-started/standard/
 
-# Standard Mode Walkthrough
+# Standard Deployment Walkthrough
 
 This guide is for users who **already have S3 Inventory reports** configured and delivered to a destination bucket, and want `s3lim` to analyze them.
 
@@ -444,7 +446,7 @@ Ideal for analyzing pre-existing inventory pipelines. `s3lim` supports two IAM p
 2. **Launch Stack**: Navigate to the [s3lim](https://serverlessrepo.aws.amazon.com/applications) application on the AWS Serverless Application Repository (or deploy `aws/customer/data-plane-template.yaml`).
 3. **Configure Stack Parameters**:
    * **`InventoryDestination`**: Enter your inventory reports S3 URI.
-   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM mode, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
+   * **`LambdaRoleArn`** *(optional)*: For BYO-IAM deployment, provide the ARN of your pre-audited IAM role. Leave blank for Managed IAM.
    * **`SourceBucketName`** *(optional)*: Required only if you want to run previews using S3 ListObjectsV2 API.
    * For other options, see the [Deployment Specifications](docs/reference/deployment.md#unified-data-plane-spec).
 4. **Deploy**: Click **Deploy** to start provisioning.
@@ -755,7 +757,7 @@ Description: Explore the configuration settings, deployment specifications, trig
 
 # Technical Reference
 
-This section contains technical specifications, environment variable details, deployment models, and metrics references for the `s3lim` analysis engine.
+This section contains technical specifications, environment variable details, deployment methods, and metrics references for the `s3lim` analysis engine.
 
 To help you configure and audit your deployments, we provide the following reference guides:
 
@@ -864,7 +866,7 @@ To configure custom prefixes, pass them as a comma-separated list:
 
 ## Document: Deployment Specifications
 URL: https://slimstorage.io/docs/reference/deployment/
-Description: Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment models.
+Description: Exhaustive configuration settings, template parameters, IAM permissions, and outputs for all s3lim deployment methods.
 
 # Deployment Specifications
 
@@ -875,10 +877,10 @@ Description: Exhaustive configuration settings, template parameters, IAM permiss
 ## Unified Data Plane Spec
 Template: `data-plane-template.yaml`
 
-A single template supporting all deployment modes via parameters:
-* **Automated Setup Mode**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
-* **Existing Inventory Mode**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
-* **BYO-IAM Mode**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
+A single template supporting all deployment methods via parameters:
+* **Automated Setup Method**: Set `SourceBucketName` to automatically configure S3 Inventory reporting on your source bucket(s) and auto-generate an inventory destination bucket if needed.
+* **Existing Inventory Method**: Set `InventoryDestination` to point to an existing S3 Inventory destination bucket with managed least-privilege IAM roles.
+* **BYO-IAM Method**: Set `LambdaRoleArn` to use a pre-created, manually audited IAM role without creating IAM roles in the stack.
 
 ### Parameters
 | Name | Type | Default | Description |
@@ -916,7 +918,7 @@ A single template supporting all deployment modes via parameters:
 
 ---
 
-## IAM Requirements (BYO-IAM Mode)
+## IAM Requirements (BYO-IAM Method)
 When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role must possess the following minimum permissions:
 
 #### S3 Policy
