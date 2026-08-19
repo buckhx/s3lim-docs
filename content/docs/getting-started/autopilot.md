@@ -29,7 +29,7 @@ This deployment method is fully managed via a CloudFormation Stack which will ge
 
 **Note:** It can take up to 48 hours for AWS to deliver the first S3 Inventory report. Your dashboard will have preview until then.
 
-See [configuration]({{< relref "docs/reference/configuration.md" >}}) to configure the lambdas behavior
+See the [Lambda Reference]({{< relref "docs/reference/lambda.md" >}}) to configure environment variables and customize behavior.
 
 To decommission s3lim, simply delete the CloudFormation stack
 

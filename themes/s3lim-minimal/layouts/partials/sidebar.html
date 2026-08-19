@@ -61,8 +61,8 @@
                 {{ with .Site.GetPage "/docs/reference/deployment.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Deployment</a></li>
                 {{ end }}
-                {{ with .Site.GetPage "/docs/reference/configuration.md" }}
-                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Configuration</a></li>
+                {{ with .Site.GetPage "/docs/reference/lambda.md" }}
+                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Lambda</a></li>
                 {{ end }}
                 {{ with .Site.GetPage "/docs/reference/triggers.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Triggers</a></li>

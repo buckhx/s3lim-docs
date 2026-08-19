@@ -27,7 +27,7 @@ s3lim analyzes S3 Inventory reports to surface hidden cost-saving opportunities 
 ### Core Concepts & Optimization
 - [The Small File Trap](https://slimstorage.io/about/optimization/small-file-trap/) - Detailed guide on how small objects inflate your S3 bill.
 - [Available Metrics](https://slimstorage.io/docs/reference/metrics/) - Reference for all CloudWatch data points surfaced by the s3lim engine.
-- [Configuration Guide](https://slimstorage.io/docs/reference/configuration/) - Technical reference for Lambda environment variables and tuning.
+- [Lambda](https://slimstorage.io/docs/reference/lambda/) - Technical reference for Lambda environment variables, sizing, and overrides.
 - [Deployment Specifications](https://slimstorage.io/docs/reference/deployment/) - Technical parameters, resources created, and IAM requirements for all templates.
 - [Analysis Triggers](https://slimstorage.io/docs/reference/triggers/) - Documentation on real-time event notifications, cron schedules, and SQS redrives.
 

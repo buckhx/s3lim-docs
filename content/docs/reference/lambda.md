@@ -1,15 +1,21 @@
 ---
-title: "Configuration"
-description: "Detailed reference for s3lim Lambda environment variables and tuning parameters."
+title: "Lambda"
+description: "Detailed reference for s3lim Lambda environment variables, resource sizing, and direct configuration overrides."
 weight: 30
 tech_metadata:
   dependencies: "AWS Lambda, Amazon S3, Amazon CloudWatch"
   proficiency: "Intermediate"
 ---
 
-# Lambda Configuration
+# Lambda
 
-The `s3lim` Lambda function is configured primarily through environment variables. These settings allow you to tune the analysis depth, performance, and reporting behavior.
+The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, maintains probabilistic sketch aggregators, and publishes metrics to Amazon CloudWatch.
+
+> [!NOTE]
+> **Deployment Template Defaults vs Direct Environment Overrides**:
+> Most of these configuration settings are automatically populated by the AWS SAM deployment templates (`data-plane-template.yaml` and `data-plane-stackset.yaml`) based on template parameters (such as `InventoryDestination`, `CustomPrefixes`, `EnableMCPGateway`, etc.).
+>
+> However, any of these settings can be customized or overridden directly in the Lambda function's environment variables via the AWS Lambda Console, AWS CLI, or Infrastructure-as-Code pipelines without modifying or redeploying the base application binary.
 
 ## Core Analysis Settings
 
