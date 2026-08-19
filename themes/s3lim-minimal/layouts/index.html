@@ -250,9 +250,9 @@
             <h4 class="text-blue-600 font-bold tracking-widest text-xs uppercase">{{ .Params.roadmap.subtitle }}</h4>
             <p class="text-slate-500 leading-relaxed">{{ .Params.roadmap.description }}</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-12 text-left max-w-5xl mx-auto">
+        <div class="flex flex-wrap justify-center gap-x-12 gap-y-12 text-left max-w-5xl mx-auto">
             {{ range .Params.roadmap.features }}
-            <div class="space-y-4 group">
+            <div class="w-full sm:w-[calc(50%-1.5rem)] md:w-[calc(33.333%-2rem)] max-w-sm space-y-4 group">
                 <div class="flex items-center gap-4 md:flex-col md:items-start md:gap-4">
                     <div class="text-4xl md:text-5xl group-hover:scale-110 transition-transform origin-left duration-300">{{ .icon }}</div>
                     <h3 class="text-xl font-black tracking-tight">{{ .title }}</h3>
