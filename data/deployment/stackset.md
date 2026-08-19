@@ -26,5 +26,5 @@ s3lim (Multi-Region StackSet) - Deploys s3lim data planes across multiple region
 | `SourceBucketName` | String | - | Default name of the S3 bucket to analyze (for automated inventory setup). |
 | `SourcePrefixFilter` | String | - | Optional: The prefix of the objects in the source bucket to include in the inventory. |
 | `SubnetIds` | CommaDelimitedList | - | Optional: Comma-separated list of Subnet IDs if deploying s3lim inside a private VPC. |
-| `WorkerMaxConcurrency` | Number | 100 | Maximum concurrent Worker Lambda invocations in Distributed mode (1-500). |
+| `WorkerMaxConcurrency` | Number | 100 | Maximum concurrent Worker Lambda invocations in Distributed mode. |
 

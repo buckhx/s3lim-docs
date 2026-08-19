@@ -22,7 +22,7 @@ s3lim - High-performance S3 inventory analysis tool.
 | `SourceBucketName` | String | - | Optional: The name of the S3 bucket (or a comma-separated list of buckets) to automatically configure inventory for (e.g. 'my-bucket' or 'bucket-a,bucket-b'). |
 | `SourcePrefixFilter` | String | - | Optional: The prefix of the objects in the source bucket to filter inventory analysis. |
 | `SubnetIds` | CommaDelimitedList | - | Optional: Comma-separated list of Subnet IDs if deploying s3lim inside a private VPC. |
-| `WorkerMaxConcurrency` | Number | 100 | Maximum concurrent Worker Lambda invocations in Distributed mode (1-500). |
+| `WorkerMaxConcurrency` | Number | 100 | Maximum concurrent Worker Lambda invocations in Distributed mode. |
 
 ## Outputs
 

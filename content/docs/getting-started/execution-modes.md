@@ -19,7 +19,7 @@ While deployment methods (such as Autopilot, Standard, and Multi-Region) define 
 | **Target Scale** | ≤ 100 million objects | Multi-billion objects (1,000+ shards) |
 | **Architecture** | Single in-process `CoreFunction` Lambda | AWS Step Functions Distributed Map |
 | **Execution Steps** | Direct stream scan in Lambda memory | `Init` → `Worker × N` → `Reducer` |
-| **Concurrency** | 1 (sequential shard processing) | 100 workers (configurable 1–500 via `WorkerMaxConcurrency`) |
+| **Concurrency** | 1 (sequential shard processing) | Configurable via `WorkerMaxConcurrency` (default: 100) |
 | **Intermediate State** | None (100% in-memory) | Gzip/Gob partial sketches in S3 (`.s3lim-intermediate/`) |
 | **Auto-Cleanup** | N/A | 7-day S3 Bucket Lifecycle Expiration rule |
 | **Timeout Boundary** | 15 minutes (single Lambda execution limit) | None (Step Functions coordinates distributed tasks) |
@@ -96,6 +96,16 @@ flowchart TD
    * Publishes final custom metrics to Amazon CloudWatch.
    * Emits the AWS Marketplace volume metering record.
    * Triggers background cleanup of the intermediate S3 job directory.
+
+### Regional Lambda Concurrency Limits
+
+When running in Distributed Mode, Step Functions spawns concurrent Worker Lambdas up to `WorkerMaxConcurrency` (default: `100`). There is no arbitrary hard cap enforced on `WorkerMaxConcurrency`.
+
+> [!NOTE]
+> **Managing Regional Lambda Concurrency**:
+> AWS accounts have a default regional concurrency quota (typically 1,000 concurrent executions across all Lambda functions in the region). Setting `WorkerMaxConcurrency` ensures that `s3lim` worker fan-out does not exhaust your account's unreserved concurrency or throttle other production workloads.
+>
+> If you are analyzing multi-terabyte data lakes with thousands of shards and want higher worker concurrency (e.g. 500+), verify your account's regional concurrency limit or request a quota increase via the AWS Service Quotas console. For complete guidance on quotas, reserved concurrency, and throttling behavior, refer to the official [AWS Lambda Concurrency Documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html).
 
 ---
 
