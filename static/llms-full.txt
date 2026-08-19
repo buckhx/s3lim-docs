@@ -1109,9 +1109,8 @@ The Lambda function execution role requires the following permissions:
 Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically retains only the most active prefixes using sketching algorithms), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
 
 To configure custom prefixes, pass them as a comma-separated list:
-- **CLI**: Use the `--custom-prefix` flag (e.g., `--custom-prefix data/import/,temp/`).
-- **Lambda**: Set the `CUSTOM_PREFIXES` environment variable (e.g., `CUSTOM_PREFIXES="data/import/,temp/"`).
-- **SAM Template**: Specify the `CustomPrefixes` template parameter during deployment.
+- **SAM Template**: Specify the `CustomPrefixes` template parameter during deployment (e.g., `CustomPrefixes="data/import/,temp/"`).
+- **Lambda Environment**: Set the `CUSTOM_PREFIXES` environment variable directly in Lambda (e.g., `CUSTOM_PREFIXES="data/import/,temp/"`).
 
 ---
 

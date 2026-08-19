@@ -22,7 +22,7 @@ Core technical specifications are auto-generated from Go code and AWS SAM templa
 make docs
 ```
 
-This runs the script at `scripts/gen-docs/main.go` and populates the `docs/data/` subdirectories (`cli/`, `deployment/`, and `metrics/`). These files serve as a reference for writing and editing documentation under `content/`.
+This runs the script at `scripts/gen-docs/main.go` and populates the `docs/data/` subdirectories (`deployment/` and `metrics/`). These files serve as a reference for writing and editing documentation under `content/`.
 
 ### Local Preview
 To serve the documentation locally with live reloading:
