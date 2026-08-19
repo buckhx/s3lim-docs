@@ -46,6 +46,9 @@
                 {{ with .Site.GetPage "/docs/getting-started/multi-region.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Multi-Region</a></li>
                 {{ end }}
+                {{ with .Site.GetPage "/docs/getting-started/execution-modes.md" }}
+                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Execution Modes</a></li>
+                {{ end }}
             </ul>
         </div>
         <div class="space-y-3">
@@ -57,9 +60,6 @@
             <ul class="list-none p-0 m-0 space-y-1">
                 {{ with .Site.GetPage "/docs/reference/deployment.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Deployment</a></li>
-                {{ end }}
-                {{ with .Site.GetPage "/docs/reference/execution-modes.md" }}
-                <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Execution Modes</a></li>
                 {{ end }}
                 {{ with .Site.GetPage "/docs/reference/configuration.md" }}
                 <li><a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq $.RelPermalink .RelPermalink }} active{{ end }}">Configuration</a></li>

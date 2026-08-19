@@ -1,7 +1,7 @@
 ---
 title: "Execution Modes"
 description: "Comparison and operational guidance for Fast Mode (single-Lambda) and Distributed Mode (AWS Step Functions Distributed Map)."
-weight: 15
+weight: 4
 ---
 
 # Execution Modes

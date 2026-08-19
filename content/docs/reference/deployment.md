@@ -150,14 +150,37 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 
 ---
 
-## Execution Modes Overview
+## Execution Modes Configuration
 
-`s3lim` supports two operational engines configured via the `ExecutionMode` parameter:
+All `s3lim` deployment templates support two operational processing engines configured through template parameters:
 
-* **Fast Mode (`ExecutionMode: Fast`)**: Single-Lambda execution for inventories up to 100M objects with no extra AWS resources.
-* **Distributed Mode (`ExecutionMode: Distributed`)**: AWS Step Functions Distributed Map fanning out concurrent Worker Lambdas for multi-billion object inventories.
+### Parameters
 
-For full architectural diagrams, limit protections, lifecycle steps, and IAM policies, see the comprehensive **[Execution Modes Reference]({{< relref "execution-modes.md" >}})**.
+| Parameter | Type | Default | Allowed Values | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `ExecutionMode` | String | `Fast` | `Fast`, `Distributed` | Selects the execution engine. `Fast` runs in a single Lambda invocation; `Distributed` provisions an AWS Step Functions Distributed Map workflow. |
+| `WorkerMaxConcurrency` | Number | `100` | `1` – `500` | Maximum number of concurrent Worker Lambda invocations when `ExecutionMode` is set to `Distributed`. (Ignored in `Fast` mode). |
+
+### Concurrency Tuning (`WorkerMaxConcurrency`)
+
+When using **Distributed Mode**, `s3lim` uses an AWS Step Functions Distributed Map to process inventory data shards in parallel. 
+
+* **Quota Protection**: Setting `WorkerMaxConcurrency` prevents `s3lim` from consuming your entire regional AWS Lambda concurrent execution quota (default 1,000 unreserved concurrency per account/region).
+* **Throughput Optimization**: For inventories with hundreds or thousands of shards (e.g. multi-terabyte data lakes), increasing `WorkerMaxConcurrency` proportionally speeds up total analysis runtime.
+* **Recommended Settings**:
+  * **Standard Workloads (10M – 100M objects)**: `50` – `100` (default: `100`)
+  * **High-Throughput / Multi-Billion Objects**: `200` – `500` (ensure your regional Lambda concurrency limit accommodates the spike)
+  * **Quota-Constrained Accounts**: `20` – `50`
+
+### Switching Modes (In-Place Updates)
+
+You can transition between `Fast` and `Distributed` mode at any time without rebuilding infrastructure or losing history:
+1. Open the CloudFormation console and select your `s3lim` stack.
+2. Click **Update** > **Use current template**.
+3. Change `ExecutionMode` to `Distributed` (or `Fast`) and adjust `WorkerMaxConcurrency` as needed.
+4. Review the change set and click **Submit**. CloudFormation will provision or tear down the Step Functions state machine and IAM resources in-place.
+
+For complete architectural comparisons, lifecycle diagrams, and performance benchmarks, see the **[Execution Modes Guide]({{< relref "docs/getting-started/execution-modes.md" >}})**.
 
 ---
 
