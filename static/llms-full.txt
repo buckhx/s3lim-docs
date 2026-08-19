@@ -22,7 +22,7 @@ s3lim is designed to help engineers and DevOps teams regain control of their S3 
 
 ## The Challenge
 
-Object Storage is a transformative technology and has created incredible value, but left unchecked can generate significant cost and performance issues. It's easy to let buckets grow unchecked because storage is cheap... until it's not. That's where s3lim comes in. Traditional Object Storage Observability is at a high level with aggregations at coarse granularity and there is little insight available into the contents of large buckets due to their scale. Indexing and reporting on every object would be prohibitly expensive for providers so they offer more targetted tools such Storage Lens Advanced Scopes or GCP Storage Intelligence. s3lim uses novel technology to process massive inventory files in resource constrained environments by leveraging probabilistic structures for aggregation. This leads to a tradeoff in accuracy where the exact counts may have some error margin, but captures overall trends and hotspots effectively. 
+Object Storage is a transformative technology and has created incredible value, but left unchecked can generate significant cost and performance issues. It's easy to let buckets grow unchecked because storage is cheap... until it's not. That's where s3lim comes in. Traditional Object Storage Observability is at a high level with aggregations at coarse granularity and there is little insight available into the contents of large buckets due to their scale. Indexing and reporting on every object would be prohibitively expensive for providers so they offer more targeted tools such as Storage Lens Advanced Scopes or GCP Storage Intelligence. s3lim uses streaming aggregation technology to process massive inventory files in resource-constrained serverless environments, capturing overall trends, cost drivers, and prefix hotspots with extreme speed and bounded memory. 
 
 ## Our Values
 
@@ -224,7 +224,7 @@ While deployment methods (such as Autopilot, Standard, and Multi-Region) define 
 | **Architecture** | Single in-process `CoreFunction` Lambda | AWS Step Functions Distributed Map |
 | **Execution Steps** | Direct stream scan in Lambda memory | `Init` → `Worker × N` → `Reducer` |
 | **Concurrency** | 1 (sequential shard processing) | Configurable via `WorkerMaxConcurrency` (default: 100) |
-| **Intermediate State** | None (100% in-memory) | Gzip/Gob partial sketches in S3 (`.s3lim-intermediate/`) |
+| **Intermediate State** | None (100% in-memory) | Compressed state files in S3 (`.s3lim-intermediate/`) |
 | **Auto-Cleanup** | N/A | 7-day S3 Bucket Lifecycle Expiration rule |
 | **Timeout Boundary** | 15 minutes (single Lambda execution limit) | None (Step Functions coordinates distributed tasks) |
 | **Additional AWS Resources** | None | Step Functions State Machine, IAM execution role |
@@ -233,7 +233,7 @@ While deployment methods (such as Autopilot, Standard, and Multi-Region) define 
 
 ## Fast Mode (Default)
 
-`ExecutionMode: Fast` is optimized for speed, simplicity, and low operational overhead. It executes the entire inventory parsing, sketch generation, and metric publication within a single AWS Lambda invocation without deploying state machines or writing intermediate state to S3.
+`ExecutionMode: Fast` is optimized for speed, simplicity, and low operational overhead. It executes the entire inventory parsing, metric calculation, and CloudWatch publication within a single AWS Lambda invocation without deploying state machines or writing intermediate state to S3.
 
 ```mermaid
 flowchart LR
@@ -273,10 +273,10 @@ flowchart TD
         W2["Worker Lambda 2 (Shard 1)"]
         W3["Worker Lambda N (Shard N)"]
     end
-    W1 --> S3State["Intermediate State (Gzip/Gob in S3)"]
+    W1 --> S3State["Intermediate State (S3)"]
     W2 --> S3State
     W3 --> S3State
-    S3State --> Reducer["3. Reducer Lambda (Sketch Union & Reporting)"]
+    S3State --> Reducer["3. Reducer Lambda (Result Aggregation & Reporting)"]
     Reducer --> CW[CloudWatch Metrics]
     Reducer --> MP[Marketplace Metering]
 ```
@@ -289,14 +289,14 @@ flowchart TD
 2. **Worker Lambdas (Distributed Map)**:
    The Step Functions Distributed Map spawns concurrent Worker Lambda invocations up to the configured `WorkerMaxConcurrency`. Each Worker:
    * Downloads and streams its assigned inventory data shard (CSV, Parquet, or ORC).
-   * Populates independent probabilistic sketches across all 18 aggregators (Top-K, HyperLogLog, Histograms, etc.).
-   * Serializes its aggregator state via Gzip-compressed Go `encoding/gob` binary stream.
+   * Computes independent metric aggregations across all storage categories (storage classes, size histograms, top prefixes, duplicate detection, etc.).
+   * Serializes its aggregator state via Gzip-compressed binary stream.
    * Uploads the serialized state to `s3://<InventoryBucket>/.s3lim-intermediate/<job-id>/<shard-id>.gz`.
 
 3. **Reducer Lambda**:
    Once all Worker Lambdas complete successfully:
    * Streams and deserializes all intermediate shard files from S3.
-   * Merges and unions sketches across all aggregators with zero information loss.
+   * Merges intermediate results across all shards with zero information loss.
    * Publishes final custom metrics to Amazon CloudWatch.
    * Emits the AWS Marketplace volume metering record.
    * Triggers background cleanup of the intermediate S3 job directory.
@@ -344,10 +344,12 @@ When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distrib
         "s3:DeleteObject",
         "s3:DeleteObjectVersion"
       ],
-      "Resource": "arn:aws:s3:::<your-inventory-bucket>/.s3lim-intermediate/*"
+      "Resource": [
+        "arn:aws:s3:::YOUR_INVENTORY_BUCKET/.s3lim-intermediate/*"
+      ]
     },
     {
-      "Sid": "StepFunctionsExecution",
+      "Sid": "DistributedWorkflowExecution",
       "Effect": "Allow",
       "Action": [
         "states:StartExecution",
@@ -366,9 +368,9 @@ When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distrib
 
 ## Performance & Metric Equivalence
 
-Both Fast Mode and Distributed Mode utilize identical mathematical sketch data structures (Count-Min Sketches, Space-Saving Top-K, and HyperLogLog counters), guaranteeing full metric equivalence:
+Both Fast Mode and Distributed Mode utilize identical analysis algorithms, guaranteeing full metric consistency:
 
-* **100% Metric Equivalence**: Distributed sketch union yields identical counts, duplicate rates, size histograms, and top prefix rankings as single-process Fast Mode.
+* **100% Metric Equivalence**: Distributed parallel execution yields identical counts, duplicate rates, size histograms, and top prefix rankings as single-process Fast Mode.
 * **Horizontal Scalability**: On multi-shard benchmarks (e.g. ESA Sentinel-2 L1C dataset of 19.17M objects across 10 shards), Distributed Mode achieves over **3.0x speedup** on 8 workers compared to sequential execution, reducing analysis time from ~49 seconds to ~16 seconds.
 
 ---
@@ -1033,7 +1035,7 @@ Description: Detailed reference for s3lim Lambda environment variables, resource
 
 # Lambda
 
-The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, maintains probabilistic sketch aggregators, and publishes metrics to Amazon CloudWatch.
+The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports and publishes detailed metrics to Amazon CloudWatch.
 
 > [!NOTE]
 > **Deployment Template Defaults vs Direct Environment Overrides**:
@@ -1045,7 +1047,7 @@ The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, main
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `TOP_K` | `100` | The number of "heavy hitter" prefixes or objects to track per aggregator. |
+| `TOP_K` | `100` | The number of top prefixes or objects to track per aggregator. |
 | `MAX_PREFIX_DEPTH` | `10` | Maximum depth for recursive prefix aggregation (e.g., `/a/b/c/` is depth 3). |
 | `MIN_PREFIX_DEPTH` | `1` | Minimum depth to start prefix aggregation. |
 | `DELIMITER` | `/` | The character used to separate prefix levels. |
@@ -1057,8 +1059,8 @@ The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, main
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `CONCURRENCY` | *Auto* | Number of concurrent workers. Defaults to the number of vCPUs available (derived from Lambda memory). |
-| `BATCH_SIZE` | `1024` | Number of objects to process in a single batch before updating sketches. |
-| `K_BUFFER` | `20` | Percentage of extra capacity for internal Top-K sketches to improve accuracy. |
+| `BATCH_SIZE` | `1024` | Number of objects to process in a single batch. |
+| `K_BUFFER` | `20` | Percentage of extra buffer capacity for top prefix aggregation to maximize accuracy. |
 
 ## Metrics & Reporting
 
@@ -1074,7 +1076,7 @@ The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, main
 
 For processing large inventory files (billions of objects), the following settings are recommended:
 
-- **Memory**: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go's GC and the Parquet/ORC parsers benefit from a larger heap.
+- **Memory**: 2048 MB (default). High-throughput streaming analysis ensures memory usage is bounded, but Go's GC and the Parquet/ORC parsers benefit from a larger heap.
 - **Timeout**: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.
 - **Architecture**: `arm64` (Graviton). Optimized for price/performance.
 
@@ -1106,7 +1108,7 @@ The Lambda function execution role requires the following permissions:
 
 ## Custom Prefix Tracking
 
-Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically retains only the most active prefixes using sketching algorithms), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
+Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically tracks the highest-volume prefixes), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
 
 To configure custom prefixes, pass them as a comma-separated list:
 - **SAM Template**: Specify the `CustomPrefixes` template parameter during deployment (e.g., `CustomPrefixes="data/import/,temp/"`).

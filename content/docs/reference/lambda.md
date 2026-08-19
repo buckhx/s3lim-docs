@@ -9,7 +9,7 @@ tech_metadata:
 
 # Lambda
 
-The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, maintains probabilistic sketch aggregators, and publishes metrics to Amazon CloudWatch.
+The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports and publishes detailed metrics to Amazon CloudWatch.
 
 > [!NOTE]
 > **Deployment Template Defaults vs Direct Environment Overrides**:
@@ -21,7 +21,7 @@ The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, main
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `TOP_K` | `100` | The number of "heavy hitter" prefixes or objects to track per aggregator. |
+| `TOP_K` | `100` | The number of top prefixes or objects to track per aggregator. |
 | `MAX_PREFIX_DEPTH` | `10` | Maximum depth for recursive prefix aggregation (e.g., `/a/b/c/` is depth 3). |
 | `MIN_PREFIX_DEPTH` | `1` | Minimum depth to start prefix aggregation. |
 | `DELIMITER` | `/` | The character used to separate prefix levels. |
@@ -33,8 +33,8 @@ The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, main
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `CONCURRENCY` | *Auto* | Number of concurrent workers. Defaults to the number of vCPUs available (derived from Lambda memory). |
-| `BATCH_SIZE` | `1024` | Number of objects to process in a single batch before updating sketches. |
-| `K_BUFFER` | `20` | Percentage of extra capacity for internal Top-K sketches to improve accuracy. |
+| `BATCH_SIZE` | `1024` | Number of objects to process in a single batch. |
+| `K_BUFFER` | `20` | Percentage of extra buffer capacity for top prefix aggregation to maximize accuracy. |
 
 ## Metrics & Reporting
 
@@ -50,7 +50,7 @@ The `s3lim` Lambda function (`CoreFunction`) analyzes S3 inventory reports, main
 
 For processing large inventory files (billions of objects), the following settings are recommended:
 
-- **Memory**: 2048 MB (default). Probabilistic sketches ensure memory usage is bounded, but Go's GC and the Parquet/ORC parsers benefit from a larger heap.
+- **Memory**: 2048 MB (default). High-throughput streaming analysis ensures memory usage is bounded, but Go's GC and the Parquet/ORC parsers benefit from a larger heap.
 - **Timeout**: 15 minutes (max). Large inventory files delivered in many parts may require the full execution time.
 - **Architecture**: `arm64` (Graviton). Optimized for price/performance.
 
@@ -82,7 +82,7 @@ The Lambda function execution role requires the following permissions:
 
 ## Custom Prefix Tracking
 
-Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically retains only the most active prefixes using sketching algorithms), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
+Custom Prefix Tracking allows you to explicitly configure specific S3 prefixes (directories) to monitor with 100% precision. Unlike standard Top-K prefix aggregation (which dynamically tracks the highest-volume prefixes), custom prefixes are guaranteed to never be evicted and will be audited with full precision across all active prefix-based aggregators.
 
 To configure custom prefixes, pass them as a comma-separated list:
 - **SAM Template**: Specify the `CustomPrefixes` template parameter during deployment (e.g., `CustomPrefixes="data/import/,temp/"`).

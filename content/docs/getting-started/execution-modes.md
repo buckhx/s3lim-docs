@@ -20,7 +20,7 @@ While deployment methods (such as Autopilot, Standard, and Multi-Region) define 
 | **Architecture** | Single in-process `CoreFunction` Lambda | AWS Step Functions Distributed Map |
 | **Execution Steps** | Direct stream scan in Lambda memory | `Init` → `Worker × N` → `Reducer` |
 | **Concurrency** | 1 (sequential shard processing) | Configurable via `WorkerMaxConcurrency` (default: 100) |
-| **Intermediate State** | None (100% in-memory) | Gzip/Gob partial sketches in S3 (`.s3lim-intermediate/`) |
+| **Intermediate State** | None (100% in-memory) | Compressed state files in S3 (`.s3lim-intermediate/`) |
 | **Auto-Cleanup** | N/A | 7-day S3 Bucket Lifecycle Expiration rule |
 | **Timeout Boundary** | 15 minutes (single Lambda execution limit) | None (Step Functions coordinates distributed tasks) |
 | **Additional AWS Resources** | None | Step Functions State Machine, IAM execution role |
@@ -29,7 +29,7 @@ While deployment methods (such as Autopilot, Standard, and Multi-Region) define 
 
 ## Fast Mode (Default)
 
-`ExecutionMode: Fast` is optimized for speed, simplicity, and low operational overhead. It executes the entire inventory parsing, sketch generation, and metric publication within a single AWS Lambda invocation without deploying state machines or writing intermediate state to S3.
+`ExecutionMode: Fast` is optimized for speed, simplicity, and low operational overhead. It executes the entire inventory parsing, metric calculation, and CloudWatch publication within a single AWS Lambda invocation without deploying state machines or writing intermediate state to S3.
 
 ```mermaid
 flowchart LR
@@ -69,10 +69,10 @@ flowchart TD
         W2["Worker Lambda 2 (Shard 1)"]
         W3["Worker Lambda N (Shard N)"]
     end
-    W1 --> S3State["Intermediate State (Gzip/Gob in S3)"]
+    W1 --> S3State["Intermediate State (S3)"]
     W2 --> S3State
     W3 --> S3State
-    S3State --> Reducer["3. Reducer Lambda (Sketch Union & Reporting)"]
+    S3State --> Reducer["3. Reducer Lambda (Result Aggregation & Reporting)"]
     Reducer --> CW[CloudWatch Metrics]
     Reducer --> MP[Marketplace Metering]
 ```
@@ -85,14 +85,14 @@ flowchart TD
 2. **Worker Lambdas (Distributed Map)**:
    The Step Functions Distributed Map spawns concurrent Worker Lambda invocations up to the configured `WorkerMaxConcurrency`. Each Worker:
    * Downloads and streams its assigned inventory data shard (CSV, Parquet, or ORC).
-   * Populates independent probabilistic sketches across all 18 aggregators (Top-K, HyperLogLog, Histograms, etc.).
-   * Serializes its aggregator state via Gzip-compressed Go `encoding/gob` binary stream.
+   * Computes independent metric aggregations across all storage categories (storage classes, size histograms, top prefixes, duplicate detection, etc.).
+   * Serializes its aggregator state via Gzip-compressed binary stream.
    * Uploads the serialized state to `s3://<InventoryBucket>/.s3lim-intermediate/<job-id>/<shard-id>.gz`.
 
 3. **Reducer Lambda**:
    Once all Worker Lambdas complete successfully:
    * Streams and deserializes all intermediate shard files from S3.
-   * Merges and unions sketches across all aggregators with zero information loss.
+   * Merges intermediate results across all shards with zero information loss.
    * Publishes final custom metrics to Amazon CloudWatch.
    * Emits the AWS Marketplace volume metering record.
    * Triggers background cleanup of the intermediate S3 job directory.
@@ -140,10 +140,12 @@ When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distrib
         "s3:DeleteObject",
         "s3:DeleteObjectVersion"
       ],
-      "Resource": "arn:aws:s3:::<your-inventory-bucket>/.s3lim-intermediate/*"
+      "Resource": [
+        "arn:aws:s3:::YOUR_INVENTORY_BUCKET/.s3lim-intermediate/*"
+      ]
     },
     {
-      "Sid": "StepFunctionsExecution",
+      "Sid": "DistributedWorkflowExecution",
       "Effect": "Allow",
       "Action": [
         "states:StartExecution",
@@ -162,7 +164,7 @@ When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distrib
 
 ## Performance & Metric Equivalence
 
-Both Fast Mode and Distributed Mode utilize identical mathematical sketch data structures (Count-Min Sketches, Space-Saving Top-K, and HyperLogLog counters), guaranteeing full metric equivalence:
+Both Fast Mode and Distributed Mode utilize identical analysis algorithms, guaranteeing full metric consistency:
 
-* **100% Metric Equivalence**: Distributed sketch union yields identical counts, duplicate rates, size histograms, and top prefix rankings as single-process Fast Mode.
+* **100% Metric Equivalence**: Distributed parallel execution yields identical counts, duplicate rates, size histograms, and top prefix rankings as single-process Fast Mode.
 * **Horizontal Scalability**: On multi-shard benchmarks (e.g. ESA Sentinel-2 L1C dataset of 19.17M objects across 10 shards), Distributed Mode achieves over **3.0x speedup** on 8 workers compared to sequential execution, reducing analysis time from ~49 seconds to ~16 seconds.

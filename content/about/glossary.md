@@ -11,7 +11,7 @@ glossary:
   - term: "Zero-Egress Analysis"
     definition: "A security pattern where data is analyzed entirely within the AWS account or VPC where it resides. No data is transferred across regions or to external third-party SaaS providers, eliminating data transfer costs and security risks."
   - term: "Top-K Aggregation"
-    definition: "A probabilistic algorithm used by s3lim to identify the most significant 'heavy hitter' prefixes or objects within a massive dataset using constant memory, regardless of the number of unique keys."
+    definition: "An algorithm used by s3lim to identify the highest-volume storage prefixes and cost hotspots within a massive dataset using constant memory, regardless of the number of unique keys."
 ---
 
 # S3 Optimization Glossary
