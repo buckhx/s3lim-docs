@@ -1,6 +1,6 @@
 ---
 title: "Multi-Region Mode"
-weight: 4
+weight: 3
 ---
 
 # Multi-Region Mode Walkthrough

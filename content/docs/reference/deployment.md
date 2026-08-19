@@ -133,80 +133,14 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 
 ---
 
-## Execution Modes
+## Execution Modes Overview
 
-All deployments support two execution modes controlled by the `ExecutionMode` parameter.
+`s3lim` supports two operational engines configured via the `ExecutionMode` parameter:
 
-### Fast Mode (Default)
+* **Fast Mode (`ExecutionMode: Fast`)**: Single-Lambda execution for inventories up to 100M objects with no extra AWS resources.
+* **Distributed Mode (`ExecutionMode: Distributed`)**: AWS Step Functions Distributed Map fanning out concurrent Worker Lambdas for multi-billion object inventories.
 
-`ExecutionMode: Fast` runs the full analysis in a **single Lambda invocation** — no additional infrastructure required. The Lambda streams all inventory shards sequentially in-process and publishes results directly to CloudWatch.
-
-| Attribute | Value |
-| :--- | :--- |
-| Target inventory size | ≤ 100M objects |
-| Architecture | Single `CoreFunction` Lambda |
-| Concurrency | 1 (sequential shard scan) |
-| Intermediate state | None (all in-memory) |
-| Additional AWS resources | None |
-
-#### Fast Mode Limit Protections
-
-Fast Mode includes automatic guardrails that warn before approaching limits — without aborting the scan:
-
-- **Pre-Scan Shard Warning**: Logs a `WARN` at startup if the manifest has >100 shards or >5 GB of compressed data, indicating Distributed Mode may be more appropriate.
-- **100M Object Milestone**: Logs a structured `WARN` milestone at 100,000,000 objects scanned, advising migration to Distributed Mode.
-- **Pre-Timeout Warning**: Monitors the Lambda context deadline and logs an actionable `ERROR` 90 seconds before timeout without aborting.
-- **Billing Safety**: Marketplace metering is emitted only after a successful, complete report — never on partial scans.
-
-### Distributed Mode
-
-`ExecutionMode: Distributed` routes execution through an **AWS Step Functions Distributed Map**, fanning out one Worker Lambda per inventory shard. This enables analysis of multi-billion-object inventories that would exceed Lambda's 15-minute timeout in Fast Mode.
-
-| Attribute | Value |
-| :--- | :--- |
-| Target inventory size | Multi-billion objects (1,000+ shards) |
-| Architecture | Step Functions: `Init` → `Worker × N` → `Reducer` |
-| Concurrency | 100 (configurable 1–500 via `WorkerMaxConcurrency`) |
-| Intermediate state | Gzip/Gob-encoded partial results in S3 (`.s3lim-intermediate/`) |
-| Auto-cleanup | 7-day S3 lifecycle expiration on the intermediate prefix |
-
-#### How It Works
-
-1. **Init Lambda**: Reads the inventory manifest, calculates shard assignments, and writes a job descriptor to S3.
-2. **Worker Lambdas** (fan-out): Each Worker processes a single inventory shard and serializes its partial aggregator state to `s3://<InventoryBucket>/.s3lim-intermediate/<job-id>/<shard-id>.gz`.
-3. **Reducer Lambda**: Merges all partial states, performs final Top-K sketch union, and publishes results to CloudWatch — then emits the Marketplace metering record.
-
-#### When to Use Distributed Mode
-
-Switch to `ExecutionMode: Distributed` when:
-- Your S3 bucket contains **more than 100 million objects**.
-- The inventory manifest has **more than 100 shards** or **more than 5 GB** of compressed data files.
-- Fast Mode regularly approaches or hits the **15-minute Lambda timeout**.
-
-> [!TIP]
-> You can switch modes with an in-place CloudFormation stack update — no redeployment required. The `ExecutionMode: Fast` default preserves backwards compatibility for all existing stacks.
-
-#### Additional IAM Permissions for Distributed Mode (BYO-IAM)
-
-When `ExecutionMode: Distributed` and using a BYO-IAM role (`LambdaRoleArn`), add these statements to your pre-created execution role:
-
-```json
-{
-    "Effect": "Allow",
-    "Action": ["s3:PutObject", "s3:DeleteObject", "s3:DeleteObjectVersion"],
-    "Resource": "arn:aws:s3:::<InventoryBucket>/.s3lim-intermediate/*"
-}
-```
-
-```json
-{
-    "Effect": "Allow",
-    "Action": ["states:StartExecution", "states:DescribeExecution", "states:GetExecutionHistory"],
-    "Resource": "arn:aws:states:*:*:stateMachine:s3lim-*"
-}
-```
-
-Managed deployments (without `LambdaRoleArn`) provision these permissions automatically.
+For full architectural diagrams, limit protections, lifecycle steps, and IAM policies, see the comprehensive **[Execution Modes Reference]({{< relref "execution-modes.md" >}})**.
 
 ---
 
