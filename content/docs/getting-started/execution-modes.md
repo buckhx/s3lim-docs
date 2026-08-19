@@ -14,9 +14,9 @@ weight: 4
 
 | Attribute | Fast Mode *(Default)* | Distributed Mode |
 | :--- | :--- | :--- |
-| **Target Scale** | $\le$ 100 million objects | Multi-billion objects (1,000+ shards) |
+| **Target Scale** | ≤ 100 million objects | Multi-billion objects (1,000+ shards) |
 | **Architecture** | Single in-process `CoreFunction` Lambda | AWS Step Functions Distributed Map |
-| **Execution Steps** | Direct stream scan in Lambda memory | `Init` $\to$ `Worker \times N` $\to$ `Reducer` |
+| **Execution Steps** | Direct stream scan in Lambda memory | `Init` → `Worker × N` → `Reducer` |
 | **Concurrency** | 1 (sequential shard processing) | 100 workers (configurable 1–500 via `WorkerMaxConcurrency`) |
 | **Intermediate State** | None (100% in-memory) | Gzip/Gob partial sketches in S3 (`.s3lim-intermediate/`) |
 | **Auto-Cleanup** | N/A | 7-day S3 Bucket Lifecycle Expiration rule |
@@ -101,10 +101,10 @@ flowchart TD
 
 | Trigger Indicator | Fast Mode | Distributed Mode |
 | :--- | :--- | :--- |
-| **Object Count** | $< 100\text{M}$ objects | $\ge 100\text{M}$ objects |
-| **Shard Count** | $1 - 100$ shards | $> 100$ shards |
-| **Manifest Data Volume** | $< 5\text{ GB}$ compressed | $\ge 5\text{ GB}$ compressed |
-| **Scan Execution Time** | $< 10$ minutes | Approaches 15-minute Lambda limit |
+| **Object Count** | < 100M objects | ≥ 100M objects |
+| **Shard Count** | 1–100 shards | > 100 shards |
+| **Manifest Data Volume** | < 5 GB compressed | ≥ 5 GB compressed |
+| **Scan Execution Time** | < 10 minutes | Approaches 15-minute Lambda limit |
 
 > [!TIP]
 > **In-Place Migration**: You can switch an active deployment between `Fast` and `Distributed` at any time by updating the CloudFormation stack parameter `ExecutionMode`. No data or infrastructure redeployment is necessary.
