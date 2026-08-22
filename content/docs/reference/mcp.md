@@ -96,6 +96,24 @@ Lists and ranks the top-K directories sorted by a specific waste or size metric.
   * `bucket` (string, optional): S3 bucket name to query.
 * **Output**: Ranked list of directories and their metric values.
 
+### 5. `get_recommendations`
+Retrieves prioritized optimization recommendations evaluated by the Recommendation Engine.
+* **Input**:
+  * `bucket` (string, optional): S3 bucket name to query.
+  * `prefix` (string, optional): S3 prefix path to filter recommendations.
+  * `severity` (string, optional): Filter by severity level (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`).
+  * `category` (string, optional): Filter by category (`Tiering`, `SmallFiles`, `MultipartUploads`, `GhostVersions`, `DeleteMarkers`, `StaleCache`, `Duplicates`).
+* **Output**: Ranked list of prescriptive recommendations with quantified findings, estimated savings, and copy-pasteable CLI commands or playbook steps.
+
+### 6. `explain_remediation`
+Provides detailed explanations and execution guidance for a specific recommendation rule or prefix finding.
+* **Input**:
+  * `bucket` (string, optional): S3 bucket name.
+  * `prefix` (string, optional): S3 prefix path.
+  * `category` (string, optional): Optimization category.
+  * `rule_id` (string, optional): Unique rule ID (e.g. `intelligent-tiering`, `small-file-trap`, `incomplete-multipart-uploads`).
+* **Output**: Remediation type (`DIRECT` or `PLAYBOOK`), exact CLI commands or step-by-step architectural playbook, and detailed explanation.
+
 ---
 
 ## Resources Reference

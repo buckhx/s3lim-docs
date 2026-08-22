@@ -7,6 +7,7 @@ s3lim - High-performance S3 inventory analysis tool.
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. 'data/import/,temp/'). |
+| `DistributedMaxConcurrency` | Number | 50 | Optional: The maximum number of concurrent Lambda worker executions in Step Functions Distributed Map mode. Default is 50, with maximum 3000 aligned with the 200 Billion object scale ceiling and S3 prefix rate limits. |
 | `EnableMCPGateway` | String | false | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `EnableScheduleTrigger` | String | true | Optional: Set to 'true' to enable the daily scan schedule when using existing inventory destinations or fallback polling. |
 | `ExecutionMode` | String | Lite | Execution mode for inventory analysis. 'Lite' runs in a single Lambda for standard buckets (<=100M objects). 'Distributed' fans out using AWS Step Functions Distributed Map for high-scale inventories. |
