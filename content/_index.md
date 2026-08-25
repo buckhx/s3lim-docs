@@ -46,24 +46,25 @@ pricing:
   enable: true
   title: "Simple, Volume-Based Pricing"
   subtitle: "Pay Only for What You Analyze"
-  description: "s3lim is billed directly through your AWS account. Tiered pricing is available at specific volumes. No extra procurement, no hidden fees."
+  description: "s3lim is billed directly through your AWS account. No extra procurement, no hidden fees."
   plans:
     - title: "Core Analysis"
-      price: "$0.015"
-      unit: "per million objects scanned"
+      price: "$0.15"
+      unit: "per million objects / month (first 1M free)"
       features:
-        - "Full S3 Inventory Scan"
-        - "Top-K Prefix Rollups"
-        - "In-Account Processing"
+        - "First 1,000,000 objects free every month"
+        - "Full S3 Inventory Scan & Recommendations"
+        - "Top-K Prefix Rollups & Duplicate Detection"
+        - "In-Account Processing (Zero Egress)"
         - "CloudWatch Metrics & Dashboards"
     - title: "Custom Insights"
-      price: "+$0.005"
-      unit: "per custom prefix tracked"
+      price: "+$0.05"
+      unit: "per custom prefix tracked / month"
       features:
-        - "Custom Prefix Rollups"
-        - "Advanced Filtering"
-        - "Multi-Level Aggregation"
-        - "Dedicated Reporting"
+        - "Custom Prefix Rollups & Alerts"
+        - "Targeted Capacity Tracking"
+        - "Advanced Filtering & Cost Allocation"
+        - "Dedicated Prescriptive Reporting"
 
 # roadmap
 roadmap:
