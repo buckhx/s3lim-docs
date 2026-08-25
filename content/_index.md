@@ -50,16 +50,16 @@ pricing:
   plans:
     - title: "Core Analysis"
       price: "$0.15"
-      unit: "per million objects / month (first 1M free)"
+      unit: "/ 1M objects / month"
       features:
-        - "First 1,000,000 objects free every month"
         - "Full S3 Inventory Scan & Recommendations"
         - "Top-K Prefix Rollups & Duplicate Detection"
         - "In-Account Processing (Zero Egress)"
         - "CloudWatch Metrics & Dashboards"
+        - "First 1,000,000 objects free every month"
     - title: "Custom Insights"
       price: "+$0.05"
-      unit: "per custom prefix tracked / month"
+      unit: "/ custom prefix / month"
       features:
         - "Custom Prefix Rollups & Alerts"
         - "Targeted Capacity Tracking"
