@@ -12,12 +12,12 @@ weight: 4
 
 ## Architecture Overview
 
-`s3lim` provides two execution models tailored for different deployment environments:
+`s3lim` provides two execution targets tailored for different operational environments:
 
 1. **Serverless Data Plane (AWS Marketplace & CloudFormation)**:
-   All customer data plane deployments (`data-plane-template.yaml` and `data-plane-stackset.yaml`) use **AWS Step Functions Distributed Map**. Analysis jobs automatically fan out across concurrent Lambda workers, streaming and aggregating individual inventory shards in parallel.
+   All customer data plane deployments (`data-plane-template.yaml` and `data-plane-stackset.yaml`) use the unified **Step Functions Distributed Map** execution engine. Analysis jobs automatically fan out across concurrent Worker Lambdas, streaming and aggregating individual inventory shards in parallel.
 
-2. **Local & In-Process Engine (`s3lim analyze`)**:
+2. **Local CLI Engine (`s3lim analyze`)**:
    For local developer workflows, continuous integration (CI) test suites, and standalone Model Context Protocol (MCP) tooling, `s3lim` runs as a high-performance, single-process streaming CLI binary.
 
 ---

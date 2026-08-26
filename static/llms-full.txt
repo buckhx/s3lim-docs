@@ -216,12 +216,12 @@ Description: Architecture and operational guidance for s3lim's serverless Step F
 
 ## Architecture Overview
 
-`s3lim` provides two execution models tailored for different deployment environments:
+`s3lim` provides two execution targets tailored for different operational environments:
 
 1. **Serverless Data Plane (AWS Marketplace & CloudFormation)**:
-   All customer data plane deployments (`data-plane-template.yaml` and `data-plane-stackset.yaml`) use **AWS Step Functions Distributed Map**. Analysis jobs automatically fan out across concurrent Lambda workers, streaming and aggregating individual inventory shards in parallel.
+   All customer data plane deployments (`data-plane-template.yaml` and `data-plane-stackset.yaml`) use the unified **Step Functions Distributed Map** execution engine. Analysis jobs automatically fan out across concurrent Worker Lambdas, streaming and aggregating individual inventory shards in parallel.
 
-2. **Local & In-Process Engine (`s3lim analyze`)**:
+2. **Local CLI Engine (`s3lim analyze`)**:
    For local developer workflows, continuous integration (CI) test suites, and standalone Model Context Protocol (MCP) tooling, `s3lim` runs as a high-performance, single-process streaming CLI binary.
 
 ---
@@ -699,9 +699,9 @@ function copyCode(elementId, buttonId) {
 All permissions follow strict **least-privilege scoping** with wildcards minimized. For enterprise security audits, each wildcard (`*`) is used only where mandated by AWS IAM APIs:
 
 * **`arn:aws:s3:::<bucket>/*` (S3 Object Keys)**:
-  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions (`s3:GetObject`) and Distributed Mode intermediate state storage (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim-intermediate/*`).
+  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions (`s3:GetObject`) and intermediate state storage (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim/`).
 * **`arn:aws:states:*:*:stateMachine:s3lim-*` (Step Functions Execution)**:
-  * **Why prefix is used**: Scopes state machine invocation and status inspection strictly to `s3lim` Step Functions workflows when operating in Distributed Mode.
+  * **Why prefix is used**: Scopes state machine invocation and status inspection strictly to `s3lim` Step Functions workflows.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`)**:
   * **Why `*` is required**: AWS CloudWatch does not support resource-level permissions (ARNs) for the `PutMetricData` API. Per AWS IAM authorization specifications, CloudWatch metric publishing requires `"Resource": "*"`.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`)**:
@@ -903,8 +903,8 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 ```
 
 #### Wildcard (`*`) Rationale in IAM Policies
-* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys, as well as temporary intermediate state management (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim-intermediate/*`) when running in Distributed Mode.
-* **`arn:aws:states:*:*:stateMachine:s3lim-*`**: Scopes Step Functions state machine execution and status monitoring strictly to `s3lim` workflows for Distributed Mode.
+* **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys, as well as temporary intermediate state management (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim/`).
+* **`arn:aws:states:*:*:stateMachine:s3lim-*`**: Scopes Step Functions state machine execution and status monitoring strictly to `s3lim` workflows.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`): Required because the CloudWatch `PutMetricData` API does not support resource-level ARNs in AWS IAM.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`): Required because AWS Marketplace Metering APIs do not support resource-level ARNs in AWS IAM.
 * **`arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*` & `arn:aws:sqs:*:*:s3lim-*`**: Scopes actions strictly to `s3lim` Lambda log groups and DLQ queues across deployment regions.
@@ -1043,9 +1043,9 @@ The Lambda function execution role requires the following permissions:
 ### 1. S3 Bucket & Inventory Access
 - `s3:GetObject` on `arn:aws:s3:::<InventoryBucket>/*` (Read inventory manifests and data files)
 - `s3:ListBucket` on `arn:aws:s3:::<InventoryBucket>` (List manifests in destination bucket)
-- `s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` on `arn:aws:s3:::<InventoryBucket>/.s3lim-intermediate/*` (*Distributed Mode*: Intermediate state storage and cleanup)
+- `s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` on `arn:aws:s3:::<InventoryBucket>/.s3lim/*` (Intermediate state storage and cleanup)
 
-### 2. Step Functions Workflow (*Distributed Mode*)
+### 2. Step Functions Workflow
 - `states:StartExecution`, `states:DescribeExecution`, `states:GetExecutionHistory` on `arn:aws:states:*:*:stateMachine:s3lim-*`
 
 ### 3. Telemetry & Metering

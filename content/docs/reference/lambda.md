@@ -61,9 +61,9 @@ The Lambda function execution role requires the following permissions:
 ### 1. S3 Bucket & Inventory Access
 - `s3:GetObject` on `arn:aws:s3:::<InventoryBucket>/*` (Read inventory manifests and data files)
 - `s3:ListBucket` on `arn:aws:s3:::<InventoryBucket>` (List manifests in destination bucket)
-- `s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` on `arn:aws:s3:::<InventoryBucket>/.s3lim-intermediate/*` (*Distributed Mode*: Intermediate state storage and cleanup)
+- `s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` on `arn:aws:s3:::<InventoryBucket>/.s3lim/*` (Intermediate state storage and cleanup)
 
-### 2. Step Functions Workflow (*Distributed Mode*)
+### 2. Step Functions Workflow
 - `states:StartExecution`, `states:DescribeExecution`, `states:GetExecutionHistory` on `arn:aws:states:*:*:stateMachine:s3lim-*`
 
 ### 3. Telemetry & Metering

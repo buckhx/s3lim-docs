@@ -299,9 +299,9 @@ function copyCode(elementId, buttonId) {
 All permissions follow strict **least-privilege scoping** with wildcards minimized. For enterprise security audits, each wildcard (`*`) is used only where mandated by AWS IAM APIs:
 
 * **`arn:aws:s3:::<bucket>/*` (S3 Object Keys)**:
-  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions (`s3:GetObject`) and Distributed Mode intermediate state storage (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim-intermediate/*`).
+  * **Why `*` is required**: Bucket ARNs (`arn:aws:s3:::<bucket>`) only apply to bucket actions like `s3:ListBucket`. S3 requires object ARNs (`arn:aws:s3:::<bucket>/*`) for object-level read actions (`s3:GetObject`) and intermediate state storage (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim/`).
 * **`arn:aws:states:*:*:stateMachine:s3lim-*` (Step Functions Execution)**:
-  * **Why prefix is used**: Scopes state machine invocation and status inspection strictly to `s3lim` Step Functions workflows when operating in Distributed Mode.
+  * **Why prefix is used**: Scopes state machine invocation and status inspection strictly to `s3lim` Step Functions workflows.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`)**:
   * **Why `*` is required**: AWS CloudWatch does not support resource-level permissions (ARNs) for the `PutMetricData` API. Per AWS IAM authorization specifications, CloudWatch metric publishing requires `"Resource": "*"`.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`)**:
