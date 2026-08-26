@@ -7,7 +7,7 @@ faq_items:
   - question: "How does it work?"
     answer: "s3lim utilizes a high-performance analysis engine to aggregate data on storage classes, object sizes, duplicate files, and more. It deploys directly into your AWS account via AWS Marketplace."
   - question: "Are there limits?"
-    answer: "In Lite Mode, a single Lambda execution safely processes up to 100 million objects. For multi-billion object enterprise data lakes, Distributed Mode uses AWS Step Functions Distributed Map to scale horizontally across concurrent Worker Lambdas."
+    answer: "s3lim utilizes AWS Step Functions Distributed Map to scale horizontally across concurrent Worker Lambdas, allowing it to seamlessly analyze multi-billion object enterprise data lakes and petabyte-scale manifests with zero Lambda timeout limits."
   - question: "Is my data secure?"
     answer: "Yes. s3lim analyzes the metadata provided in S3 Inventory reports, not the actual contents of your files. When deployed via our SAM templates, it runs entirely within your own AWS account. No inventory data is sent to external servers."
   - question: "How much does it cost?"

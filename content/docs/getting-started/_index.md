@@ -12,7 +12,7 @@ To help you get started, we offer the following deployment methods and execution
 1. **[Autopilot Deployment]({{< relref "autopilot.md" >}})**: The quickest, fully automated setup. Best if you want `s3lim` to configure everything—including S3 Inventory reports on your source bucket—automatically.
 2. **[Standard Deployment]({{< relref "standard.md" >}})**: Best if you already have S3 Inventory reports configured and delivered to a bucket. Supports both automated Managed IAM and custom Bring-Your-Own-IAM (BYO-IAM) roles.
 3. **[Multi-Region Deployment (StackSets)]({{< relref "multi-region.md" >}})**: Best if you want to deploy `s3lim` across multiple regions and accounts simultaneously using AWS CloudFormation StackSets.
-4. **[Execution Modes]({{< relref "execution-modes.md" >}})**: Detailed guide on choosing and sizing the runtime compute engine between Lite Mode (single-Lambda) and Distributed Mode (Step Functions Distributed Map).
+4. **[Execution Architecture]({{< relref "execution-modes.md" >}})**: Detailed guide on s3lim's serverless Step Functions Distributed Map pipeline, worker lifecycle, and concurrency tuning.
 5. **[MCP Gateway Setup]({{< relref "mcp.md" >}})**: Guide on how to enable the Amazon Bedrock AgentCore MCP Gateway (by setting `EnableMCPGateway` to `true` during deployment) to connect AI assistants.
 
 ---
@@ -22,7 +22,7 @@ To help you get started, we offer the following deployment methods and execution
 * **Choose Autopilot** if you want to optimize a bucket quickly without configuring S3 Inventory manually.
 * **Choose Standard** if S3 Inventory is already running on your buckets. Use Managed IAM for automated permissions or BYO-IAM if your security team requires pre-audited IAM roles.
 * **Choose Multi-Region (StackSets)** if you have data distributed across multiple AWS regions or accounts and want to manage a centralized analytics pipeline.
-* **Need to scale to billions of objects?** Read the [Execution Modes Guide]({{< relref "execution-modes.md" >}}) to evaluate Lite vs Distributed mode.
+* **Understanding runtime architecture & concurrency?** Read the [Execution Architecture Guide]({{< relref "execution-modes.md" >}}).
 * **Want natural language cost audits from AI agents?** Enable the [MCP Gateway Setup]({{< relref "mcp.md" >}}) on your stack.
 
 **NOTE:** Always deploy `s3lim` in the **same AWS Region** as the S3 bucket with the inventory file to avoid cross-region data transfer fees and potential timeout issues.

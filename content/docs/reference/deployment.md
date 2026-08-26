@@ -36,21 +36,22 @@ A single template supporting all deployment methods via parameters:
 | `MarketplaceLicenseArn` | String | - | The license ARN associated with the Marketplace subscription. |
 | `EnableScheduleTrigger` | String | `true` | Enable daily scan schedule for existing inventory destinations or fallback polling. |
 | `LogRetentionInDays` | Number | `365` | Number of days to retain Lambda execution logs in CloudWatch. |
-| `ExecutionMode` | String | `Lite` | Execution engine: `Lite` for single-Lambda in-process execution (≤100M objects), `Distributed` for Step Functions fan-out (multi-billion objects). |
-| `WorkerMaxConcurrency` | Number | `100` | Maximum concurrent Worker Lambdas when `ExecutionMode` is `Distributed`. |
+| `MaxConcurrency` | Number | `50` | Optional: Maximum concurrent Worker Lambda invocations in Step Functions Distributed Map pipeline. |
 
 ### Resources Created
-* **Lambda Function (`CoreFunction`)**: Core `s3lim` analysis processor.
+* **Lambda Function (`CoreFunction`)**: Core `s3lim` analysis and workflow coordinator.
+* **Step Functions State Machine (`DistributedStateMachine`)**: Distributed Map workflow for concurrent shard processing and map-reduce aggregation.
 * **SQS Queue (`ProcessingDLQ`)**: Dead Letter Queue for analysis failure handling.
 * **CloudWatch LogGroup (`CoreFunctionLogGroup`)**: Retains execution logs with configurable retention.
 * **CloudWatch Alarms (`ErrorAlarm`, `DLQDepthAlarm`)**: Built-in operational monitoring for analysis failures and DLQ depth.
-* **IAM Roles & Policies** *(managed mode only)*: Least-privilege execution roles and policies for S3 read, CloudWatch metrics, SQS, and marketplace metering.
+* **IAM Roles & Policies** *(managed mode only)*: Least-privilege execution roles and policies for S3 read, Step Functions orchestration, CloudWatch metrics, SQS, and marketplace metering.
 * **Inventory Bucket & Custom Resource** *(automated setup mode only)*: Dedicated S3 destination bucket and custom resource Lambda to configure S3 inventory on source buckets.
 * **MCP Gateway Stack** *(optional)*: Bedrock AgentCore MCP Gateway integration when enabled.
 
 ### Outputs
 * `InventoryDestinationURI`: S3 URI where S3 Inventory reports are stored.
 * `CoreFunctionArn`: ARN of the processor Lambda function.
+* `StateMachineArn`: ARN of the Step Functions Distributed Map state machine.
 
 ---
 
@@ -150,35 +151,24 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 
 ---
 
-## Execution Modes Configuration
+## Distributed Execution & Concurrency Tuning (`MaxConcurrency`)
 
-All `s3lim` deployment templates support two operational processing engines configured through template parameters:
+`s3lim` executes inventory analyses via an AWS Step Functions Distributed Map workflow, fanning out Worker Lambdas concurrently across inventory data shards.
 
 ### Parameters
 
 | Parameter | Type | Default | Allowed Values | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `ExecutionMode` | String | `Lite` | `Lite`, `Distributed` | Selects the execution engine. `Lite` runs in a single Lambda invocation; `Distributed` provisions an AWS Step Functions Distributed Map workflow. |
-| `WorkerMaxConcurrency` | Number | `100` | Minimum `1` | Maximum number of concurrent Worker Lambda invocations when `ExecutionMode` is set to `Distributed`. (Ignored in `Lite` mode). |
+| `MaxConcurrency` | Number | `50` | Minimum `1` | Maximum number of concurrent Worker Lambda invocations in the Step Functions Distributed Map workflow. |
 
-### Concurrency Tuning & Quotas (`WorkerMaxConcurrency`)
+### Concurrency Tuning & Quotas
 
-When using **Distributed Mode**, `s3lim` uses an AWS Step Functions Distributed Map to process inventory data shards in parallel.
-
-* **Quota Protection**: Setting `WorkerMaxConcurrency` prevents `s3lim` from consuming your entire regional AWS Lambda concurrent execution quota (default 1,000 unreserved concurrency per account/region).
-* **Throughput Optimization**: For inventories with hundreds or thousands of shards (e.g. multi-terabyte data lakes), increasing `WorkerMaxConcurrency` proportionally speeds up total analysis runtime.
-* **No Arbitrary Limits**: There is no hard-coded cap on `WorkerMaxConcurrency`. You can tune it to match your account's regional capacity or requested quota increases.
+* **Quota Protection**: Setting `MaxConcurrency` prevents `s3lim` from exhausting your regional AWS Lambda concurrent execution quota (default 1,000 unreserved concurrency per account/region).
+* **Throughput Optimization**: For inventories with hundreds or thousands of shards (e.g. multi-terabyte data lakes), increasing `MaxConcurrency` proportionally speeds up total analysis runtime.
+* **No Arbitrary Limits**: There is no hard-coded cap on `MaxConcurrency`. You can tune it to match your account's regional capacity or requested quota increases.
 * **AWS Quota Reference**: For complete information on managing unreserved concurrency, reserved concurrency, and requesting increases, see the official [AWS Lambda Concurrency Documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html).
 
-### Switching Modes (In-Place Updates)
-
-You can transition between `Lite` and `Distributed` mode at any time without rebuilding infrastructure or losing history:
-1. Open the CloudFormation console and select your `s3lim` stack.
-2. Click **Update** > **Use current template**.
-3. Change `ExecutionMode` to `Distributed` (or `Lite`) and adjust `WorkerMaxConcurrency` as needed.
-4. Review the change set and click **Submit**. CloudFormation will provision or tear down the Step Functions state machine and IAM resources in-place.
-
-For complete architectural comparisons, lifecycle diagrams, and performance benchmarks, see the **[Execution Modes Guide]({{< relref "docs/getting-started/execution-modes.md" >}})**.
+For complete architectural diagrams, worker lifecycles, and performance benchmarks, see the **[Execution Architecture Guide]({{< relref "docs/getting-started/execution-modes.md" >}})**.
 
 ---
 

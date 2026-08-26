@@ -7,10 +7,8 @@ s3lim - High-performance S3 inventory analysis tool.
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | `CustomPrefixes` | String | - | Optional: Comma-separated list of explicit custom prefixes to track (e.g. 'data/import/,temp/'). |
-| `DistributedMaxConcurrency` | Number | 50 | Optional: The maximum number of concurrent Lambda worker executions in Step Functions Distributed Map mode. Default is 50, with maximum 3000 aligned with the 200 Billion object scale ceiling and S3 prefix rate limits. |
 | `EnableMCPGateway` | String | false | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `EnableScheduleTrigger` | String | true | Optional: Set to 'true' to enable the daily scan schedule when using existing inventory destinations or fallback polling. |
-| `ExecutionMode` | String | Lite | Execution mode for inventory analysis. 'Lite' runs in a single Lambda for standard buckets (<=100M objects). 'Distributed' fans out using AWS Step Functions Distributed Map for high-scale inventories. |
 | `GatewayName` | String | - | Optional: The name of the Bedrock AgentCore MCP Gateway (defaults to <StackName>-mcp). |
 | `InventoryDestination` | String | - | Optional: The S3 URI where inventories are delivered (e.g. s3://my-bucket/inventory/). If not provided and SourceBucketName is set, a dedicated inventory bucket will be generated. |
 | `InventoryFormat` | String | Parquet | The format of the inventory files when configuring new inventory reports. |
@@ -19,18 +17,17 @@ s3lim - High-performance S3 inventory analysis tool.
 | `LogRetentionInDays` | Number | 365 | The number of days to retain Lambda execution logs in CloudWatch. Default is 365 days (1 year) as required by AWS Marketplace security policies. |
 | `MarketplaceCustomerAWSAccountId` | String | - | The customer's AWS Account ID associated with the Marketplace subscription. |
 | `MarketplaceLicenseArn` | String | - | The license ARN associated with the Marketplace concurrent agreement subscription. |
+| `MaxConcurrency` | Number | 50 | Optional: The maximum number of concurrent Lambda worker executions in Step Functions Distributed Map pipeline. Default is 50. |
 | `SecurityGroupIds` | CommaDelimitedList | - | Optional: Comma-separated list of Security Group IDs if deploying s3lim inside a private VPC. |
 | `SourceBucketName` | String | - | Optional: The name of the S3 bucket (or a comma-separated list of buckets) to automatically configure inventory for (e.g. 'my-bucket' or 'bucket-a,bucket-b'). |
 | `SourcePrefixFilter` | String | - | Optional: The prefix of the objects in the source bucket to filter inventory analysis. |
 | `SubnetIds` | CommaDelimitedList | - | Optional: Comma-separated list of Subnet IDs if deploying s3lim inside a private VPC. |
-| `WorkerMaxConcurrency` | Number | 100 | Maximum concurrent Worker Lambda invocations in Distributed mode. |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | `CoreFunctionArn` | Lambda function ARN |
-| `ExecutionMode` | Selected analysis execution mode (Lite or Distributed) |
 | `InventoryDestinationURI` | S3 URI where inventories are delivered |
 | `StateMachineArn` | Step Functions Distributed Map state machine ARN |
 

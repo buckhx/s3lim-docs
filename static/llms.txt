@@ -22,7 +22,7 @@ s3lim analyzes S3 Inventory reports to surface hidden cost-saving opportunities 
 - [Autopilot Deployment](https://slimstorage.io/docs/getting-started/autopilot/) - Quickest way to deploy s3lim via one-click SAM templates.
 - [Standard Deployment](https://slimstorage.io/docs/getting-started/standard/) - Step-by-step walkthrough for existing S3 inventories (Managed IAM & BYO-IAM).
 - [Multi-Region Deployment](https://slimstorage.io/docs/getting-started/multi-region/) - Centralized deployment across multiple accounts and regions with StackSets.
-- [Execution Modes](https://slimstorage.io/docs/getting-started/execution-modes/) - Sizing and selecting between Lite Mode and Distributed Mode.
+- [Execution Architecture](https://slimstorage.io/docs/getting-started/execution-modes/) - Serverless Distributed Map architecture, worker lifecycle, and concurrency tuning.
 
 ### Core Concepts & Optimization
 - [The Small File Trap](https://slimstorage.io/about/optimization/small-file-trap/) - Detailed guide on how small objects inflate your S3 bill.

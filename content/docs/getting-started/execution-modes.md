@@ -1,138 +1,106 @@
 ---
-title: "Execution Modes"
-description: "Comparison and operational guidance for Lite Mode (single-Lambda) and Distributed Mode (AWS Step Functions Distributed Map)."
+title: "Execution Architecture"
+description: "Architecture and operational guidance for s3lim's serverless Step Functions Distributed Map pipeline and local CLI engine."
 weight: 4
 ---
 
-# Execution Modes
+# Execution Architecture
 
-While deployment methods (such as Autopilot, Standard, and Multi-Region) define *how and where* infrastructure is provisioned, **Execution Modes** define the *runtime compute engine* used to process S3 inventory reports.
-
-`s3lim` supports two operational execution modes to accommodate S3 inventories ranging from small single-bucket repositories to multi-billion object enterprise data lakes. Both modes are supported across all deployment templates (`data-plane-template.yaml` and `data-plane-stackset.yaml`) and are configured via the `ExecutionMode` parameter.
+`s3lim` is engineered around a unified, horizontally scalable serverless architecture that processes S3 inventory reports of any size—from small gigabyte-scale buckets to multi-billion object enterprise data lakes—with zero Lambda timeout constraints and zero data egress.
 
 ---
 
-## Comparison Matrix
+## Architecture Overview
 
-| Attribute | Lite Mode *(Default)* | Distributed Mode |
-| :--- | :--- | :--- |
-| **Target Scale** | ≤ 100 million objects | Multi-billion objects (1,000+ shards) |
-| **Architecture** | Single in-process `CoreFunction` Lambda | AWS Step Functions Distributed Map |
-| **Execution Steps** | Direct stream scan in Lambda memory | `Init` → `Worker × N` → `Reducer` |
-| **Concurrency** | 1 (sequential shard processing) | Configurable via `WorkerMaxConcurrency` (default: 100) |
-| **Intermediate State** | None (100% in-memory) | Compressed state files in S3 (`.s3lim-intermediate/`) |
-| **Auto-Cleanup** | N/A | 7-day S3 Bucket Lifecycle Expiration rule |
-| **Timeout Boundary** | 15 minutes (single Lambda execution limit) | None (Step Functions coordinates distributed tasks) |
-| **Additional AWS Resources** | None | Step Functions State Machine, IAM execution role |
+`s3lim` provides two execution models tailored for different deployment environments:
+
+1. **Serverless Data Plane (AWS Marketplace & CloudFormation)**:
+   All customer data plane deployments (`data-plane-template.yaml` and `data-plane-stackset.yaml`) use **AWS Step Functions Distributed Map**. Analysis jobs automatically fan out across concurrent Lambda workers, streaming and aggregating individual inventory shards in parallel.
+
+2. **Local & In-Process Engine (`s3lim analyze`)**:
+   For local developer workflows, continuous integration (CI) test suites, and standalone Model Context Protocol (MCP) tooling, `s3lim` runs as a high-performance, single-process streaming CLI binary.
 
 ---
 
-## Lite Mode (Default)
+## Serverless Distributed Map Pipeline
 
-`ExecutionMode: Lite` is optimized for low resource overhead, simplicity, and zero additional infrastructure. It executes the entire inventory parsing, metric calculation, and CloudWatch publication within a single AWS Lambda invocation without deploying state machines or writing intermediate state to S3.
-
-```mermaid
-flowchart LR
-    S3[S3 Inventory Manifest & Shards] --> Lambda["CoreFunction Lambda (In-Process Stream)"]
-    Lambda --> CW[CloudWatch Metrics]
-    Lambda --> MP[Marketplace Metering]
-```
-
-### Built-in Limit Protections
-
-Lite Mode includes safety mechanisms that continuously monitor execution metrics and emit structured alerts before limits are reached—without interrupting the scan:
-
-1. **Pre-Scan Shard & Size Warning**:
-   Before reading inventory data, the Lambda inspects the manifest metadata. If the inventory contains **>100 shards** or **>5 GB of compressed data**, a structured `WARN` log is emitted recommending migration to Distributed Mode.
-
-2. **100M Object Milestone**:
-   As objects are ingested, `s3lim` logs an operational milestone at **100,000,000 scanned objects**, providing visibility into throughput and memory efficiency.
-
-3. **Pre-Timeout Diagnostic Warning**:
-   The Lambda monitors its context deadline. If the scan is still running **90 seconds before the 15-minute Lambda timeout**, `s3lim` logs an actionable `ERROR` detailing the current shard progress, processed key count, and elapsed runtime.
-
-4. **Billing Safety**:
-   AWS Marketplace metering records are emitted **strictly after a 100% complete and verified scan report**. Incomplete or timed-out scans never bill the customer.
-
----
-
-## Distributed Mode
-
-`ExecutionMode: Distributed` orchestrates analysis across an **AWS Step Functions Distributed Map**, fanning out Worker Lambdas concurrently across inventory data shards. This architecture eliminates Lambda timeout limits and scales horizontally across multi-terabyte manifests.
+The serverless data plane orchestrates analysis using AWS Step Functions Express workflows and Distributed Map:
 
 ```mermaid
 flowchart TD
-    Manifest[S3 Inventory Manifest] --> Init["1. Init Lambda (Manifest Partitioning)"]
+    Manifest[S3 Inventory Manifest] --> Init["1. Init Lambda (Manifest Partitioning & Jitter)"]
     Init --> Map["2. Step Functions Distributed Map (Worker Fan-Out)"]
     subgraph Map ["Step Functions Distributed Map"]
         W1["Worker Lambda 1 (Shard 0)"]
         W2["Worker Lambda 2 (Shard 1)"]
         W3["Worker Lambda N (Shard N)"]
     end
-    W1 --> S3State["Intermediate State (S3)"]
+    W1 --> S3State["Intermediate State (S3 .s3lim/)"]
     W2 --> S3State
     W3 --> S3State
     S3State --> Reducer["3. Reducer Lambda (Result Aggregation & Reporting)"]
-    Reducer --> CW[CloudWatch Metrics]
-    Reducer --> MP[Marketplace Metering]
+    Reducer --> CW[CloudWatch Metrics & Dashboards]
+    Reducer --> Rep[Audit Reports (S3)]
+    Reducer --> MP[Marketplace Metering (HWM)]
+    Reducer --> Cleanup["4. Cleanup (Intermediate State Pruning)"]
 ```
 
 ### Execution Lifecycle
 
 1. **Init Lambda**:
-   Downloads the inventory manifest (`manifest.json`), parses the list of data file shards, creates a unique job identifier (`job-id`), and returns the partitioned shard payloads.
+   * Reads and parses `manifest.json` to extract inventory file locations, compression formats, and total shard counts.
+   * Calculates dynamic start jitter (`0–9s`) to smoothly pace worker container cold-starts and prevent downstream throttling.
+   * Partitions shards and passes the payload to the Step Functions Distributed Map.
 
 2. **Worker Lambdas (Distributed Map)**:
-   The Step Functions Distributed Map spawns concurrent Worker Lambda invocations up to the configured `WorkerMaxConcurrency`. Each Worker:
-   * Downloads and streams its assigned inventory data shard (CSV, Parquet, or ORC).
-   * Computes independent metric aggregations across all storage categories (storage classes, size histograms, top prefixes, duplicate detection, etc.).
-   * Serializes its aggregator state via Gzip-compressed binary stream.
-   * Uploads the serialized state to `s3://<InventoryBucket>/.s3lim-intermediate/<job-id>/<shard-id>.gz`.
+   * Spawns concurrent Worker Lambda invocations up to the configured `MaxConcurrency`.
+   * Each Worker downloads and streams its assigned inventory shard (CSV, Parquet, or ORC).
+   * Computes independent metric aggregations across all storage categories (storage classes, size histograms, top prefixes, duplicate ETag detection, ghost versions).
+   * Serializes aggregator state into a Gzip-compressed binary stream and writes to `s3://<DestinationBucket>/<Prefix>/.s3lim/intermediate/<run-id>/<shard-id>.gz`.
 
 3. **Reducer Lambda**:
-   Once all Worker Lambdas complete successfully:
-   * Streams and deserializes all intermediate shard files from S3.
-   * Merges intermediate results across all shards with zero information loss.
-   * Publishes final custom metrics to Amazon CloudWatch.
-   * Emits the AWS Marketplace volume metering record.
-   * Triggers background cleanup of the intermediate S3 job directory.
+   * Streams and deserializes all intermediate shard states from S3.
+   * Merges aggregator structures across all shards with zero information loss.
+   * Generates and uploads the comprehensive JSON audit report to `s3://<DestinationBucket>/<Prefix>/.s3lim/reports/<timestamp>.json`.
+   * Publishes custom CloudWatch metrics and dashboard widgets.
+   * Evaluates Monthly High-Water Mark (HWM) usage and submits delta units to AWS Marketplace via `BatchMeterUsage`.
 
-### Regional Lambda Concurrency Limits
-
-When running in Distributed Mode, Step Functions spawns concurrent Worker Lambdas up to `WorkerMaxConcurrency` (default: `100`). There is no arbitrary hard cap enforced on `WorkerMaxConcurrency`.
-
-> [!NOTE]
-> **Managing Regional Lambda Concurrency**:
-> AWS accounts have a default regional concurrency quota (typically 1,000 concurrent executions across all Lambda functions in the region). Setting `WorkerMaxConcurrency` ensures that `s3lim` worker fan-out does not exhaust your account's unreserved concurrency or throttle other production workloads.
->
-> If you are analyzing multi-terabyte data lakes with thousands of shards and want higher worker concurrency (e.g. 500+), verify your account's regional concurrency limit or request a quota increase via the AWS Service Quotas console. For complete guidance on quotas, reserved concurrency, and throttling behavior, refer to the official [AWS Lambda Concurrency Documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html).
+4. **Cleanup Task**:
+   * Prunes all intermediate shard files under `.s3lim/intermediate/<run-id>/`.
+   * Includes fallback cleanup handlers in Step Functions to guarantee zero orphaned temporary storage even if a run fails.
 
 ---
 
-## When to Use Distributed Mode
+## Concurrency & Quota Management (`MaxConcurrency`)
 
-| Trigger Indicator | Lite Mode | Distributed Mode |
-| :--- | :--- | :--- |
-| **Object Count** | < 100M objects | ≥ 100M objects |
-| **Shard Count** | 1–100 shards | > 100 shards |
-| **Manifest Data Volume** | < 5 GB compressed | ≥ 5 GB compressed |
-| **Scan Execution Time** | < 10 minutes | Approaches 15-minute Lambda limit |
+Worker concurrency is controlled by the `MaxConcurrency` CloudFormation parameter (default: `50`).
 
-> [!TIP]
-> **In-Place Migration**: You can switch an active deployment between `Lite` and `Distributed` at any time by updating the CloudFormation stack parameter `ExecutionMode`. No data or infrastructure redeployment is necessary.
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `MaxConcurrency` | Number | `50` | Maximum number of concurrent Worker Lambda invocations in Distributed Map execution. |
+
+### Sizing Guidelines
+
+* **Default Sizing (50 Workers)**: Suitable for most accounts. Balances fast analysis turnaround with minimal consumption of regional AWS Lambda unreserved concurrency quotas.
+* **High-Throughput Scaling (100–500+ Workers)**: For multi-billion object data lakes with hundreds of inventory shards, increasing `MaxConcurrency` delivers near-linear throughput scaling.
+* **Quota Protection**: Setting `MaxConcurrency` ensures that `s3lim` worker fan-out does not exhaust your account's unreserved concurrency or throttle other production workloads.
+
+> [!NOTE]
+> **Regional Lambda Concurrency Quotas**:
+> AWS accounts typically have a default regional concurrency quota of 1,000 unreserved concurrent executions. If you plan to configure `MaxConcurrency` above 200, verify your account's regional concurrency limit or request a quota increase via the AWS Service Quotas console. For complete guidance, see the official [AWS Lambda Concurrency Documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html).
 
 ---
 
 ## IAM Policy Requirements (BYO-IAM)
 
-When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distributed Mode**, ensure the role includes permissions for intermediate S3 storage and Step Functions execution in addition to standard read permissions:
+When deploying with a custom pre-audited IAM role (`LambdaRoleArn`), ensure the role includes permissions for Step Functions execution and intermediate S3 state management:
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "DistributedIntermediateStateAccess",
+      "Sid": "S3limIntermediateStateAccess",
       "Effect": "Allow",
       "Action": [
         "s3:PutObject",
@@ -141,7 +109,7 @@ When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distrib
         "s3:DeleteObjectVersion"
       ],
       "Resource": [
-        "arn:aws:s3:::YOUR_INVENTORY_BUCKET/.s3lim-intermediate/*"
+        "arn:aws:s3:::YOUR_INVENTORY_BUCKET/*"
       ]
     },
     {
@@ -164,7 +132,6 @@ When deploying with a custom pre-audited IAM role (`LambdaRoleArn`) in **Distrib
 
 ## Performance & Metric Equivalence
 
-Both Lite Mode and Distributed Mode utilize identical analysis algorithms, guaranteeing full metric consistency:
+* **100% Mathematical Equivalence**: Merging aggregator state across distributed workers produces identical counts, duplicate rates, size histograms, and top prefix rankings as single-process streaming analysis.
+* **Benchmarked Speedup**: On multi-shard benchmarks (such as the ESA Sentinel-2 L1C dataset of 19.17M objects across 10 shards), distributed execution achieves over **3.0x speedup** on 8 workers compared to sequential processing, reducing analysis time from ~49 seconds to ~16 seconds.
 
-* **100% Metric Equivalence**: Distributed parallel execution yields identical counts, duplicate rates, size histograms, and top prefix rankings as single-process Lite Mode.
-* **Horizontal Scalability**: On multi-shard benchmarks (e.g. ESA Sentinel-2 L1C dataset of 19.17M objects across 10 shards), Distributed Mode achieves over **3.0x speedup** on 8 workers compared to sequential execution, reducing analysis time from ~49 seconds to ~16 seconds.
