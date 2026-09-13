@@ -206,9 +206,9 @@
             
             const costCW = 3.10; // Fixed monthly for metrics + small logging
             
-            // s3lim Core: Monthly High-Water Mark (HWM) pricing ($0.15 / 1M objects above 1M free tier, billed monthly regardless of daily/weekly scan frequency)
+            // s3lim Core: Monthly High-Water Mark (HWM) pricing ($0.18 / 1M objects above 1M free tier, billed monthly regardless of daily/weekly scan frequency)
             const billableM = Math.max(0, m - 1);
-            const costS3limCore = billableM * 0.15;
+            const costS3limCore = billableM * 0.18;
 
             const totalCost = costInvGen + costInvStore + costLambda + costCW + costS3limCore;
 

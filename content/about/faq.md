@@ -11,7 +11,7 @@ faq_items:
   - question: "Is my data secure?"
     answer: "Yes. s3lim analyzes the metadata provided in S3 Inventory reports, not the actual contents of your files. When deployed via our SAM templates, it runs entirely within your own AWS account. No inventory data is sent to external servers."
   - question: "How much does it cost?"
-    answer: "s3lim is billed directly through AWS Marketplace at $0.15 per million objects scanned and $0.05 per custom prefix tracked per month. The first 1,000,000 objects per bucket each month are completely free."
+    answer: "s3lim is billed directly through AWS Marketplace at $0.18 per million objects scanned per month. Custom prefixes and deep analysis are completely free with zero additional dimension charges. The first 1,000,000 objects per bucket each month are completely free."
   - question: "How does monthly billing work?"
     answer: "Billing uses a Monthly High-Water Mark (HWM) per bucket. You only pay for the peak volume scanned in a calendar month. Running automated daily scans does not bill you 30 times. If your bucket starts at 2M objects and grows by 500k mid-month, you only pay for the net new 1M boundary crossed. On the 1st of each month, the baseline resets."
   - question: "Do I need to be an AWS expert to use this?"
