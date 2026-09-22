@@ -25,8 +25,8 @@ A single template supporting all deployment methods via parameters:
 | `InventoryDestination` | String | - | Optional: The S3 URI where inventory reports are delivered (e.g. `s3://my-bucket/inventory/`). If empty and `SourceBucketName` is set, a dedicated bucket is generated. |
 | `LambdaRoleArn` | String | - | Optional: ARN of an existing IAM role for Lambda execution (BYO-IAM mode). |
 | `KmsKeyArn` | String | - | Optional: KMS Key ARN used for decrypting SSE-KMS encrypted manifests and data files. |
-| `SubnetIds` | CommaDelimitedList | - | Optional: Subnet IDs if deploying inside a private VPC. |
-| `SecurityGroupIds` | CommaDelimitedList | - | Optional: Security Group IDs if deploying inside a private VPC. |
+| `SubnetIds` | CommaDelimitedList | - | Optional: Subnet IDs if deploying inside a private VPC. Refer to [VPC Networking & Egress Configurations](#vpc-networking--egress-configurations) for isolated VPC endpoint prerequisites. |
+| `SecurityGroupIds` | CommaDelimitedList | - | Optional: Security Group IDs if deploying inside a private VPC. Requires outbound HTTPS (port 443). |
 | `EnableMCPGateway` | String | `false` | Expose the CoreFunction via an HTTP Function URL and enable MCP integrations. |
 | `GatewayName` | String | `s3lim-mcp` | Optional: The name of the Bedrock AgentCore MCP Gateway. |
 | `InventoryFormat` | String | `Parquet` | Format of inventory files (`CSV`, `ORC`, or `Parquet`). |
@@ -142,11 +142,36 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 }
 ```
 
+#### VPC Execution Policy (Optional - VPC Deployments Only)
+When deploying inside a VPC with a BYO-IAM role (`LambdaRoleArn`), attach the AWS-managed policy `AWSLambdaVPCAccessExecutionRole` or grant the following EC2 permissions to manage elastic network interfaces (ENIs):
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "LambdaVPCAccess",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CreateNetworkInterface",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DeleteNetworkInterface",
+                "ec2:AssignPrivateIpAddresses",
+                "ec2:UnassignPrivateIpAddresses"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+*(Note: When deploying with managed IAM roles, SAM automatically attaches `AWSLambdaVPCAccessExecutionRole` to the Lambda execution role whenever `SubnetIds` is specified).*
+
 #### Wildcard (`*`) Rationale in IAM Policies
 * **`arn:aws:s3:::<bucket>/*`**: Required by AWS S3 for object-level actions like `s3:GetObject` across inventory folders and keys, as well as temporary intermediate state management (`s3:PutObject`, `s3:DeleteObject`, `s3:DeleteObjectVersion` under `.s3lim/`).
 * **`arn:aws:states:*:*:stateMachine:s3lim-*`**: Scopes Step Functions state machine execution and status monitoring strictly to `s3lim` workflows.
 * **`cloudwatch:PutMetricData` (`Resource: "*"`): Required because the CloudWatch `PutMetricData` API does not support resource-level ARNs in AWS IAM.
 * **`aws-marketplace:BatchMeterUsage` / `GetEntitlements` (`Resource: "*"`): Required because AWS Marketplace Metering APIs do not support resource-level ARNs in AWS IAM.
+* **`ec2:CreateNetworkInterface` / `ec2:DescribeNetworkInterfaces` / etc. (`Resource: "*"`): Required because EC2 ENI creation and attachment APIs do not support resource-level ARNs for Lambda VPC integration.
 * **`arn:aws:logs:*:*:log-group:/aws/lambda/s3lim-*` & `arn:aws:sqs:*:*:s3lim-*`**: Scopes actions strictly to `s3lim` Lambda log groups and DLQ queues across deployment regions.
 
 ---
@@ -169,6 +194,82 @@ When using an existing IAM role via `LambdaRoleArn`, your pre-created IAM role m
 * **AWS Quota Reference**: For complete information on managing unreserved concurrency, reserved concurrency, and requesting increases, see the official [AWS Lambda Concurrency Documentation](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html).
 
 For complete architectural diagrams, worker lifecycles, and performance benchmarks, see the **[Execution Architecture Guide]({{< relref "docs/getting-started/execution-modes.md" >}})**.
+
+---
+
+## VPC Networking & Egress Configurations
+
+When deploying `s3lim` inside an Amazon VPC (`SubnetIds` and `SecurityGroupIds`), the `CoreFunction` Lambda (which runs both the Distributed Map Worker and Reducer workloads) attaches elastic network interfaces (ENIs) to the specified private subnets. Depending on your organization's security posture and network architecture, `s3lim` supports three deployment tiers:
+
+### VPC Deployment Tiers
+
+| Tier | Network Architecture | Internet Egress | Required VPC Endpoints | Operational Profile |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tier 1: Default Serverless** | No VPC (`SubnetIds` empty) | Native AWS Lambda egress | None | Standard serverless deployment. Lambdas access public AWS service endpoints directly with zero VPC setup. |
+| **Tier 2: VPC with NAT Gateway** | Private subnets with `0.0.0.0/0` route to NAT Gateway | Full outbound internet | Optional (S3 Gateway Endpoint recommended to eliminate NAT data transfer costs) | Standard enterprise VPC. Traffic to AWS service APIs (S3, EventBridge, CloudWatch) routes via the NAT Gateway. |
+| **Tier 3: Isolated VPC (Zero Egress)** | Private subnets with no route to IGW or NAT Gateway | Zero outbound internet | **Mandatory**: S3 Gateway Endpoint + EventBridge Interface Endpoint | Air-gapped, zero-egress compliance environments. All AWS API communication occurs entirely within the AWS private network. |
+
+### Tier 3 (Isolated VPC) Endpoint Prerequisites
+
+In private subnets with zero internet egress, Lambda functions cannot reach public AWS service endpoints. The following VPC Endpoints must be provisioned and associated with your VPC route tables and subnets:
+
+#### 1. Critical Execution Endpoints (Mandatory)
+* **S3 Gateway Endpoint (`com.amazonaws.<region>.s3`)**:
+  - **Endpoint Type**: Gateway Endpoint (attached directly to subnet route tables; no hourly or data processing charges).
+  - **Purpose**: Required by Worker and Reducer Lambdas to read inventory manifests, scan inventory Parquet/CSV data shards, and write intermediate state (`.s3lim/`).
+  - **Impact**: Without this endpoint, S3 API calls hang and fail with network timeouts.
+* **EventBridge Interface Endpoint (`com.amazonaws.<region>.events`)**:
+  - **Endpoint Type**: Interface Endpoint (AWS PrivateLink; provisioned into your target subnets).
+  - **Purpose**: Enables the Reducer Lambda to emit post-scan telemetry and commercial metering events (`events:PutEvents`) to the Seller EventBridge bus (`ControlPlaneEventBusArn`).
+  - **Impact**: Telemetry emission operates under a strict fail-closed contract. In isolated subnets without this endpoint, `PutEvents` calls hang until the Lambda 15-minute (900-second) timeout terminates the task, failing the Step Functions execution.
+  - **Private DNS**: Ensure **Enable DNS hostnames** and **Enable Private DNS** are enabled on the interface endpoint so that the AWS SDK resolves `events.<region>.amazonaws.com` to private ENI IP addresses.
+
+#### 2. Observability & Error Handling Endpoints (Recommended)
+* **CloudWatch Logs Interface Endpoint (`com.amazonaws.<region>.logs`)**:
+  - Enables Lambda functions to write execution logs to CloudWatch Log Groups (`/aws/lambda/s3lim-*`). Without this endpoint, Lambda executes but log events may be dropped or delayed.
+* **CloudWatch Monitoring Interface Endpoint (`com.amazonaws.<region>.monitoring`)**:
+  - Enables `cloudwatch:PutMetricData` for publishing storage analytics metrics and top contributor stats.
+* **SQS Interface Endpoint (`com.amazonaws.<region>.sqs`)**:
+  - Enables DLQ routing to `ProcessingDLQ` for failed message redrive and analysis error tracking.
+* **Marketplace Metering Interface Endpoint (`com.amazonaws.<region>.meteringmarketplace`)**:
+  - Required if deploying via AWS Marketplace paid listings to verify entitlements and register hourly metering.
+
+### Security Group Configuration
+The security groups specified in `SecurityGroupIds` must allow outbound HTTPS (TCP port 443) traffic to:
+- The S3 Gateway Endpoint prefix list (or all traffic within the VPC CIDR).
+- The Security Group attached to the Interface VPC Endpoints (`events`, `logs`, `monitoring`, `sqs`).
+
+---
+
+### Troubleshooting: Reducer Lambda Timeouts on EventBridge PutEvents
+
+#### Symptoms
+1. The Step Functions Distributed Map workflow finishes all Worker map tasks, but the `Reducer` task hangs for 15 minutes before terminating with a `States.Timeout` or `Lambda.Unknown` error.
+2. In the `CoreFunction` CloudWatch logs, the execution prints successful shard aggregation:
+   ```text
+   INFO: Successfully aggregated X shard summaries. Emitting telemetry to control plane...
+   ```
+   Followed by complete silence until the 900-second Lambda execution timeout triggers.
+
+#### Root Cause
+The stack is deployed with `SubnetIds` into an isolated private VPC that has no NAT Gateway, and either:
+1. The `com.amazonaws.<region>.events` Interface VPC Endpoint is missing.
+2. The `com.amazonaws.<region>.events` Interface VPC Endpoint has **Private DNS** disabled.
+3. The security group attached to the Interface VPC Endpoint blocks inbound TCP port 443 from the `SecurityGroupIds` assigned to `s3lim`.
+
+Because `s3lim` enforces commercial metering integrity, the Reducer attempts to emit scan telemetry with exponential backoff retries. Without network connectivity to EventBridge, the AWS Go SDK hangs until the Lambda execution timeout expires.
+
+#### Resolution Steps
+1. **Verify Outbound Internet Egress**:
+   - If using a NAT Gateway (Tier 2), verify that the subnet route table has a `0.0.0.0/0` route pointing to an active NAT Gateway in a public subnet.
+   - If running in an isolated VPC (Tier 3), confirm an Interface Endpoint for `com.amazonaws.<region>.events` exists in your VPC.
+2. **Verify Interface Endpoint Configuration**:
+   - Navigate to **VPC > Endpoints > com.amazonaws.<region>.events**.
+   - Verify that **Private DNS names enabled** is set to `true`.
+   - Check the **Security Groups** tab on the endpoint: verify that inbound HTTPS (port 443) is permitted from the `s3lim` Lambda security group (or the VPC CIDR).
+3. **Verify S3 Gateway Endpoint**:
+   - Navigate to **VPC > Endpoints > com.amazonaws.<region>.s3**.
+   - Verify that all route tables associated with the subnets in `SubnetIds` are checked under the **Route Tables** tab.
 
 ---
 
